@@ -1,0 +1,6 @@
+{
+  "name": "Verdant Realm - Cinematic Botanical Nursery",
+  "description": "An ultra-premium cinematic plant nursery digital catalogue & botanical garden experience.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
