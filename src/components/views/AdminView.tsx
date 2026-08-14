@@ -2217,12 +2217,22 @@ export const AdminView: React.FC<AdminViewProps> = ({
         {/* TAB: SETTINGS & SEO */}
         {activeTab === 'settings' && (
           <div className="bg-white p-8 rounded-3xl border border-emerald-900/10 shadow-sm space-y-8">
-            <div className="flex items-center justify-between border-b pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
               <div>
                 <h2 className="font-serif text-2xl text-[#062319]">Nursery Business Settings & SEO</h2>
-                <p className="text-xs text-emerald-800">Update contact info, address, map embed, and hero content</p>
+                <p className="text-xs text-emerald-800">Update contact info, address, phone, GST number, map embed, and hero content</p>
               </div>
-              {savedSuccess && <span className="text-xs font-bold text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full animate-bounce">{savedSuccess}</span>}
+              <div className="flex items-center gap-3">
+                {savedSuccess && <span className="text-xs font-bold text-emerald-600 bg-emerald-100 px-3 py-1.5 rounded-full shadow-xs animate-bounce">{savedSuccess}</span>}
+                <button
+                  type="button"
+                  onClick={(e) => handleSaveSettings(e as any)}
+                  className="px-5 py-2.5 rounded-xl bg-[#062319] hover:bg-[#093527] text-emerald-300 font-semibold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Save All Changes</span>
+                </button>
+              </div>
             </div>
 
             <form onSubmit={handleSaveSettings} className="space-y-6">

@@ -59,6 +59,38 @@ export async function fetchCollectionFirestore<T>(collectionName: string): Promi
   }
 }
 
+// Helper to fetch a single document from Firestore
+export async function fetchDocumentFirestore<T>(collectionName: string, docId: string): Promise<T | null> {
+  try {
+    const docRef = doc(db, collectionName, docId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data() as T;
+    }
+    return null;
+  } catch (error) {
+    console.warn(`Firestore read error for ${collectionName}/${docId}:`, error);
+    return null;
+  }
+}
+
+// Helper to listen to a single document's real-time changes
+export function subscribeDocumentFirestore<T>(collectionName: string, docId: string, callback: (data: T) => void) {
+  try {
+    const docRef = doc(db, collectionName, docId);
+    return onSnapshot(docRef, (snapshot) => {
+      if (snapshot.exists()) {
+        callback(snapshot.data() as T);
+      }
+    }, (err) => {
+      console.warn(`Firestore document snapshot error for ${collectionName}/${docId}:`, err);
+    });
+  } catch (err) {
+    console.warn(`Failed to subscribe to document ${collectionName}/${docId}:`, err);
+    return () => {};
+  }
+}
+
 // Helper to listen to real-time changes
 export function subscribeCollectionFirestore<T>(collectionName: string, callback: (data: T[]) => void) {
   try {

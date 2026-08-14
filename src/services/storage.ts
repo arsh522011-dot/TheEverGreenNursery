@@ -9,7 +9,14 @@ import {
   INITIAL_TESTIMONIALS,
   INITIAL_INQUIRIES,
 } from '../data/mockData';
-import { saveDocumentFirestore, deleteDocumentFirestore, fetchCollectionFirestore, subscribeCollectionFirestore } from './firebase';
+import {
+  saveDocumentFirestore,
+  deleteDocumentFirestore,
+  fetchCollectionFirestore,
+  fetchDocumentFirestore,
+  subscribeCollectionFirestore,
+  subscribeDocumentFirestore,
+} from './firebase';
 
 const STORAGE_KEYS = {
   SETTINGS: 'verdant_realm_settings_v1',
@@ -245,17 +252,70 @@ export const StorageService = {
   // Async sync with Firestore on initial app launch
   async initFirebaseSync(onSyncComplete?: () => void): Promise<void> {
     try {
-      // Sync plants from Firestore
+      // 1. Sync Site Settings from Firestore
+      const remoteSettings = await fetchDocumentFirestore<SiteSettings>('settings', 'site_config');
+      if (remoteSettings !== null) {
+        setStoredItem(STORAGE_KEYS.SETTINGS, remoteSettings);
+      } else {
+        // If not yet saved in Firestore, seed current stored settings
+        const currentSettings = this.getSettings();
+        saveDocumentFirestore('settings', 'site_config', currentSettings);
+      }
+
+      // Realtime listener for live settings updates across tabs and devices
+      subscribeDocumentFirestore<SiteSettings>('settings', 'site_config', (updatedSettings) => {
+        if (updatedSettings) {
+          setStoredItem(STORAGE_KEYS.SETTINGS, updatedSettings);
+          if (onSyncComplete) onSyncComplete();
+        }
+      });
+
+      // 2. Sync categories from Firestore
+      const remoteCategories = await fetchCollectionFirestore<Category>('categories');
+      if (remoteCategories !== null && remoteCategories.length > 0) {
+        setStoredItem(STORAGE_KEYS.CATEGORIES, remoteCategories);
+      } else if (remoteCategories === null) {
+        const currentCats = getStoredItem<Category[]>(STORAGE_KEYS.CATEGORIES, INITIAL_CATEGORIES);
+        currentCats.forEach((c) => saveDocumentFirestore('categories', c.id, c));
+      }
+
+      // 3. Sync plants from Firestore
       const remotePlants = await fetchCollectionFirestore<Plant>('plants');
       if (remotePlants !== null && remotePlants.length > 0) {
         setStoredItem(STORAGE_KEYS.PLANTS, remotePlants);
       } else if (remotePlants === null) {
-        // Seed initial plants to Firestore only if collection doesn't exist
         const current = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, INITIAL_PLANTS);
         current.forEach((p) => saveDocumentFirestore('plants', p.id, p));
       }
 
-      // Sync inquiries from Firestore
+      // 4. Sync services from Firestore
+      const remoteServices = await fetchCollectionFirestore<Service>('services');
+      if (remoteServices !== null && remoteServices.length > 0) {
+        setStoredItem(STORAGE_KEYS.SERVICES, remoteServices);
+      } else if (remoteServices === null) {
+        const currentSrv = getStoredItem<Service[]>(STORAGE_KEYS.SERVICES, INITIAL_SERVICES);
+        currentSrv.forEach((s) => saveDocumentFirestore('services', s.id, s));
+      }
+
+      // 5. Sync projects from Firestore
+      const remoteProjects = await fetchCollectionFirestore<Project>('projects');
+      if (remoteProjects !== null && remoteProjects.length > 0) {
+        setStoredItem(STORAGE_KEYS.PROJECTS, remoteProjects);
+      } else if (remoteProjects === null) {
+        const currentProj = getStoredItem<Project[]>(STORAGE_KEYS.PROJECTS, INITIAL_PROJECTS);
+        currentProj.forEach((pr) => saveDocumentFirestore('projects', pr.id, pr));
+      }
+
+      // 6. Sync gallery from Firestore
+      const remoteGallery = await fetchCollectionFirestore<GalleryItem>('gallery');
+      if (remoteGallery !== null && remoteGallery.length > 0) {
+        setStoredItem(STORAGE_KEYS.GALLERY, remoteGallery);
+      } else if (remoteGallery === null) {
+        const currentGal = getStoredItem<GalleryItem[]>(STORAGE_KEYS.GALLERY, INITIAL_GALLERY);
+        currentGal.forEach((g) => saveDocumentFirestore('gallery', g.id, g));
+      }
+
+      // 7. Sync inquiries from Firestore
       const remoteInquiries = await fetchCollectionFirestore<CustomerInquiry>('inquiries');
       if (remoteInquiries !== null && remoteInquiries.length > 0) {
         setStoredItem(STORAGE_KEYS.INQUIRIES, remoteInquiries);
@@ -264,7 +324,7 @@ export const StorageService = {
         currentInq.forEach((inq) => saveDocumentFirestore('inquiries', inq.id, inq));
       }
 
-      // Sync testimonials
+      // 8. Sync testimonials from Firestore
       const remoteTestimonials = await fetchCollectionFirestore<Testimonial>('testimonials');
       if (remoteTestimonials !== null && remoteTestimonials.length > 0) {
         setStoredItem(STORAGE_KEYS.TESTIMONIALS, remoteTestimonials);
