@@ -56,11 +56,11 @@ export const EnquiryModal: React.FC<EnquiryModalProps> = ({
 
   const getInitialMessage = (plant?: Plant | null, service?: Service | null) => {
     if (plant) {
-      return `Hello Verdant Realm, I am interested in acquiring or learning more about the "${plant.name}" (${plant.scientificName}). Please share details regarding current availability, height, and specimen care.`;
+      return `Hello The Ever Green Nursery, I am interested in acquiring or learning more about the "${plant.name}" (${plant.scientificName}). Please share details regarding current availability, height, and specimen care.`;
     } else if (service) {
-      return `Hello Verdant Realm, I would like to schedule a consultation regarding your "${service.title}" service for my property.`;
+      return `Hello The Ever Green Nursery, I would like to schedule a consultation regarding your "${service.title}" service for my property.`;
     } else {
-      return 'Hello Verdant Realm Nursery, I would like to inquire about plant availability, landscape design, or nursery visits.';
+      return 'Hello The Ever Green Nursery, I would like to inquire about plant availability, landscape design, or nursery visits.';
     }
   };
 
@@ -386,7 +386,7 @@ export const EnquiryModal: React.FC<EnquiryModalProps> = ({
             </h3>
 
             <p className="text-emerald-300/80 text-sm max-w-md mx-auto leading-relaxed">
-              Thank you, <span className="text-emerald-200 font-semibold">{lastSubmittedName || 'Valued Guest'}</span>! Our horticultural team at Verdant Realm will review your request and connect with you shortly.
+              Thank you, <span className="text-emerald-200 font-semibold">{lastSubmittedName || 'Valued Guest'}</span>! Our horticultural team at The Ever Green Nursery will review your request and connect with you shortly.
             </p>
 
             <div className="pt-4 flex justify-center gap-3">

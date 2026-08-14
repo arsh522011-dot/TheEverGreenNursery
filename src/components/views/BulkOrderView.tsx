@@ -431,7 +431,7 @@ export const BulkOrderView: React.FC<BulkOrderViewProps> = ({ settings, onNaviga
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Mail className="w-4 h-4 text-emerald-400" />
-                  <span>{settings.email || 'bulk@verdantrealm.com'}</span>
+                  <span>{settings.email || 'bulk@theevergreennursary.com'}</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <MapPin className="w-4 h-4 text-emerald-400" />

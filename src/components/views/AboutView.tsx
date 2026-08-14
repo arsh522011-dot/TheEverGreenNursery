@@ -100,7 +100,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ settings, onNavigate }) =>
               {settings.philosophySubtitle || 'OUR PHILOSOPHY'}
             </span>
             <h2 className="font-serif text-3xl text-[#062319]">
-              {settings.philosophyTitle || `The Four Pillars of ${settings.nurseryName || 'Verdant Realm'}`}
+              {settings.philosophyTitle || `The Four Pillars of ${settings.nurseryName || 'The Ever Green Nursery'}`}
             </h2>
           </div>
 

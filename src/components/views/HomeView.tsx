@@ -554,7 +554,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             <BeforeAfterSlider
               afterImage={featuredProject.afterImage}
-              afterLabel={settings.featuredProjectBadgeLabel || 'VERDANT REALM LANDSCAPE'}
+              afterLabel={settings.featuredProjectBadgeLabel || 'THE EVERGREEN NURSERY LANDSCAPE'}
             />
           </div>
         </section>

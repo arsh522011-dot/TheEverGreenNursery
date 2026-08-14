@@ -1073,7 +1073,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                     type="text"
                     value={siteForm.featuredProjectBadgeLabel || ''}
                     onChange={(e) => setSiteForm({ ...siteForm, featuredProjectBadgeLabel: e.target.value })}
-                    placeholder="VERDANT REALM LANDSCAPE"
+                    placeholder="THE EVERGREEN NURSERY LANDSCAPE"
                     className="w-full bg-[#083023] border border-emerald-700/50 rounded-xl p-2.5 text-xs text-white font-medium focus:outline-none focus:border-emerald-400"
                   />
                 </div>
@@ -1569,7 +1569,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                           {inq.phone && (
                             <a
                               href={`https://wa.me/${inq.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                                `Hello ${inq.name}, thank you for contacting Verdant Realm Nursery regarding: "${inq.subject || 'your inquiry'}".`
+                                `Hello ${inq.name}, thank you for contacting The Ever Green Nursery regarding: "${inq.subject || 'your inquiry'}".`
                               )}`}
                               target="_blank"
                               rel="noreferrer"
@@ -1846,7 +1846,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                     required
                     value={siteForm.aboutStory}
                     onChange={(e) => setSiteForm({ ...siteForm, aboutStory: e.target.value })}
-                    placeholder="Founded in 2012 nestled in the misty river valleys, Verdant Realm began as a passion project for rare tropical taxonomy..."
+                    placeholder="Founded in 2012 nestled in the misty river valleys, The Ever Green Nursery began as a passion project for rare tropical taxonomy..."
                     className="w-full bg-white border border-emerald-900/15 rounded-xl p-3.5 text-sm text-emerald-950 leading-relaxed font-sans shadow-2xs"
                   />
                   <p className="text-[11px] font-mono text-gray-500 mt-1 text-right">
@@ -2042,7 +2042,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                       type="text"
                       value={siteForm.philosophyTitle || ''}
                       onChange={(e) => setSiteForm({ ...siteForm, philosophyTitle: e.target.value })}
-                      placeholder="The Four Pillars of Verdant Realm"
+                      placeholder="The Four Pillars of The Ever Green Nursery"
                       className="w-full bg-white border border-emerald-900/10 rounded-xl p-3 text-sm font-bold text-emerald-950"
                     />
                   </div>
@@ -2458,7 +2458,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                   rows={3}
                   value={siteForm.footerDescription || ''}
                   onChange={(e) => setSiteForm({ ...siteForm, footerDescription: e.target.value })}
-                  placeholder="Verdant Realm is your trusted online nursery offering healthy indoor plants..."
+                  placeholder="The Ever Green Nursery is your trusted online nursery offering healthy indoor plants..."
                   className="w-full bg-[#faf8f5] border border-emerald-900/10 rounded-xl p-3 text-sm leading-relaxed"
                 />
               </div>
@@ -2621,7 +2621,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                       type="text"
                       value={siteForm.philosophyTitle || ''}
                       onChange={(e) => setSiteForm({ ...siteForm, philosophyTitle: e.target.value })}
-                      placeholder="The Four Pillars of Verdant Realm"
+                      placeholder="The Four Pillars of The Ever Green Nursery"
                       className="w-full bg-white border border-emerald-900/10 rounded-xl p-3 text-sm font-bold text-emerald-950"
                     />
                   </div>
@@ -3993,7 +3993,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                   {selectedInquiry.phone && (
                     <a
                       href={`https://wa.me/${selectedInquiry.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                        `Hello ${selectedInquiry.name}, thank you for contacting Verdant Realm Nursery regarding: "${selectedInquiry.subject || 'your inquiry'}"!`
+                        `Hello ${selectedInquiry.name}, thank you for contacting The Ever Green Nursery regarding: "${selectedInquiry.subject || 'your inquiry'}"!`
                       )}`}
                       target="_blank"
                       rel="noreferrer"

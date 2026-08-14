@@ -127,20 +127,35 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Synchronize Canonical Tag & OpenGraph with Canonical Live Domain
+  // Synchronize Canonical Tag, Title, and OpenGraph with Canonical Live Domain
   useEffect(() => {
     try {
-      const canonicalBase = 'https://www.theevergreennursery.com';
+      const canonicalBase = 'https://theevergreennursary.com';
       let canonicalPath = '/';
+      let currentTitle = settings.seoTitle || 'The Ever Green Nursery | Online Plant Nursery in India';
+      let currentDescription = settings.seoDescription || 'The Ever Green Nursery is your trusted online nursery offering healthy indoor plants, succulents, cactus, flowering plants, seeds and premium planters. Carefully packed and safely delivered across India.';
+
       if (currentView !== 'home') {
         if (currentView === 'plant-detail' && viewParams.id) {
           canonicalPath = `/plants/${viewParams.id}`;
+          const currentPlant = plants.find((p) => p.id === viewParams.id);
+          if (currentPlant) {
+            currentTitle = `${currentPlant.name} | The Ever Green Nursery`;
+            if (currentPlant.shortDescription) {
+              currentDescription = currentPlant.shortDescription;
+            }
+          }
         } else {
           canonicalPath = `/${currentView}`;
+          const formattedViewName = currentView.charAt(0).toUpperCase() + currentView.slice(1).replace('-', ' ');
+          currentTitle = `${formattedViewName} | The Ever Green Nursery`;
         }
       }
+
+      document.title = currentTitle;
       const fullCanonicalUrl = `${canonicalBase}${canonicalPath}`;
 
+      // Update Canonical Link
       let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
       if (!canonicalLink) {
         canonicalLink = document.createElement('link');
@@ -149,17 +164,25 @@ export default function App() {
       }
       canonicalLink.setAttribute('href', fullCanonicalUrl);
 
-      let ogUrl = document.querySelector('meta[property="og:url"]') as HTMLMetaElement | null;
-      if (!ogUrl) {
-        ogUrl = document.createElement('meta');
-        ogUrl.setAttribute('property', 'og:url');
-        document.head.appendChild(ogUrl);
-      }
-      ogUrl.setAttribute('content', fullCanonicalUrl);
+      // Update OpenGraph & Twitter Meta Tags
+      const updateMeta = (selector: string, attr: string, value: string) => {
+        let el = document.querySelector(selector) as HTMLMetaElement | null;
+        if (el) {
+          el.setAttribute('content', value);
+        }
+      };
+
+      updateMeta('meta[property="og:url"]', 'content', fullCanonicalUrl);
+      updateMeta('meta[property="og:title"]', 'content', currentTitle);
+      updateMeta('meta[property="og:description"]', 'content', currentDescription);
+      updateMeta('meta[property="og:site_name"]', 'content', 'The Ever Green Nursery');
+      updateMeta('meta[name="description"]', 'content', currentDescription);
+      updateMeta('meta[name="twitter:title"]', 'content', currentTitle);
+      updateMeta('meta[name="twitter:description"]', 'content', currentDescription);
     } catch {
       // ignore
     }
-  }, [currentView, viewParams]);
+  }, [currentView, viewParams, settings, plants]);
 
   const navigateTo = (view: string, params: Record<string, string> = {}) => {
     setCurrentView(view);

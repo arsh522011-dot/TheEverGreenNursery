@@ -58,8 +58,29 @@ export const StorageService = {
   getSettings(): SiteSettings {
     const saved = getStoredItem<Partial<SiteSettings>>(STORAGE_KEYS.SETTINGS, INITIAL_SETTINGS);
     const merged = { ...INITIAL_SETTINGS, ...saved };
-    if (!merged.nurseryName || merged.nurseryName === 'PLANT ORBIT' || merged.nurseryName === 'Plant Orbit') {
+    if (!merged.nurseryName || merged.nurseryName === 'PLANT ORBIT' || merged.nurseryName === 'Plant Orbit' || merged.nurseryName.toLowerCase().includes('verdant realm')) {
       merged.nurseryName = INITIAL_SETTINGS.nurseryName;
+    }
+    if (merged.seoTitle && merged.seoTitle.toLowerCase().includes('verdant realm')) {
+      merged.seoTitle = INITIAL_SETTINGS.seoTitle;
+    }
+    if (merged.seoDescription && merged.seoDescription.toLowerCase().includes('verdant realm')) {
+      merged.seoDescription = INITIAL_SETTINGS.seoDescription;
+    }
+    if (merged.footerDescription && merged.footerDescription.toLowerCase().includes('verdant realm')) {
+      merged.footerDescription = INITIAL_SETTINGS.footerDescription;
+    }
+    if (merged.email && merged.email.toLowerCase().includes('verdantrealm')) {
+      merged.email = INITIAL_SETTINGS.email;
+    }
+    if (merged.featuredProjectBadgeLabel && merged.featuredProjectBadgeLabel.toLowerCase().includes('verdant realm')) {
+      merged.featuredProjectBadgeLabel = INITIAL_SETTINGS.featuredProjectBadgeLabel;
+    }
+    if (merged.philosophyTitle && merged.philosophyTitle.toLowerCase().includes('verdant realm')) {
+      merged.philosophyTitle = INITIAL_SETTINGS.philosophyTitle;
+    }
+    if (merged.aboutStory && merged.aboutStory.toLowerCase().includes('verdant realm')) {
+      merged.aboutStory = INITIAL_SETTINGS.aboutStory;
     }
     if (!merged.logoUrl || merged.logoUrl.includes('v1785783072') || merged.logoUrl.includes('v1785783638') || merged.logoUrl.includes('v1785784007')) {
       merged.logoUrl = INITIAL_SETTINGS.logoUrl;

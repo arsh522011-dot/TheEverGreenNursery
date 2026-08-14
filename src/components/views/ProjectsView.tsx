@@ -42,7 +42,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenEnqu
                 beforeImage={proj.beforeImage}
                 afterImage={proj.afterImage}
                 beforeLabel="INITIAL SITE CONDITION"
-                afterLabel="VERDANT REALM DESIGN"
+                afterLabel="THE EVERGREEN NURSERY DESIGN"
               />
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-emerald-900/10 text-xs">
