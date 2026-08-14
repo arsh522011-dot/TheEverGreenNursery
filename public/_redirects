@@ -1,0 +1,4 @@
+# Permanent 301 redirect non-www and insecure http to preferred https://www.theevergreennursery.com
+http://theevergreennursery.com/* https://www.theevergreennursery.com/:splat 301!
+https://theevergreennursery.com/* https://www.theevergreennursery.com/:splat 301!
+http://www.theevergreennursery.com/* https://www.theevergreennursery.com/:splat 301!

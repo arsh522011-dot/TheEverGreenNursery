@@ -127,6 +127,40 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Synchronize Canonical Tag & OpenGraph with Canonical Live Domain
+  useEffect(() => {
+    try {
+      const canonicalBase = 'https://www.theevergreennursery.com';
+      let canonicalPath = '/';
+      if (currentView !== 'home') {
+        if (currentView === 'plant-detail' && viewParams.id) {
+          canonicalPath = `/plants/${viewParams.id}`;
+        } else {
+          canonicalPath = `/${currentView}`;
+        }
+      }
+      const fullCanonicalUrl = `${canonicalBase}${canonicalPath}`;
+
+      let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+      if (!canonicalLink) {
+        canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonicalLink);
+      }
+      canonicalLink.setAttribute('href', fullCanonicalUrl);
+
+      let ogUrl = document.querySelector('meta[property="og:url"]') as HTMLMetaElement | null;
+      if (!ogUrl) {
+        ogUrl = document.createElement('meta');
+        ogUrl.setAttribute('property', 'og:url');
+        document.head.appendChild(ogUrl);
+      }
+      ogUrl.setAttribute('content', fullCanonicalUrl);
+    } catch {
+      // ignore
+    }
+  }, [currentView, viewParams]);
+
   const navigateTo = (view: string, params: Record<string, string> = {}) => {
     setCurrentView(view);
     setViewParams(params);

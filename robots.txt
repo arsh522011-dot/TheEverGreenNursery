@@ -6,4 +6,4 @@ Allow: /
 Disallow: /admin
 
 # Sitemap Location
-Sitemap: https://theevergreennursery.com/sitemap.xml
+Sitemap: https://www.theevergreennursery.com/sitemap.xml
