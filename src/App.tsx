@@ -25,10 +25,55 @@ import { NotFoundView } from './components/views/NotFoundView';
 import { StorageService } from './services/storage';
 import { Plant, Category, Service, Project, GalleryItem, Testimonial, SiteSettings } from './types';
 
+// Helper to parse route from URL
+function parseUrlRoute(): { view: string; params: Record<string, string> } {
+  try {
+    const pathname = window.location.pathname.replace(/^\/+|\/+$/g, '');
+    const searchParams = new URLSearchParams(window.location.search);
+    const params: Record<string, string> = {};
+    searchParams.forEach((val, key) => {
+      params[key] = val;
+    });
+
+    if (!pathname || pathname === '') {
+      return { view: 'home', params };
+    }
+
+    if (pathname.startsWith('plants/')) {
+      const id = pathname.replace('plants/', '');
+      return { view: 'plant-detail', params: { ...params, id } };
+    }
+
+    const validViews = [
+      'home',
+      'plants',
+      'plant-detail',
+      'categories',
+      'about',
+      'services',
+      'projects',
+      'gallery',
+      'contact',
+      'bulk-orders',
+      'privacy-policy',
+      'terms',
+      'admin',
+    ];
+
+    if (validViews.includes(pathname)) {
+      return { view: pathname, params };
+    }
+  } catch {
+    // fallback
+  }
+  return { view: 'home', params: {} };
+}
+
 export default function App() {
+  const initialRoute = parseUrlRoute();
   const [isLoading, setIsLoading] = useState(true);
-  const [currentView, setCurrentView] = useState<string>('home');
-  const [viewParams, setViewParams] = useState<Record<string, string>>({});
+  const [currentView, setCurrentView] = useState<string>(initialRoute.view);
+  const [viewParams, setViewParams] = useState<Record<string, string>>(initialRoute.params);
 
   // Data States
   const [settings, setSettings] = useState<SiteSettings>(StorageService.getSettings());
@@ -71,12 +116,40 @@ export default function App() {
 
   useEffect(() => {
     StorageService.initFirebaseSync(refreshData);
+
+    const handlePopState = () => {
+      const parsed = parseUrlRoute();
+      setCurrentView(parsed.view);
+      setViewParams(parsed.params);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   const navigateTo = (view: string, params: Record<string, string> = {}) => {
     setCurrentView(view);
     setViewParams(params);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    try {
+      let targetPath = '/';
+      if (view !== 'home') {
+        if (view === 'plant-detail' && params.id) {
+          targetPath = `/plants/${params.id}`;
+        } else {
+          targetPath = `/${view}`;
+          if (params.category) {
+            targetPath += `?category=${encodeURIComponent(params.category)}`;
+          }
+        }
+      }
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState({ view, params }, '', targetPath);
+      }
+    } catch {
+      // ignore
+    }
   };
 
   const handleOpenEnquiry = (plant?: Plant, service?: Service) => {

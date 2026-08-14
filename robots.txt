@@ -1,0 +1,9 @@
+# Robots.txt for The Evergreen Nursery
+User-agent: *
+Allow: /
+
+# Disallow private administrative areas
+Disallow: /admin
+
+# Sitemap Location
+Sitemap: https://theevergreennursery.com/sitemap.xml
