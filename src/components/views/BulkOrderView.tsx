@@ -254,15 +254,17 @@ export const BulkOrderView: React.FC<BulkOrderViewProps> = ({ settings, onNaviga
                     </label>
                     <select
                       value={formData.purpose}
-                      onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
+                      onChange={(e) => e.target.value && setFormData({ ...formData, purpose: e.target.value })}
                       className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-xs text-gray-900 bg-white"
                     >
-                      <option value="Corporate Gifting">Corporate Gifting & Employee Welcomes</option>
-                      <option value="Resort / Hotel Landscaping">Resort / Hotel / Cafe Landscaping</option>
-                      <option value="Event & Wedding Decor">Event & Wedding Botanical Decor</option>
-                      <option value="Wholesale / Reseller">Reseller / Garden Center Wholesale</option>
-                      <option value="Office & Real Estate Greening">Office & Real Estate Greening</option>
-                      <option value="Other Bulk Inquiry">Other Custom Bulk Requirement</option>
+                      <option value="Commercial Landscaping & Contracting">Commercial Landscaping & Contractors</option>
+                      <option value="Builders & Real Estate Projects">Builders & Real Estate Residential/Commercial Projects</option>
+                      <option value="Hotels, Resorts & Cafes">Hotels, Resorts & Hospitality Landscaping</option>
+                      <option value="Offices & Corporate Campus">Offices & Corporate Greening / Gifting</option>
+                      <option value="Educational Institutions & Hospitals">Schools, Universities & Hospital Campuses</option>
+                      <option value="Retail Reseller / Garden Center">Reseller Nursery / Garden Center Supply</option>
+                      <option value="Farmhouse & Private Estate">Farmhouse & Private Estate Development</option>
+                      <option value="Other Bulk Requirement">Other Custom Bulk Requirement</option>
                     </select>
                   </div>
 

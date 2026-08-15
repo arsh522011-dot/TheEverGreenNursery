@@ -82,6 +82,12 @@ export const StorageService = {
     if (merged.aboutStory && merged.aboutStory.toLowerCase().includes('verdant realm')) {
       merged.aboutStory = INITIAL_SETTINGS.aboutStory;
     }
+    if (merged.address && (merged.address.includes('Portland') || merged.address.includes('Evergreen Valley Way') || !merged.address)) {
+      merged.address = INITIAL_SETTINGS.address;
+      merged.city = INITIAL_SETTINGS.city;
+      merged.phone = INITIAL_SETTINGS.phone;
+      merged.mapEmbedUrl = INITIAL_SETTINGS.mapEmbedUrl;
+    }
     if (!merged.logoUrl || merged.logoUrl.includes('v1785783072') || merged.logoUrl.includes('v1785783638') || merged.logoUrl.includes('v1785784007')) {
       merged.logoUrl = INITIAL_SETTINGS.logoUrl;
     }

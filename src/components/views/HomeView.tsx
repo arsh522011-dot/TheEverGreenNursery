@@ -19,6 +19,7 @@ import {
   Star,
   PackageCheck,
   RefreshCw,
+  Building2,
 } from 'lucide-react';
 import { Plant, Category, Service, Project, GalleryItem, Testimonial, SiteSettings } from '../../types';
 import { BeforeAfterSlider } from '../common/BeforeAfterSlider';
@@ -554,11 +555,66 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             <BeforeAfterSlider
               afterImage={featuredProject.afterImage}
-              afterLabel={settings.featuredProjectBadgeLabel || 'THE EVERGREEN NURSERY LANDSCAPE'}
+              afterLabel={settings.featuredProjectBadgeLabel || 'THE EVER GREEN NURSERY PROJECT'}
             />
           </div>
         </section>
       )}
+
+      {/* SECTION 6.5: WHOLESALE AUTHORITY & REGIONAL SUPPLY CORRIDOR */}
+      <section className="py-16 bg-gradient-to-b from-[#f8faf8] to-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="text-center space-y-3 max-w-3xl mx-auto">
+            <span className="text-xs font-mono font-bold uppercase tracking-[0.25em] text-emerald-700 block">
+              B2B WHOLESALE & LANDSCAPING PARTNER
+            </span>
+            <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#132e1f]">
+              Direct Wholesale Plant Nursery in Gajraula & NH-24 Delhi Road
+            </h2>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              We cultivate, acclimatize, and supply commercial-grade nursery plants across Uttar Pradesh and Delhi NCR, serving landscapers, real estate builders, luxury hotels, corporate campuses, and garden contractors.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white p-7 rounded-3xl border border-emerald-900/10 shadow-sm space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                <Sprout className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-xl font-bold text-[#132e1f]">
+                Wholesale Indoor & Air-Purifying Plants
+              </h3>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                Large volumes of shade-loving and interior foliage plants including Areca Palms, Snake Plants, ZZ Plants, Money Plants, and Ficus varieties for corporate offices, malls, and interior decorators.
+              </p>
+            </div>
+
+            <div className="bg-white p-7 rounded-3xl border border-emerald-900/10 shadow-sm space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                <Building2 className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-xl font-bold text-[#132e1f]">
+                Outdoor Trees & Landscaping Shrubs
+              </h3>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                Mature avenue trees, boundary hedge plants, ornamental palms, and flowering ground covers acclimatized for highways, residential townships, school campuses, and hospitality resorts.
+              </p>
+            </div>
+
+            <div className="bg-white p-7 rounded-3xl border border-emerald-900/10 shadow-sm space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                <Truck className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-xl font-bold text-[#132e1f]">
+                Regional Logistics & Guaranteed Quality
+              </h3>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                Direct nursery dispatch to Gajraula, Amroha, Hasanpur, Sambhal, Moradabad, Hapur, Meerut, and Delhi NCR with verified root-ball integrity and bulk transportation options.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* SECTION 7: TESTIMONIALS & CUSTOMER REVIEWS */}
       <section className="py-16 bg-[#f0f5f1] text-[#132e1f]">

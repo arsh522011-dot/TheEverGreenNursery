@@ -24,6 +24,7 @@ import { NotFoundView } from './components/views/NotFoundView';
 
 import { StorageService } from './services/storage';
 import { Plant, Category, Service, Project, GalleryItem, Testimonial, SiteSettings } from './types';
+import { getPageSEO } from './utils/seoData';
 
 // Helper to parse route from URL
 function parseUrlRoute(): { view: string; params: Record<string, string> } {
@@ -37,6 +38,20 @@ function parseUrlRoute(): { view: string; params: Record<string, string> } {
 
     if (!pathname || pathname === '') {
       return { view: 'home', params };
+    }
+
+    // SEO-friendly Aliases
+    if (pathname === 'wholesale-plants') {
+      return { view: 'plants', params };
+    }
+    if (pathname === 'indoor-plants') {
+      return { view: 'plants', params: { ...params, category: 'Indoor Plants' } };
+    }
+    if (pathname === 'outdoor-plants') {
+      return { view: 'plants', params: { ...params, category: 'Outdoor & Landscape' } };
+    }
+    if (pathname === 'landscaping-plants') {
+      return { view: 'plants', params: { ...params, category: 'Architectural Palms' } };
     }
 
     if (pathname.startsWith('plants/')) {
@@ -127,30 +142,25 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Synchronize Canonical Tag, Title, and OpenGraph with Canonical Live Domain
+  // Synchronize Canonical Tag, Title, Keywords, OpenGraph & Breadcrumbs with Canonical Live Domain
   useEffect(() => {
     try {
       const canonicalBase = 'https://theevergreennursary.com';
-      let canonicalPath = '/';
-      let currentTitle = settings.seoTitle || 'The Ever Green Nursery | Online Plant Nursery in India';
-      let currentDescription = settings.seoDescription || 'The Ever Green Nursery is your trusted online nursery offering healthy indoor plants, succulents, cactus, flowering plants, seeds and premium planters. Carefully packed and safely delivered across India.';
+      const currentPlant = currentView === 'plant-detail' && viewParams.id 
+        ? plants.find((p) => p.id === viewParams.id) 
+        : undefined;
 
-      if (currentView !== 'home') {
-        if (currentView === 'plant-detail' && viewParams.id) {
-          canonicalPath = `/plants/${viewParams.id}`;
-          const currentPlant = plants.find((p) => p.id === viewParams.id);
-          if (currentPlant) {
-            currentTitle = `${currentPlant.name} | The Ever Green Nursery`;
-            if (currentPlant.shortDescription) {
-              currentDescription = currentPlant.shortDescription;
-            }
-          }
-        } else {
-          canonicalPath = `/${currentView}`;
-          const formattedViewName = currentView.charAt(0).toUpperCase() + currentView.slice(1).replace('-', ' ');
-          currentTitle = `${formattedViewName} | The Ever Green Nursery`;
-        }
-      }
+      const pageSeo = getPageSEO(
+        currentView,
+        viewParams,
+        currentPlant?.name,
+        currentPlant?.shortDescription
+      );
+
+      const currentTitle = pageSeo.title;
+      const currentDescription = pageSeo.description;
+      const currentKeywords = pageSeo.keywords;
+      const canonicalPath = pageSeo.canonicalPath;
 
       document.title = currentTitle;
       const fullCanonicalUrl = `${canonicalBase}${canonicalPath}`;
@@ -164,11 +174,17 @@ export default function App() {
       }
       canonicalLink.setAttribute('href', fullCanonicalUrl);
 
-      // Update OpenGraph & Twitter Meta Tags
+      // Update OpenGraph & Twitter & Meta Tags
       const updateMeta = (selector: string, attr: string, value: string) => {
         let el = document.querySelector(selector) as HTMLMetaElement | null;
         if (el) {
-          el.setAttribute('content', value);
+          el.setAttribute(attr, value);
+        } else {
+          el = document.createElement('meta');
+          const [keyName, keyValue] = selector.replace('meta[', '').replace(']', '').split('=');
+          el.setAttribute(keyName, keyValue.replace(/"/g, ''));
+          el.setAttribute(attr, value);
+          document.head.appendChild(el);
         }
       };
 
@@ -177,8 +193,64 @@ export default function App() {
       updateMeta('meta[property="og:description"]', 'content', currentDescription);
       updateMeta('meta[property="og:site_name"]', 'content', 'The Ever Green Nursery');
       updateMeta('meta[name="description"]', 'content', currentDescription);
+      updateMeta('meta[name="keywords"]', 'content', currentKeywords);
       updateMeta('meta[name="twitter:title"]', 'content', currentTitle);
       updateMeta('meta[name="twitter:description"]', 'content', currentDescription);
+
+      // Dynamic Breadcrumbs Schema.org
+      const breadcrumbItems = [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: canonicalBase,
+        },
+      ];
+
+      if (currentView === 'plants') {
+        breadcrumbItems.push({
+          '@type': 'ListItem',
+          position: 2,
+          name: viewParams.category ? `Wholesale ${viewParams.category}` : 'Wholesale Plants Catalogue',
+          item: fullCanonicalUrl,
+        });
+      } else if (currentView === 'plant-detail' && currentPlant) {
+        breadcrumbItems.push({
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Wholesale Plants',
+          item: `${canonicalBase}/plants`,
+        });
+        breadcrumbItems.push({
+          '@type': 'ListItem',
+          position: 3,
+          name: currentPlant.name,
+          item: fullCanonicalUrl,
+        });
+      } else if (currentView !== 'home') {
+        const name = currentView.charAt(0).toUpperCase() + currentView.slice(1).replace('-', ' ');
+        breadcrumbItems.push({
+          '@type': 'ListItem',
+          position: 2,
+          name: name,
+          item: fullCanonicalUrl,
+        });
+      }
+
+      const breadcrumbSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbItems,
+      };
+
+      let breadcrumbScript = document.getElementById('schema-breadcrumbs') as HTMLScriptElement | null;
+      if (!breadcrumbScript) {
+        breadcrumbScript = document.createElement('script');
+        breadcrumbScript.id = 'schema-breadcrumbs';
+        breadcrumbScript.type = 'application/ld+json';
+        document.head.appendChild(breadcrumbScript);
+      }
+      breadcrumbScript.text = JSON.stringify(breadcrumbSchema);
     } catch {
       // ignore
     }

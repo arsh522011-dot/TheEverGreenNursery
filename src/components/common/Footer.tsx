@@ -146,53 +146,74 @@ export const Footer: React.FC<FooterProps> = ({ settings, onNavigate, onOpenEnqu
           {/* Shop By Type */}
           <div className="space-y-3">
             <h4 className="font-serif text-base text-white font-semibold tracking-wide border-b border-emerald-800/60 pb-2">
-              Shop By Type
+              Wholesale Plants
             </h4>
             <ul className="space-y-2 text-xs text-emerald-100/80 font-medium">
               {[
-                'Indoor Plants',
-                'Succulents & Cactus',
-                'Flowering Plants & Bulbs',
-                'Air Purifying Plants',
-                'Pots & Planters',
-                'Plant Care Essentials',
-              ].map((cat) => (
-                <li key={cat}>
+                { label: 'Indoor Plants Wholesale', category: 'Indoor Plants' },
+                { label: 'Outdoor Landscape Trees', category: 'Outdoor & Landscape' },
+                { label: 'Architectural Palms', category: 'Architectural Palms' },
+                { label: 'Flowering Shrubs & Bulbs', category: 'Flowering & Ornamentals' },
+                { label: 'Pots & Planters Wholesale', category: 'Pots & Planters' },
+                { label: 'Bulk Commercial Supply', view: 'bulk-orders' },
+              ].map((item) => (
+                <li key={item.label}>
                   <button
-                    onClick={() => onNavigate('plants', { category: cat })}
-                    className="hover:text-white transition-colors"
+                    onClick={() => item.view ? onNavigate(item.view) : onNavigate('plants', { category: item.category })}
+                    className="hover:text-white transition-colors text-left"
                   >
-                    <span>{cat}</span>
+                    <span>{item.label}</span>
                   </button>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Shop By Location */}
+          {/* Regional Wholesale Supply */}
           <div className="space-y-3">
             <h4 className="font-serif text-base text-white font-semibold tracking-wide border-b border-emerald-800/60 pb-2">
-              Shop By Room
+              Regional Supply & Delivery
             </h4>
             <ul className="space-y-2 text-xs text-emerald-100/80 font-medium">
               {[
-                'Living Room Plants',
-                'Bedroom Plants',
-                'Office & Desk Plants',
-                'Balcony & Garden',
-                'Shade / Low Light Plants',
-              ].map((room) => (
-                <li key={room}>
+                { label: 'Wholesale Plants in Gajraula', filter: 'All' },
+                { label: 'Plant Nursery in Amroha', filter: 'All' },
+                { label: 'Nursery Plants near Sambhal', filter: 'All' },
+                { label: 'Plants Supplier in Hasanpur', filter: 'All' },
+                { label: 'NH-24 Delhi Road Nursery Hub', filter: 'All' },
+                { label: 'Delhi NCR Wholesale Dispatch', filter: 'All' },
+              ].map((reg) => (
+                <li key={reg.label}>
                   <button
-                    onClick={() => onNavigate('plants')}
-                    className="hover:text-white transition-colors"
+                    onClick={() => onNavigate('contact')}
+                    className="hover:text-white transition-colors text-left flex items-center gap-1 group"
                   >
-                    <span>{room}</span>
+                    <span>{reg.label}</span>
+                    <ArrowUpRight className="w-2.5 h-2.5 opacity-0 group-hover:opacity-100 transition-opacity text-emerald-400" />
                   </button>
                 </li>
               ))}
             </ul>
           </div>
+        </div>
+
+        {/* Regional Wholesale SEO Corridor Strip */}
+        <div className="py-6 border-b border-emerald-800/40 text-[11px] text-emerald-200/70 space-y-2">
+          <p className="font-semibold text-white uppercase font-mono tracking-wider text-[10px]">
+            Commercial Nursery Supply Hub (UP & Delhi NCR):
+          </p>
+          <p className="leading-relaxed">
+            Direct nursery grower and wholesale supplier for landscapers, builders, real estate developers, hotels, institutions, and farmhouses across 
+            <strong className="text-emerald-300 font-medium"> Gajraula</strong>, 
+            <strong className="text-emerald-300 font-medium"> Amroha</strong>, 
+            <strong className="text-emerald-300 font-medium"> Hasanpur</strong>, 
+            <strong className="text-emerald-300 font-medium"> Sambhal</strong>, 
+            <strong className="text-emerald-300 font-medium"> Moradabad</strong>, 
+            <strong className="text-emerald-300 font-medium"> Meerut</strong>, 
+            <strong className="text-emerald-300 font-medium"> Hapur</strong>, and 
+            <strong className="text-emerald-300 font-medium"> Delhi NCR</strong>. Located strategically on the 
+            <strong className="text-emerald-300 font-medium"> NH-24 Delhi-Lucknow Highway</strong>.
+          </p>
         </div>
 
         {/* Bottom Details */}

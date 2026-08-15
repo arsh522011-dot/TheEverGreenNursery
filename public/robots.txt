@@ -1,9 +1,11 @@
-# Robots.txt for The Evergreen Nursery
+# Robots.txt for The Ever Green Nursery (Wholesale Plant Nursery)
 User-agent: *
 Allow: /
 
 # Disallow private administrative areas
 Disallow: /admin
 
-# Sitemap Location
+# Host & Sitemap Location
+Host: https://theevergreennursary.com
 Sitemap: https://theevergreennursary.com/sitemap.xml
+
