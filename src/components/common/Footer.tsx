@@ -198,7 +198,18 @@ export const Footer: React.FC<FooterProps> = ({ settings, onNavigate, onOpenEnqu
         {/* Bottom Details */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-emerald-200/70 gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
-            <p>© {new Date().getFullYear()} {settings.nurseryName || 'The Ever green Nursery'}. All Rights Reserved.</p>
+            <p className="flex items-center gap-1.5 justify-center sm:justify-start">
+              <button
+                type="button"
+                onClick={() => onNavigate('admin')}
+                className="opacity-40 hover:opacity-100 transition-opacity p-0.5 inline-flex items-center text-emerald-300 hover:text-amber-300 cursor-pointer focus:outline-none"
+                title="Admin"
+                aria-label="Admin Access"
+              >
+                <Shield className="w-3.5 h-3.5 text-amber-400/70 hover:text-amber-400" />
+              </button>
+              <span>© {new Date().getFullYear()} {settings.nurseryName || 'The Ever green Nursery'}. All Rights Reserved.</span>
+            </p>
             <span className="hidden sm:inline text-emerald-800">•</span>
             <div className="flex items-center gap-3 font-medium">
               <button
@@ -218,14 +229,6 @@ export const Footer: React.FC<FooterProps> = ({ settings, onNavigate, onOpenEnqu
           </div>
 
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => onNavigate('admin')}
-              className="hover:text-amber-300 flex items-center gap-1 transition-colors"
-            >
-              <Shield className="w-3.5 h-3.5 text-amber-400" />
-              <span>Admin Access</span>
-            </button>
-
             <button
               onClick={scrollToTop}
               className="text-white hover:text-emerald-300 flex items-center gap-1 font-mono text-[11px] uppercase tracking-wider"
