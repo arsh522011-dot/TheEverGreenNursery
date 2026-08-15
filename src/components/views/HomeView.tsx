@@ -49,7 +49,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenEnquiry,
   onOpenLightbox,
 }) => {
-  const [activeTab, setActiveTab] = useState<'all' | 'indoor' | 'outdoor'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'indoor' | 'outdoor' | 'pots'>('all');
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   const homeTestimonials = testimonials.filter(
@@ -57,8 +57,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
   );
 
   const filteredPlants = featuredPlants.filter((p) => {
-    if (activeTab === 'indoor') return p.category.includes('Indoor') || p.category.includes('Bonsai') || p.category.includes('Succulent');
-    if (activeTab === 'outdoor') return p.category.includes('Outdoor') || p.category.includes('Exotic') || p.category.includes('Flowering');
+    if (activeTab === 'indoor') return p.category.toLowerCase().includes('indoor');
+    if (activeTab === 'outdoor') return p.category.toLowerCase().includes('outdoor');
+    if (activeTab === 'pots') return p.category.toLowerCase().includes('pot');
     return true;
   });
 
@@ -68,47 +69,27 @@ export const HomeView: React.FC<HomeViewProps> = ({
     projects[0] ||
     null;
 
-  // Quick Circular Category Items (Match Screenshot 1)
+  // Four Clean Botanical & Planter Categories
   const quickCategories = [
     {
-      name: 'Daily Deals',
-      icon: 'https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785870554/Gemini_Generated_Image_qkg50xqkg50xqkg5_xl9eot.png',
-      category: 'Indoor'
-    },
-    {
-      name: 'New Arrivals',
-      icon: 'https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785871172/Gemini_Generated_Image_ioxfbsioxfbsioxf_tghpyk.png',
-      category: 'Flowering'
-    },
-    {
-      name: 'Best Selling',
-      icon: 'https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785872448/Gemini_Generated_Image_ioxfbsioxfbsioxf_vvparu.png',
-      category: 'Succulent'
+      name: 'All Categories',
+      icon: '🌿',
+      category: 'All'
     },
     {
       name: 'Indoor Plants',
       icon: 'https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785873245/Gemini_Generated_Image_xcliqrxcliqrxcli_gsfefh.png',
-      category: 'Indoor'
+      category: 'Indoor Plants'
     },
     {
-      name: 'Succulents',
-      icon: 'https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785874412/Gemini_Generated_Image_9ekymg9ekymg9eky_atzpyk.png',
-      category: 'Succulent'
-    },
-    {
-      name: 'Flowering',
-      icon: 'https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785873676/Gemini_Generated_Image_xcliqrxcliqrxcli_dqocxm.png',
-      category: 'Flowering'
-    },
-    {
-      name: 'Bonsai',
-      icon: 'https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785872796/Gemini_Generated_Image_14j02214j02214j0_bt59vh.png',
-      category: 'Bonsai'
-    },
-    {
-      name: 'Plant Care',
+      name: 'Outdoor Plants',
       icon: 'https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785874090/Gemini_Generated_Image_g53lbrg53lbrg53l_ggjnrn.png',
-      category: 'Outdoor'
+      category: 'Outdoor Plants'
+    },
+    {
+      name: 'Pots',
+      icon: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=400&q=80',
+      category: 'Pots'
     },
   ];
 
@@ -368,6 +349,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 }`}
               >
                 Outdoor
+              </button>
+              <button
+                onClick={() => setActiveTab('pots')}
+                className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-all ${
+                  activeTab === 'pots' ? 'bg-[#183925] text-white shadow' : 'text-gray-700 hover:text-emerald-800'
+                }`}
+              >
+                Pots
               </button>
             </div>
           </div>

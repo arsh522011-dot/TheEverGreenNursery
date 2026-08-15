@@ -207,7 +207,7 @@ export const EnquiryModal: React.FC<EnquiryModalProps> = ({
   return (
     <div
       onClick={handleBackdropClick}
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md modal-backdrop-overlay transition-opacity duration-500 ${
+      className={`fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md modal-backdrop-overlay transition-opacity duration-500 ${
         isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100 animate-fadeIn'
       }`}
     >

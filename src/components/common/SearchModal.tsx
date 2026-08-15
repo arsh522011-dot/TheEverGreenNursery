@@ -34,7 +34,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     : plants.slice(0, 4); // Suggest top 4 featured when empty
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-lg flex items-start justify-center pt-20 px-4 animate-fadeIn modal-backdrop-overlay">
+    <div className="fixed inset-0 z-[999] bg-black/80 backdrop-blur-lg flex items-start justify-center pt-20 px-4 animate-fadeIn modal-backdrop-overlay">
       <div className="w-full max-w-2xl bg-[#062319] border border-emerald-500/30 rounded-3xl shadow-2xl overflow-hidden text-white overscroll-contain">
         {/* Search Bar Input */}
         <div className="p-4 sm:p-6 border-b border-emerald-800/60 flex items-center gap-3">

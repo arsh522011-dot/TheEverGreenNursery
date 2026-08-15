@@ -178,7 +178,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
         id: `plant-${Date.now()}`,
         name: editingPlant.name || 'New Plant',
         scientificName: editingPlant.scientificName || 'Botanical Name',
-        category: editingPlant.category || categories[0]?.name || 'Indoor Tropicals',
+        category: editingPlant.category || categories[0]?.name || 'Indoor Plants',
         shortDescription: editingPlant.shortDescription || 'Short description',
         description: editingPlant.description || 'Full description',
         images: editingPlant.images && editingPlant.images.length ? editingPlant.images : ['https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=1000&q=80'],
@@ -661,7 +661,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                   setEditingPlant({
                     name: '',
                     scientificName: '',
-                    category: categories.find((c) => c.name !== 'Pots')?.name || 'Indoor Tropicals',
+                    category: categories.find((c) => c.name !== 'Pots')?.name || 'Indoor Plants',
                     shortDescription: '',
                     description: '',
                     images: ['https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=1000&q=80'],

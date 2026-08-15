@@ -22,11 +22,11 @@ export const SEO_PAGE_CONFIGS: Record<string, PageSEO> = {
     h1: 'Wholesale Nursery Plants & Bulk Commercial Flora',
   },
   categories: {
-    title: 'Wholesale Plant Categories | Indoor, Outdoor & Ornamental Plants | The Ever Green Nursery',
-    description: 'Browse wholesale plant categories including indoor tropicals, outdoor architectural trees, exotic palms, flowering ornamentals, and landscaping shrubs at The Ever Green Nursery in Gajraula.',
-    keywords: 'indoor plants wholesale, outdoor plants wholesale, ornamental plants wholesale, palm plants wholesale, wholesale plant nursery in Gajraula, nursery categories',
+    title: 'Wholesale Plant Categories | Indoor, Outdoor & Pots | The Ever Green Nursery',
+    description: 'Browse wholesale plant categories including Indoor Plants, Outdoor Plants, and Pots at The Ever Green Nursery in Gajraula on NH-24 Delhi Road.',
+    keywords: 'indoor plants wholesale, outdoor plants wholesale, pots wholesale, nursery pots, wholesale plant nursery in Gajraula, nursery categories',
     canonicalPath: '/categories',
-    h1: 'Wholesale Plant Categories & Botanical Varieties',
+    h1: 'Wholesale Plant Categories & Varieties',
   },
   'bulk-orders': {
     title: 'Bulk & Commercial Plant Supplier | Landscaping & Contractors | The Ever Green Nursery',

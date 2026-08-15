@@ -277,12 +277,10 @@ export const BulkOrderView: React.FC<BulkOrderViewProps> = ({ settings, onNaviga
                       onChange={(e) => setFormData({ ...formData, plantCategory: e.target.value })}
                       className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-xs text-gray-900 bg-white"
                     >
-                      <option value="Indoor Plants">Indoor & Desk Plants</option>
-                      <option value="Air Purifying Plants">Air Purifying Plants</option>
-                      <option value="Succulents & Cactus">Succulents & Mini Cacti</option>
-                      <option value="Flowering Plants & Bulbs">Flowering Plants & Premium Bulbs</option>
-                      <option value="Ceramic & Eco Pots">Pots, Planters & Planter Sets</option>
-                      <option value="Custom Mixed Variety">Custom Mixed Selection</option>
+                      <option value="Indoor Plants">Indoor Plants</option>
+                      <option value="Outdoor Plants">Outdoor Plants</option>
+                      <option value="Pots">Pots & Planters</option>
+                      <option value="Custom Mixed Selection">Custom Mixed Selection</option>
                     </select>
                   </div>
                 </div>

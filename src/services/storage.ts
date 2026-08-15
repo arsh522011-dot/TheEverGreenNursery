@@ -107,7 +107,14 @@ export const StorageService = {
 
   // Categories
   getCategories(): Category[] {
-    return getStoredItem<Category[]>(STORAGE_KEYS.CATEGORIES, INITIAL_CATEGORIES);
+    const stored = getStoredItem<Category[]>(STORAGE_KEYS.CATEGORIES, INITIAL_CATEGORIES);
+    const validCategoryNames = new Set(['Indoor Plants', 'Outdoor Plants', 'Pots']);
+    const hasLegacy = stored.some((c) => !validCategoryNames.has(c.name));
+    if (hasLegacy || stored.length !== 3) {
+      this.saveCategories(INITIAL_CATEGORIES);
+      return INITIAL_CATEGORIES;
+    }
+    return stored;
   },
   saveCategories(categories: Category[]): void {
     const previous = getStoredItem<Category[]>(STORAGE_KEYS.CATEGORIES, []);
@@ -123,7 +130,39 @@ export const StorageService = {
 
   // Plants
   getPlants(): Plant[] {
-    return getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, INITIAL_PLANTS);
+    const stored = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, INITIAL_PLANTS);
+    let changed = false;
+    const normalized = stored.map((p) => {
+      let cat = p.category;
+      if (
+        cat === 'Indoor Tropicals' ||
+        cat === 'Desert Succulents & Cacti' ||
+        cat === 'Desert Succulents' ||
+        cat === 'Trailing & Hanging Flora' ||
+        cat === 'Indoor'
+      ) {
+        cat = 'Indoor Plants';
+        changed = true;
+      } else if (
+        cat === 'Outdoor Architectural' ||
+        cat === 'Flowering Ornamentals' ||
+        cat === 'Exotic Palms & Cycads' ||
+        cat === 'Master Bonsai Collection' ||
+        cat === 'Dwarf Fruit Trees' ||
+        cat === 'Outdoor'
+      ) {
+        cat = 'Outdoor Plants';
+        changed = true;
+      } else if (cat === 'Pots & Planters' || cat === 'Pots') {
+        cat = 'Pots';
+      }
+      return { ...p, category: cat };
+    });
+
+    if (changed) {
+      setStoredItem(STORAGE_KEYS.PLANTS, normalized);
+    }
+    return normalized;
   },
   savePlants(plants: Plant[]): void {
     const previous = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, []);
