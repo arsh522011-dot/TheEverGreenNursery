@@ -221,8 +221,10 @@ export const AdminView: React.FC<AdminViewProps> = ({
       title: 'Delete Plant',
       message: 'Are you sure you want to delete this plant from the catalogue?',
       onConfirm: () => {
-        const updated = StorageService.getPlants().filter((p) => p.id !== id);
-        StorageService.savePlants(updated);
+        StorageService.deletePlant(id);
+        if (editingPlant?.id === id) {
+          setEditingPlant(null);
+        }
         onRefreshData();
       },
     });
@@ -264,8 +266,10 @@ export const AdminView: React.FC<AdminViewProps> = ({
       title: 'Delete Category',
       message: 'Are you sure you want to delete this category?',
       onConfirm: () => {
-        const updated = StorageService.getCategories().filter((c) => c.id !== id);
-        StorageService.saveCategories(updated);
+        StorageService.deleteCategory(id);
+        if (editingCategory?.id === id) {
+          setEditingCategory(null);
+        }
         onRefreshData();
       },
     });
@@ -302,8 +306,10 @@ export const AdminView: React.FC<AdminViewProps> = ({
       title: 'Delete Service',
       message: 'Are you sure you want to delete this service?',
       onConfirm: () => {
-        const updated = StorageService.getServices().filter((s) => s.id !== id);
-        StorageService.saveServices(updated);
+        StorageService.deleteService(id);
+        if (editingService?.id === id) {
+          setEditingService(null);
+        }
         onRefreshData();
       },
     });
@@ -350,8 +356,10 @@ export const AdminView: React.FC<AdminViewProps> = ({
       title: 'Delete Project',
       message: 'Are you sure you want to delete this project?',
       onConfirm: () => {
-        const updated = StorageService.getProjects().filter((p) => p.id !== id);
-        StorageService.saveProjects(updated);
+        StorageService.deleteProject(id);
+        if (editingProject?.id === id) {
+          setEditingProject(null);
+        }
         onRefreshData();
       },
     });
@@ -397,8 +405,10 @@ export const AdminView: React.FC<AdminViewProps> = ({
       title: 'Delete Photo',
       message: 'Are you sure you want to delete this photo from the gallery?',
       onConfirm: () => {
-        const updated = StorageService.getGallery().filter((g) => g.id !== id);
-        StorageService.saveGallery(updated);
+        StorageService.deleteGalleryItem(id);
+        if (editingGallery?.id === id) {
+          setEditingGallery(null);
+        }
         onRefreshData();
       },
     });
@@ -491,8 +501,10 @@ export const AdminView: React.FC<AdminViewProps> = ({
       title: 'Delete Testimonial',
       message: 'Are you sure you want to delete this testimonial?',
       onConfirm: () => {
-        const updated = StorageService.getTestimonials().filter((t) => t.id !== id);
-        StorageService.saveTestimonials(updated);
+        StorageService.deleteTestimonial(id);
+        if (editingTestimonial?.id === id) {
+          setEditingTestimonial(null);
+        }
         onRefreshData();
       },
     });

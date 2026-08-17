@@ -30,7 +30,52 @@ const STORAGE_KEYS = {
   INQUIRIES: 'verdant_realm_inquiries_v1',
   ADMIN_AUTH: 'verdant_realm_admin_session_v1',
   ADMIN_PASS: 'verdant_realm_admin_pass_v1',
+  DELETED_IDS: 'verdant_realm_deleted_ids_v1',
 };
+
+// Helper to track and persist permanently deleted entity IDs
+function getDeletedIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.DELETED_IDS);
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        return new Set<string>(arr);
+      }
+    }
+  } catch (err) {
+    console.warn('Error reading deleted IDs:', err);
+  }
+  return new Set<string>();
+}
+
+function markAsDeleted(ids: string | string[]): void {
+  try {
+    const list = Array.isArray(ids) ? ids : [ids];
+    const current = getDeletedIds();
+    list.forEach((id) => {
+      if (id && typeof id === 'string') {
+        current.add(id.trim());
+      }
+    });
+    localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(Array.from(current)));
+  } catch (err) {
+    console.warn('Error saving deleted IDs:', err);
+  }
+}
+
+function unmarkAsDeleted(ids: string | string[]): void {
+  try {
+    const list = Array.isArray(ids) ? ids : [ids];
+    const current = getDeletedIds();
+    list.forEach((id) => {
+      if (id) current.delete(id.trim());
+    });
+    localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(Array.from(current)));
+  } catch (err) {
+    console.warn('Error unmarking deleted IDs:', err);
+  }
+}
 
 // Helper for getItem with initial fallback
 function getStoredItem<T>(key: string, fallback: T): T {
@@ -158,32 +203,45 @@ export const StorageService = {
 
   // Categories
   getCategories(): Category[] {
-    const stored = getStoredItem<Category[]>(STORAGE_KEYS.CATEGORIES, INITIAL_CATEGORIES);
-    const validCategoryNames = new Set(['Indoor Plants', 'Outdoor Plants', 'Pots']);
-    const hasLegacy = stored.some((c) => !validCategoryNames.has(c.name));
-    if (hasLegacy || stored.length !== 3) {
-      this.saveCategories(INITIAL_CATEGORIES);
-      return INITIAL_CATEGORIES;
-    }
-    return stored;
+    const deleted = getDeletedIds();
+    const filteredInitial = INITIAL_CATEGORIES.filter((c) => !deleted.has(c.id));
+    const stored = getStoredItem<Category[]>(STORAGE_KEYS.CATEGORIES, filteredInitial);
+    return (stored || []).filter((c) => !deleted.has(c.id));
   },
   saveCategories(categories: Category[]): void {
-    const previous = getStoredItem<Category[]>(STORAGE_KEYS.CATEGORIES, []);
+    const deleted = getDeletedIds();
+    const previous = getStoredItem<Category[]>(STORAGE_KEYS.CATEGORIES, INITIAL_CATEGORIES);
     const newIds = new Set(categories.map((c) => c.id));
-    previous.forEach((c) => {
-      if (!newIds.has(c.id)) {
-        deleteDocumentFirestore('categories', c.id);
-      }
+    const removed = previous.filter((c) => !newIds.has(c.id)).map((c) => c.id);
+    
+    if (removed.length > 0) {
+      markAsDeleted(removed);
+      removed.forEach((id) => deleteDocumentFirestore('categories', id));
+    }
+    
+    // Unmark any active items that might have been marked deleted previously
+    categories.forEach((c) => {
+      if (deleted.has(c.id)) unmarkAsDeleted(c.id);
     });
+
     setStoredItem(STORAGE_KEYS.CATEGORIES, categories);
     categories.forEach((cat) => saveDocumentFirestore('categories', cat.id, cat));
+  },
+  deleteCategory(id: string): void {
+    markAsDeleted(id);
+    deleteDocumentFirestore('categories', id);
+    const current = this.getCategories().filter((c) => c.id !== id);
+    setStoredItem(STORAGE_KEYS.CATEGORIES, current);
   },
 
   // Plants
   getPlants(): Plant[] {
-    const stored = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, INITIAL_PLANTS);
+    const deleted = getDeletedIds();
+    const filteredInitial = INITIAL_PLANTS.filter((p) => !deleted.has(p.id));
+    const stored = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, filteredInitial);
+    const active = (stored || []).filter((p) => !deleted.has(p.id));
     let changed = false;
-    const normalized = stored.map((p) => {
+    const normalized = active.map((p) => {
       let cat = p.category;
       if (
         cat === 'Indoor Tropicals' ||
@@ -216,15 +274,28 @@ export const StorageService = {
     return normalized;
   },
   savePlants(plants: Plant[]): void {
-    const previous = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, []);
+    const deleted = getDeletedIds();
+    const previous = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, INITIAL_PLANTS);
     const newIds = new Set(plants.map((p) => p.id));
-    previous.forEach((p) => {
-      if (!newIds.has(p.id)) {
-        deleteDocumentFirestore('plants', p.id);
-      }
+    const removed = previous.filter((p) => !newIds.has(p.id)).map((p) => p.id);
+
+    if (removed.length > 0) {
+      markAsDeleted(removed);
+      removed.forEach((id) => deleteDocumentFirestore('plants', id));
+    }
+
+    plants.forEach((p) => {
+      if (deleted.has(p.id)) unmarkAsDeleted(p.id);
     });
+
     setStoredItem(STORAGE_KEYS.PLANTS, plants);
     plants.forEach((plant) => saveDocumentFirestore('plants', plant.id, plant));
+  },
+  deletePlant(id: string): void {
+    markAsDeleted(id);
+    deleteDocumentFirestore('plants', id);
+    const current = this.getPlants().filter((p) => p.id !== id);
+    setStoredItem(STORAGE_KEYS.PLANTS, current);
   },
   getPlantById(id: string): Plant | undefined {
     const plants = this.getPlants();
@@ -233,69 +304,127 @@ export const StorageService = {
 
   // Services
   getServices(): Service[] {
-    return getStoredItem<Service[]>(STORAGE_KEYS.SERVICES, INITIAL_SERVICES);
+    const deleted = getDeletedIds();
+    const filteredInitial = INITIAL_SERVICES.filter((s) => !deleted.has(s.id));
+    const stored = getStoredItem<Service[]>(STORAGE_KEYS.SERVICES, filteredInitial);
+    return (stored || []).filter((s) => !deleted.has(s.id));
   },
   saveServices(services: Service[]): void {
-    const previous = getStoredItem<Service[]>(STORAGE_KEYS.SERVICES, []);
+    const deleted = getDeletedIds();
+    const previous = getStoredItem<Service[]>(STORAGE_KEYS.SERVICES, INITIAL_SERVICES);
     const newIds = new Set(services.map((s) => s.id));
-    previous.forEach((s) => {
-      if (!newIds.has(s.id)) {
-        deleteDocumentFirestore('services', s.id);
-      }
+    const removed = previous.filter((s) => !newIds.has(s.id)).map((s) => s.id);
+
+    if (removed.length > 0) {
+      markAsDeleted(removed);
+      removed.forEach((id) => deleteDocumentFirestore('services', id));
+    }
+
+    services.forEach((s) => {
+      if (deleted.has(s.id)) unmarkAsDeleted(s.id);
     });
+
     setStoredItem(STORAGE_KEYS.SERVICES, services);
     services.forEach((srv) => saveDocumentFirestore('services', srv.id, srv));
+  },
+  deleteService(id: string): void {
+    markAsDeleted(id);
+    deleteDocumentFirestore('services', id);
+    const current = this.getServices().filter((s) => s.id !== id);
+    setStoredItem(STORAGE_KEYS.SERVICES, current);
   },
 
   // Projects
   getProjects(): Project[] {
-    return getStoredItem<Project[]>(STORAGE_KEYS.PROJECTS, INITIAL_PROJECTS);
+    const deleted = getDeletedIds();
+    const filteredInitial = INITIAL_PROJECTS.filter((p) => !deleted.has(p.id));
+    const stored = getStoredItem<Project[]>(STORAGE_KEYS.PROJECTS, filteredInitial);
+    return (stored || []).filter((p) => !deleted.has(p.id));
   },
   saveProjects(projects: Project[]): void {
-    const previous = getStoredItem<Project[]>(STORAGE_KEYS.PROJECTS, []);
+    const deleted = getDeletedIds();
+    const previous = getStoredItem<Project[]>(STORAGE_KEYS.PROJECTS, INITIAL_PROJECTS);
     const newIds = new Set(projects.map((pr) => pr.id));
-    previous.forEach((pr) => {
-      if (!newIds.has(pr.id)) {
-        deleteDocumentFirestore('projects', pr.id);
-      }
+    const removed = previous.filter((pr) => !newIds.has(pr.id)).map((pr) => pr.id);
+
+    if (removed.length > 0) {
+      markAsDeleted(removed);
+      removed.forEach((id) => deleteDocumentFirestore('projects', id));
+    }
+
+    projects.forEach((pr) => {
+      if (deleted.has(pr.id)) unmarkAsDeleted(pr.id);
     });
+
     setStoredItem(STORAGE_KEYS.PROJECTS, projects);
     projects.forEach((proj) => saveDocumentFirestore('projects', proj.id, proj));
+  },
+  deleteProject(id: string): void {
+    markAsDeleted(id);
+    deleteDocumentFirestore('projects', id);
+    const current = this.getProjects().filter((p) => p.id !== id);
+    setStoredItem(STORAGE_KEYS.PROJECTS, current);
   },
 
   // Gallery
   getGallery(): GalleryItem[] {
-    return getStoredItem<GalleryItem[]>(STORAGE_KEYS.GALLERY, INITIAL_GALLERY);
+    const deleted = getDeletedIds();
+    const filteredInitial = INITIAL_GALLERY.filter((g) => !deleted.has(g.id));
+    const stored = getStoredItem<GalleryItem[]>(STORAGE_KEYS.GALLERY, filteredInitial);
+    return (stored || []).filter((g) => !deleted.has(g.id));
   },
   saveGallery(gallery: GalleryItem[]): void {
-    const previous = getStoredItem<GalleryItem[]>(STORAGE_KEYS.GALLERY, []);
+    const deleted = getDeletedIds();
+    const previous = getStoredItem<GalleryItem[]>(STORAGE_KEYS.GALLERY, INITIAL_GALLERY);
     const newIds = new Set(gallery.map((g) => g.id));
-    previous.forEach((g) => {
-      if (!newIds.has(g.id)) {
-        deleteDocumentFirestore('gallery', g.id);
-      }
+    const removed = previous.filter((g) => !newIds.has(g.id)).map((g) => g.id);
+
+    if (removed.length > 0) {
+      markAsDeleted(removed);
+      removed.forEach((id) => deleteDocumentFirestore('gallery', id));
+    }
+
+    gallery.forEach((g) => {
+      if (deleted.has(g.id)) unmarkAsDeleted(g.id);
     });
+
     setStoredItem(STORAGE_KEYS.GALLERY, gallery);
     gallery.forEach((g) => saveDocumentFirestore('gallery', g.id, g));
+  },
+  deleteGalleryItem(id: string): void {
+    markAsDeleted(id);
+    deleteDocumentFirestore('gallery', id);
+    const current = this.getGallery().filter((g) => g.id !== id);
+    setStoredItem(STORAGE_KEYS.GALLERY, current);
   },
 
   // Testimonials & Feedback
   getTestimonials(): Testimonial[] {
-    const raw = getStoredItem<Testimonial[]>(STORAGE_KEYS.TESTIMONIALS, INITIAL_TESTIMONIALS);
-    return raw.map((t) => ({
+    const deleted = getDeletedIds();
+    const filteredInitial = INITIAL_TESTIMONIALS.filter((t) => !deleted.has(t.id));
+    const raw = getStoredItem<Testimonial[]>(STORAGE_KEYS.TESTIMONIALS, filteredInitial);
+    const active = (raw || []).filter((t) => !deleted.has(t.id));
+    return active.map((t) => ({
       ...t,
       showOnHome: t.showOnHome !== undefined ? t.showOnHome : true,
       status: t.status || 'approved',
     }));
   },
   saveTestimonials(testimonials: Testimonial[]): void {
-    const previous = getStoredItem<Testimonial[]>(STORAGE_KEYS.TESTIMONIALS, []);
+    const deleted = getDeletedIds();
+    const previous = getStoredItem<Testimonial[]>(STORAGE_KEYS.TESTIMONIALS, INITIAL_TESTIMONIALS);
     const newIds = new Set(testimonials.map((t) => t.id));
-    previous.forEach((t) => {
-      if (!newIds.has(t.id)) {
-        deleteDocumentFirestore('testimonials', t.id);
-      }
+    const removed = previous.filter((t) => !newIds.has(t.id)).map((t) => t.id);
+
+    if (removed.length > 0) {
+      markAsDeleted(removed);
+      removed.forEach((id) => deleteDocumentFirestore('testimonials', id));
+    }
+
+    testimonials.forEach((t) => {
+      if (deleted.has(t.id)) unmarkAsDeleted(t.id);
     });
+
     setStoredItem(STORAGE_KEYS.TESTIMONIALS, testimonials);
     testimonials.forEach((t) => saveDocumentFirestore('testimonials', t.id, t));
   },
@@ -318,6 +447,8 @@ export const StorageService = {
     this.saveTestimonials(updated);
   },
   deleteTestimonial(id: string): void {
+    markAsDeleted(id);
+    deleteDocumentFirestore('testimonials', id);
     const existing = this.getTestimonials();
     const updated = existing.filter((t) => t.id !== id);
     this.saveTestimonials(updated);
@@ -330,16 +461,26 @@ export const StorageService = {
 
   // Customer Inquiries
   getInquiries(): CustomerInquiry[] {
-    return getStoredItem<CustomerInquiry[]>(STORAGE_KEYS.INQUIRIES, INITIAL_INQUIRIES);
+    const deleted = getDeletedIds();
+    const filteredInitial = INITIAL_INQUIRIES.filter((inq) => !deleted.has(inq.id));
+    const stored = getStoredItem<CustomerInquiry[]>(STORAGE_KEYS.INQUIRIES, filteredInitial);
+    return (stored || []).filter((inq) => !deleted.has(inq.id));
   },
   saveInquiries(inquiries: CustomerInquiry[]): void {
-    const previous = getStoredItem<CustomerInquiry[]>(STORAGE_KEYS.INQUIRIES, []);
+    const deleted = getDeletedIds();
+    const previous = getStoredItem<CustomerInquiry[]>(STORAGE_KEYS.INQUIRIES, INITIAL_INQUIRIES);
     const newIds = new Set(inquiries.map((inq) => inq.id));
-    previous.forEach((inq) => {
-      if (!newIds.has(inq.id)) {
-        deleteDocumentFirestore('inquiries', inq.id);
-      }
+    const removed = previous.filter((inq) => !newIds.has(inq.id)).map((inq) => inq.id);
+
+    if (removed.length > 0) {
+      markAsDeleted(removed);
+      removed.forEach((id) => deleteDocumentFirestore('inquiries', id));
+    }
+
+    inquiries.forEach((inq) => {
+      if (deleted.has(inq.id)) unmarkAsDeleted(inq.id);
     });
+
     setStoredItem(STORAGE_KEYS.INQUIRIES, inquiries);
     inquiries.forEach((inq) => saveDocumentFirestore('inquiries', inq.id, inq));
   },
@@ -361,25 +502,27 @@ export const StorageService = {
     this.saveInquiries(updated);
   },
   deleteInquiry(id: string): void {
+    markAsDeleted(id);
+    deleteDocumentFirestore('inquiries', id);
     const existing = this.getInquiries();
     const updated = existing.filter((inq) => inq.id !== id);
-    this.saveInquiries(updated);
+    setStoredItem(STORAGE_KEYS.INQUIRIES, updated);
   },
 
   // Async sync with Firestore on initial app launch
   async initFirebaseSync(onSyncComplete?: () => void): Promise<void> {
     try {
+      const deleted = getDeletedIds();
+
       // 1. Sync Site Settings from Firestore
       const remoteSettings = await fetchDocumentFirestore<SiteSettings>('settings', 'site_config');
       if (remoteSettings !== null) {
         setStoredItem(STORAGE_KEYS.SETTINGS, remoteSettings);
       } else {
-        // If not yet saved in Firestore, seed current stored settings
         const currentSettings = this.getSettings();
         saveDocumentFirestore('settings', 'site_config', currentSettings);
       }
 
-      // Realtime listener for live settings updates across tabs and devices
       subscribeDocumentFirestore<SiteSettings>('settings', 'site_config', (updatedSettings) => {
         if (updatedSettings) {
           setStoredItem(STORAGE_KEYS.SETTINGS, updatedSettings);
@@ -390,14 +533,16 @@ export const StorageService = {
       // 2. Sync categories from Firestore
       const remoteCategories = await fetchCollectionFirestore<Category>('categories');
       if (remoteCategories !== null && remoteCategories.length > 0) {
-        setStoredItem(STORAGE_KEYS.CATEGORIES, remoteCategories);
+        const validRemote = remoteCategories.filter((c) => !deleted.has(c.id));
+        setStoredItem(STORAGE_KEYS.CATEGORIES, validRemote);
       } else if (remoteCategories === null) {
-        const currentCats = getStoredItem<Category[]>(STORAGE_KEYS.CATEGORIES, INITIAL_CATEGORIES);
+        const currentCats = this.getCategories();
         currentCats.forEach((c) => saveDocumentFirestore('categories', c.id, c));
       }
       subscribeCollectionFirestore<Category>('categories', (cats) => {
-        if (cats && cats.length > 0) {
-          setStoredItem(STORAGE_KEYS.CATEGORIES, cats);
+        if (cats) {
+          const validCats = cats.filter((c) => !getDeletedIds().has(c.id));
+          setStoredItem(STORAGE_KEYS.CATEGORIES, validCats);
           if (onSyncComplete) onSyncComplete();
         }
       });
@@ -405,12 +550,11 @@ export const StorageService = {
       // 3. Sync plants from Firestore (dynamic, unlimited plant photos)
       const remotePlants = await fetchCollectionFirestore<Plant>('plants');
       if (remotePlants !== null && remotePlants.length > 0) {
-        const localPlants = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, INITIAL_PLANTS);
+        const localPlants = this.getPlants();
         const map = new Map<string, Plant>();
-        INITIAL_PLANTS.forEach((p) => map.set(p.id, p));
-        remotePlants.forEach((p) => map.set(p.id, p));
-        localPlants.forEach((p) => {
-          // Priority to local plants if they contain custom real photos
+        INITIAL_PLANTS.filter((p) => !deleted.has(p.id)).forEach((p) => map.set(p.id, p));
+        remotePlants.filter((p) => !deleted.has(p.id)).forEach((p) => map.set(p.id, p));
+        localPlants.filter((p) => !deleted.has(p.id)).forEach((p) => {
           const existing = map.get(p.id);
           if (!existing) {
             map.set(p.id, p);
@@ -418,19 +562,20 @@ export const StorageService = {
             map.set(p.id, { ...existing, ...p });
           }
         });
-        const mergedPlants = Array.from(map.values());
+        const mergedPlants = Array.from(map.values()).filter((p) => !deleted.has(p.id));
         setStoredItem(STORAGE_KEYS.PLANTS, mergedPlants);
       } else if (remotePlants === null) {
-        const current = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, INITIAL_PLANTS);
+        const current = this.getPlants();
         current.forEach((p) => saveDocumentFirestore('plants', p.id, p));
       }
       subscribeCollectionFirestore<Plant>('plants', (plantsList) => {
-        if (plantsList && plantsList.length > 0) {
-          const localPlants = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, INITIAL_PLANTS);
+        if (plantsList) {
+          const activeDeleted = getDeletedIds();
+          const localPlants = this.getPlants();
           const map = new Map<string, Plant>();
-          INITIAL_PLANTS.forEach((p) => map.set(p.id, p));
-          plantsList.forEach((p) => map.set(p.id, p));
-          localPlants.forEach((p) => {
+          INITIAL_PLANTS.filter((p) => !activeDeleted.has(p.id)).forEach((p) => map.set(p.id, p));
+          plantsList.filter((p) => !activeDeleted.has(p.id)).forEach((p) => map.set(p.id, p));
+          localPlants.filter((p) => !activeDeleted.has(p.id)).forEach((p) => {
             const existing = map.get(p.id);
             if (!existing) {
               map.set(p.id, p);
@@ -438,7 +583,7 @@ export const StorageService = {
               map.set(p.id, { ...existing, ...p });
             }
           });
-          setStoredItem(STORAGE_KEYS.PLANTS, Array.from(map.values()));
+          setStoredItem(STORAGE_KEYS.PLANTS, Array.from(map.values()).filter((p) => !activeDeleted.has(p.id)));
           if (onSyncComplete) onSyncComplete();
         }
       });
@@ -446,14 +591,16 @@ export const StorageService = {
       // 4. Sync services from Firestore
       const remoteServices = await fetchCollectionFirestore<Service>('services');
       if (remoteServices !== null && remoteServices.length > 0) {
-        setStoredItem(STORAGE_KEYS.SERVICES, remoteServices);
+        const validServices = remoteServices.filter((s) => !deleted.has(s.id));
+        setStoredItem(STORAGE_KEYS.SERVICES, validServices);
       } else if (remoteServices === null) {
-        const currentSrv = getStoredItem<Service[]>(STORAGE_KEYS.SERVICES, INITIAL_SERVICES);
+        const currentSrv = this.getServices();
         currentSrv.forEach((s) => saveDocumentFirestore('services', s.id, s));
       }
       subscribeCollectionFirestore<Service>('services', (servicesList) => {
-        if (servicesList && servicesList.length > 0) {
-          setStoredItem(STORAGE_KEYS.SERVICES, servicesList);
+        if (servicesList) {
+          const validServices = servicesList.filter((s) => !getDeletedIds().has(s.id));
+          setStoredItem(STORAGE_KEYS.SERVICES, validServices);
           if (onSyncComplete) onSyncComplete();
         }
       });
@@ -461,26 +608,28 @@ export const StorageService = {
       // 5. Sync projects from Firestore
       const remoteProjects = await fetchCollectionFirestore<Project>('projects');
       if (remoteProjects !== null && remoteProjects.length > 0) {
-        setStoredItem(STORAGE_KEYS.PROJECTS, remoteProjects);
+        const validProj = remoteProjects.filter((pr) => !deleted.has(pr.id));
+        setStoredItem(STORAGE_KEYS.PROJECTS, validProj);
       } else if (remoteProjects === null) {
-        const currentProj = getStoredItem<Project[]>(STORAGE_KEYS.PROJECTS, INITIAL_PROJECTS);
+        const currentProj = this.getProjects();
         currentProj.forEach((pr) => saveDocumentFirestore('projects', pr.id, pr));
       }
       subscribeCollectionFirestore<Project>('projects', (projList) => {
-        if (projList && projList.length > 0) {
-          setStoredItem(STORAGE_KEYS.PROJECTS, projList);
+        if (projList) {
+          const validProj = projList.filter((pr) => !getDeletedIds().has(pr.id));
+          setStoredItem(STORAGE_KEYS.PROJECTS, validProj);
           if (onSyncComplete) onSyncComplete();
         }
       });
 
-      // 6. Sync gallery from Firestore (dynamic, unlimited gallery photography)
+      // 6. Sync gallery from Firestore
       const remoteGallery = await fetchCollectionFirestore<GalleryItem>('gallery');
       if (remoteGallery !== null && remoteGallery.length > 0) {
-        const localGal = getStoredItem<GalleryItem[]>(STORAGE_KEYS.GALLERY, INITIAL_GALLERY);
+        const localGal = this.getGallery();
         const map = new Map<string, GalleryItem>();
-        INITIAL_GALLERY.forEach((g) => map.set(g.id, g));
-        remoteGallery.forEach((g) => map.set(g.id, g));
-        localGal.forEach((g) => {
+        INITIAL_GALLERY.filter((g) => !deleted.has(g.id)).forEach((g) => map.set(g.id, g));
+        remoteGallery.filter((g) => !deleted.has(g.id)).forEach((g) => map.set(g.id, g));
+        localGal.filter((g) => !deleted.has(g.id)).forEach((g) => {
           const existing = map.get(g.id);
           if (!existing) {
             map.set(g.id, g);
@@ -488,19 +637,20 @@ export const StorageService = {
             map.set(g.id, { ...existing, ...g });
           }
         });
-        const mergedGal = Array.from(map.values());
+        const mergedGal = Array.from(map.values()).filter((g) => !deleted.has(g.id));
         setStoredItem(STORAGE_KEYS.GALLERY, mergedGal);
       } else if (remoteGallery === null) {
-        const currentGal = getStoredItem<GalleryItem[]>(STORAGE_KEYS.GALLERY, INITIAL_GALLERY);
+        const currentGal = this.getGallery();
         currentGal.forEach((g) => saveDocumentFirestore('gallery', g.id, g));
       }
       subscribeCollectionFirestore<GalleryItem>('gallery', (galList) => {
-        if (galList && galList.length > 0) {
-          const localGal = getStoredItem<GalleryItem[]>(STORAGE_KEYS.GALLERY, INITIAL_GALLERY);
+        if (galList) {
+          const activeDeleted = getDeletedIds();
+          const localGal = this.getGallery();
           const map = new Map<string, GalleryItem>();
-          INITIAL_GALLERY.forEach((g) => map.set(g.id, g));
-          galList.forEach((g) => map.set(g.id, g));
-          localGal.forEach((g) => {
+          INITIAL_GALLERY.filter((g) => !activeDeleted.has(g.id)).forEach((g) => map.set(g.id, g));
+          galList.filter((g) => !activeDeleted.has(g.id)).forEach((g) => map.set(g.id, g));
+          localGal.filter((g) => !activeDeleted.has(g.id)).forEach((g) => {
             const existing = map.get(g.id);
             if (!existing) {
               map.set(g.id, g);
@@ -508,7 +658,7 @@ export const StorageService = {
               map.set(g.id, { ...existing, ...g });
             }
           });
-          setStoredItem(STORAGE_KEYS.GALLERY, Array.from(map.values()));
+          setStoredItem(STORAGE_KEYS.GALLERY, Array.from(map.values()).filter((g) => !activeDeleted.has(g.id)));
           if (onSyncComplete) onSyncComplete();
         }
       });
@@ -516,14 +666,16 @@ export const StorageService = {
       // 7. Sync inquiries from Firestore
       const remoteInquiries = await fetchCollectionFirestore<CustomerInquiry>('inquiries');
       if (remoteInquiries !== null && remoteInquiries.length > 0) {
-        setStoredItem(STORAGE_KEYS.INQUIRIES, remoteInquiries);
+        const validInq = remoteInquiries.filter((inq) => !deleted.has(inq.id));
+        setStoredItem(STORAGE_KEYS.INQUIRIES, validInq);
       } else if (remoteInquiries === null) {
-        const currentInq = getStoredItem<CustomerInquiry[]>(STORAGE_KEYS.INQUIRIES, INITIAL_INQUIRIES);
+        const currentInq = this.getInquiries();
         currentInq.forEach((inq) => saveDocumentFirestore('inquiries', inq.id, inq));
       }
       subscribeCollectionFirestore<CustomerInquiry>('inquiries', (inqList) => {
         if (inqList) {
-          setStoredItem(STORAGE_KEYS.INQUIRIES, inqList);
+          const validInq = inqList.filter((inq) => !getDeletedIds().has(inq.id));
+          setStoredItem(STORAGE_KEYS.INQUIRIES, validInq);
           if (onSyncComplete) onSyncComplete();
         }
       });
@@ -531,14 +683,16 @@ export const StorageService = {
       // 8. Sync testimonials from Firestore
       const remoteTestimonials = await fetchCollectionFirestore<Testimonial>('testimonials');
       if (remoteTestimonials !== null && remoteTestimonials.length > 0) {
-        setStoredItem(STORAGE_KEYS.TESTIMONIALS, remoteTestimonials);
+        const validTest = remoteTestimonials.filter((t) => !deleted.has(t.id));
+        setStoredItem(STORAGE_KEYS.TESTIMONIALS, validTest);
       } else if (remoteTestimonials === null) {
-        const currentTest = getStoredItem<Testimonial[]>(STORAGE_KEYS.TESTIMONIALS, INITIAL_TESTIMONIALS);
+        const currentTest = this.getTestimonials();
         currentTest.forEach((t) => saveDocumentFirestore('testimonials', t.id, t));
       }
       subscribeCollectionFirestore<Testimonial>('testimonials', (testList) => {
-        if (testList && testList.length > 0) {
-          setStoredItem(STORAGE_KEYS.TESTIMONIALS, testList);
+        if (testList) {
+          const validTest = testList.filter((t) => !getDeletedIds().has(t.id));
+          setStoredItem(STORAGE_KEYS.TESTIMONIALS, validTest);
           if (onSyncComplete) onSyncComplete();
         }
       });
@@ -576,6 +730,7 @@ export const StorageService = {
 
   // Reset data to initial mock seed
   resetToDefaultData(): void {
+    localStorage.removeItem(STORAGE_KEYS.DELETED_IDS);
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(INITIAL_SETTINGS));
     localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(INITIAL_CATEGORIES));
     localStorage.setItem(STORAGE_KEYS.PLANTS, JSON.stringify(INITIAL_PLANTS));
@@ -586,3 +741,4 @@ export const StorageService = {
     localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(INITIAL_INQUIRIES));
   },
 };
+
