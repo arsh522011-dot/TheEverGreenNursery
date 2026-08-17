@@ -372,7 +372,7 @@ export default function App() {
           <HomeView
             settings={settings}
             categories={categories}
-            featuredPlants={plants.filter((p) => p.published)}
+            featuredPlants={plants.filter((p) => p.published !== false)}
             services={services}
             projects={projects}
             gallery={gallery}
@@ -385,7 +385,7 @@ export default function App() {
 
         {currentView === 'plants' && (
           <PlantsCatalogueView
-            plants={plants.filter((p) => p.published)}
+            plants={plants.filter((p) => p.published !== false)}
             categories={categories}
             initialCategory={viewParams.category}
             onNavigate={navigateTo}
@@ -426,7 +426,7 @@ export default function App() {
         {currentView === 'gallery' && (
           <GalleryView
             gallery={gallery}
-            plants={plants.filter((p) => p.published)}
+            plants={plants.filter((p) => p.published !== false)}
             onOpenLightbox={handleOpenLightbox}
           />
         )}
@@ -496,7 +496,7 @@ export default function App() {
       <SearchModal
         isOpen={searchOpen}
         onClose={() => setSearchOpen(false)}
-        plants={plants.filter((p) => p.published)}
+        plants={plants.filter((p) => p.published !== false)}
         onSelectPlant={(id) => navigateTo('plant-detail', { id })}
       />
 

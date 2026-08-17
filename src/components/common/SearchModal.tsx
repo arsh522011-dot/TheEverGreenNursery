@@ -24,13 +24,14 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   if (!isOpen) return null;
 
   const filteredPlants = query.trim()
-    ? plants.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query.toLowerCase()) ||
-          p.scientificName.toLowerCase().includes(query.toLowerCase()) ||
-          p.category.toLowerCase().includes(query.toLowerCase()) ||
-          p.shortDescription.toLowerCase().includes(query.toLowerCase())
-      )
+    ? plants.filter((p) => {
+        const q = query.toLowerCase().trim();
+        const matchesName = (p.name || '').toLowerCase().includes(q);
+        const matchesSci = (p.scientificName || '').toLowerCase().includes(q);
+        const matchesCat = (p.category || '').toLowerCase().includes(q);
+        const matchesDesc = (p.shortDescription || '').toLowerCase().includes(q);
+        return matchesName || matchesSci || matchesCat || matchesDesc;
+      })
     : plants.slice(0, 4); // Suggest top 4 featured when empty
 
   return (
@@ -74,9 +75,15 @@ export const SearchModal: React.FC<SearchModalProps> = ({
               >
                 <div className="flex items-center gap-4">
                   <img
-                    src={plant.images[0]}
+                    src={plant.images && plant.images[0] ? plant.images[0] : 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=400&q=80'}
                     alt={plant.name}
-                    className="w-14 h-14 rounded-xl object-cover border border-emerald-500/30"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (target.src !== 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=400&q=80') {
+                        target.src = 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=400&q=80';
+                      }
+                    }}
+                    className="w-14 h-14 rounded-xl object-cover border border-emerald-500/30 shrink-0"
                   />
                   <div>
                     <h4 className="font-serif text-base text-emerald-100 group-hover:text-emerald-300 transition-colors">

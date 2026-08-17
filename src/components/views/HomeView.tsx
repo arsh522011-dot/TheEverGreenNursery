@@ -57,9 +57,40 @@ export const HomeView: React.FC<HomeViewProps> = ({
   );
 
   const filteredPlants = featuredPlants.filter((p) => {
-    if (activeTab === 'indoor') return p.category.toLowerCase().includes('indoor');
-    if (activeTab === 'outdoor') return p.category.toLowerCase().includes('outdoor');
-    if (activeTab === 'pots') return p.category.toLowerCase().includes('pot');
+    const pCat = (p.category || '').toLowerCase();
+    const pName = (p.name || '').toLowerCase();
+    if (activeTab === 'indoor') {
+      return (
+        pCat.includes('indoor') ||
+        pCat.includes('tropical') ||
+        pCat.includes('succulent') ||
+        pCat.includes('trailing') ||
+        pName.includes('aglaonema') ||
+        pName.includes('dracaena') ||
+        pName.includes('monstera') ||
+        pName.includes('sansevieria') ||
+        pName.includes('snake') ||
+        pName.includes('ficus') ||
+        pName.includes('pothos')
+      );
+    }
+    if (activeTab === 'outdoor') {
+      return (
+        pCat.includes('outdoor') ||
+        pCat.includes('palm') ||
+        pCat.includes('tree') ||
+        pCat.includes('bonsai') ||
+        pCat.includes('landscape') ||
+        pCat.includes('flowering') ||
+        pName.includes('palm') ||
+        pName.includes('pine') ||
+        pName.includes('bougainvillea') ||
+        pName.includes('olive')
+      );
+    }
+    if (activeTab === 'pots') {
+      return pCat.includes('pot') || pCat.includes('planter') || pName.includes('pot') || pName.includes('planter');
+    }
     return true;
   });
 
@@ -374,10 +405,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     onClick={() => onNavigate('plant-detail', { id: plant.id })}
                   >
                     <img
-                      src={plant.images[0]}
+                      src={plant.images && plant.images[0] ? plant.images[0] : 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80'}
                       alt={plant.name}
                       loading="lazy"
                       decoding="async"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (target.src !== 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80') {
+                          target.src = 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80';
+                        }
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold font-mono uppercase tracking-wider shadow">
