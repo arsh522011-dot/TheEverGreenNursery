@@ -33,7 +33,27 @@ const STORAGE_KEYS = {
   DELETED_IDS: 'verdant_realm_deleted_ids_v1',
 };
 
-// Helper to track and persist permanently deleted entity IDs
+// Broadcast channel for instantaneous cross-tab and cross-window sync
+let broadcastChannel: BroadcastChannel | null = null;
+try {
+  if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+    broadcastChannel = new BroadcastChannel('evergreen_nursery_sync_channel');
+  }
+} catch {
+  broadcastChannel = null;
+}
+
+function notifyLocalChange(key?: string) {
+  try {
+    if (broadcastChannel) {
+      broadcastChannel.postMessage({ type: 'DATA_UPDATED', key, timestamp: Date.now() });
+    }
+  } catch {
+    // Ignore channel error
+  }
+}
+
+// Helper to track and persist permanently deleted entity IDs across all devices via Firestore
 function getDeletedIds(): Set<string> {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.DELETED_IDS);
@@ -58,7 +78,12 @@ function markAsDeleted(ids: string | string[]): void {
         current.add(id.trim());
       }
     });
-    localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(Array.from(current)));
+    const arr = Array.from(current);
+    localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(arr));
+    
+    // Synchronize to Firestore metadata registry so all mobile and desktop devices stay in sync
+    saveDocumentFirestore('metadata', 'deleted_registry', { ids: arr, updatedAt: Date.now() });
+    notifyLocalChange(STORAGE_KEYS.DELETED_IDS);
   } catch (err) {
     console.warn('Error saving deleted IDs:', err);
   }
@@ -71,7 +96,12 @@ function unmarkAsDeleted(ids: string | string[]): void {
     list.forEach((id) => {
       if (id) current.delete(id.trim());
     });
-    localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(Array.from(current)));
+    const arr = Array.from(current);
+    localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(arr));
+    
+    // Synchronize to Firestore metadata registry
+    saveDocumentFirestore('metadata', 'deleted_registry', { ids: arr, updatedAt: Date.now() });
+    notifyLocalChange(STORAGE_KEYS.DELETED_IDS);
   } catch (err) {
     console.warn('Error unmarking deleted IDs:', err);
   }
@@ -93,7 +123,6 @@ function getStoredItem<T>(key: string, fallback: T): T {
 // Clean up stale or oversized data from localStorage when quota is tight
 function freeStorageSpace(): void {
   try {
-    // 1. Trim inquiries to max 15 recent items
     const inq = localStorage.getItem(STORAGE_KEYS.INQUIRIES);
     if (inq) {
       try {
@@ -104,7 +133,6 @@ function freeStorageSpace(): void {
       } catch {}
     }
 
-    // 2. Remove legacy non-standard keys if any exist
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
@@ -123,6 +151,7 @@ function setStoredItem<T>(key: string, value: T): void {
   try {
     const sanitized = sanitizeForLocalStorage(value);
     localStorage.setItem(key, JSON.stringify(sanitized));
+    notifyLocalChange(key);
   } catch (err: any) {
     const isQuotaError =
       err &&
@@ -133,15 +162,15 @@ function setStoredItem<T>(key: string, value: T): void {
         (err.message && err.message.toLowerCase().includes('quota')));
 
     if (isQuotaError) {
-      console.warn(`LocalStorage quota reached for ${key}. Attempting emergency optimization...`);
+      console.warn(`LocalStorage quota reached for ${key}. Attempting optimization...`);
       try {
         freeStorageSpace();
-        // Aggressively sanitize the value
         const sanitized = sanitizeForLocalStorage(value);
         localStorage.setItem(key, JSON.stringify(sanitized));
+        notifyLocalChange(key);
         return;
-      } catch (retryErr) {
-        console.warn(`Could not save full payload to localStorage for ${key}, data maintained in session memory.`);
+      } catch {
+        console.warn(`Could not save full payload to localStorage for ${key}, maintained in memory.`);
         return;
       }
     }
@@ -150,6 +179,53 @@ function setStoredItem<T>(key: string, value: T): void {
 }
 
 export const StorageService = {
+  // Re-filter all locally cached collections against the deleted registry
+  reFilterAllCollections(): void {
+    const deleted = getDeletedIds();
+
+    // Plants
+    const storedPlants = getStoredItem<Plant[] | null>(STORAGE_KEYS.PLANTS, null);
+    if (storedPlants) {
+      const valid = storedPlants.filter((p) => !deleted.has(p.id));
+      localStorage.setItem(STORAGE_KEYS.PLANTS, JSON.stringify(valid));
+    }
+
+    // Gallery
+    const storedGallery = getStoredItem<GalleryItem[] | null>(STORAGE_KEYS.GALLERY, null);
+    if (storedGallery) {
+      const valid = storedGallery.filter((g) => !deleted.has(g.id));
+      localStorage.setItem(STORAGE_KEYS.GALLERY, JSON.stringify(valid));
+    }
+
+    // Categories
+    const storedCats = getStoredItem<Category[] | null>(STORAGE_KEYS.CATEGORIES, null);
+    if (storedCats) {
+      const valid = storedCats.filter((c) => !deleted.has(c.id));
+      localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(valid));
+    }
+
+    // Services
+    const storedServices = getStoredItem<Service[] | null>(STORAGE_KEYS.SERVICES, null);
+    if (storedServices) {
+      const valid = storedServices.filter((s) => !deleted.has(s.id));
+      localStorage.setItem(STORAGE_KEYS.SERVICES, JSON.stringify(valid));
+    }
+
+    // Projects
+    const storedProjects = getStoredItem<Project[] | null>(STORAGE_KEYS.PROJECTS, null);
+    if (storedProjects) {
+      const valid = storedProjects.filter((p) => !deleted.has(p.id));
+      localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(valid));
+    }
+
+    // Testimonials
+    const storedTestimonials = getStoredItem<Testimonial[] | null>(STORAGE_KEYS.TESTIMONIALS, null);
+    if (storedTestimonials) {
+      const valid = storedTestimonials.filter((t) => !deleted.has(t.id));
+      localStorage.setItem(STORAGE_KEYS.TESTIMONIALS, JSON.stringify(valid));
+    }
+  },
+
   // Site Settings
   getSettings(): SiteSettings {
     const saved = getStoredItem<Partial<SiteSettings>>(STORAGE_KEYS.SETTINGS, INITIAL_SETTINGS);
@@ -219,7 +295,6 @@ export const StorageService = {
       removed.forEach((id) => deleteDocumentFirestore('categories', id));
     }
     
-    // Unmark any active items that might have been marked deleted previously
     categories.forEach((c) => {
       if (deleted.has(c.id)) unmarkAsDeleted(c.id);
     });
@@ -344,8 +419,8 @@ export const StorageService = {
   saveProjects(projects: Project[]): void {
     const deleted = getDeletedIds();
     const previous = getStoredItem<Project[]>(STORAGE_KEYS.PROJECTS, INITIAL_PROJECTS);
-    const newIds = new Set(projects.map((pr) => pr.id));
-    const removed = previous.filter((pr) => !newIds.has(pr.id)).map((pr) => pr.id);
+    const newIds = new Set(projects.map((p) => p.id));
+    const removed = previous.filter((p) => !newIds.has(p.id)).map((p) => p.id);
 
     if (removed.length > 0) {
       markAsDeleted(removed);
@@ -509,9 +584,44 @@ export const StorageService = {
     setStoredItem(STORAGE_KEYS.INQUIRIES, updated);
   },
 
-  // Async sync with Firestore on initial app launch
+  // Async sync with Firestore on app launch and real-time updates across all devices
   async initFirebaseSync(onSyncComplete?: () => void): Promise<void> {
     try {
+      // 0. Synchronize Deleted IDs Registry First
+      try {
+        const remoteDeleted = await fetchDocumentFirestore<{ ids?: string[] }>('metadata', 'deleted_registry');
+        if (remoteDeleted && Array.isArray(remoteDeleted.ids)) {
+          const localDeleted = getDeletedIds();
+          remoteDeleted.ids.forEach((id) => {
+            if (id && typeof id === 'string') localDeleted.add(id.trim());
+          });
+          localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(Array.from(localDeleted)));
+        } else {
+          const localDeleted = getDeletedIds();
+          if (localDeleted.size > 0) {
+            saveDocumentFirestore('metadata', 'deleted_registry', {
+              ids: Array.from(localDeleted),
+              updatedAt: Date.now(),
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Deleted registry fetch error:', err);
+      }
+
+      // Realtime listener for cross-device deletions
+      subscribeDocumentFirestore<{ ids?: string[] }>('metadata', 'deleted_registry', (updated) => {
+        if (updated && Array.isArray(updated.ids)) {
+          const localDeleted = getDeletedIds();
+          updated.ids.forEach((id) => {
+            if (id && typeof id === 'string') localDeleted.add(id.trim());
+          });
+          localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(Array.from(localDeleted)));
+          this.reFilterAllCollections();
+          if (onSyncComplete) onSyncComplete();
+        }
+      });
+
       const deleted = getDeletedIds();
 
       // 1. Sync Site Settings from Firestore
@@ -535,55 +645,35 @@ export const StorageService = {
       if (remoteCategories !== null && remoteCategories.length > 0) {
         const validRemote = remoteCategories.filter((c) => !deleted.has(c.id));
         setStoredItem(STORAGE_KEYS.CATEGORIES, validRemote);
-      } else if (remoteCategories === null) {
+      } else if (remoteCategories === null || remoteCategories.length === 0) {
         const currentCats = this.getCategories();
         currentCats.forEach((c) => saveDocumentFirestore('categories', c.id, c));
       }
+
       subscribeCollectionFirestore<Category>('categories', (cats) => {
-        if (cats) {
-          const validCats = cats.filter((c) => !getDeletedIds().has(c.id));
+        if (cats && cats.length > 0) {
+          const activeDeleted = getDeletedIds();
+          const validCats = cats.filter((c) => !activeDeleted.has(c.id));
           setStoredItem(STORAGE_KEYS.CATEGORIES, validCats);
           if (onSyncComplete) onSyncComplete();
         }
       });
 
-      // 3. Sync plants from Firestore (dynamic, unlimited plant photos)
+      // 3. Sync plants from Firestore (Authoritative source across mobile and laptop)
       const remotePlants = await fetchCollectionFirestore<Plant>('plants');
       if (remotePlants !== null && remotePlants.length > 0) {
-        const localPlants = this.getPlants();
-        const map = new Map<string, Plant>();
-        INITIAL_PLANTS.filter((p) => !deleted.has(p.id)).forEach((p) => map.set(p.id, p));
-        remotePlants.filter((p) => !deleted.has(p.id)).forEach((p) => map.set(p.id, p));
-        localPlants.filter((p) => !deleted.has(p.id)).forEach((p) => {
-          const existing = map.get(p.id);
-          if (!existing) {
-            map.set(p.id, p);
-          } else {
-            map.set(p.id, { ...existing, ...p });
-          }
-        });
-        const mergedPlants = Array.from(map.values()).filter((p) => !deleted.has(p.id));
-        setStoredItem(STORAGE_KEYS.PLANTS, mergedPlants);
-      } else if (remotePlants === null) {
+        const validPlants = remotePlants.filter((p) => !deleted.has(p.id));
+        setStoredItem(STORAGE_KEYS.PLANTS, validPlants);
+      } else if (remotePlants === null || remotePlants.length === 0) {
         const current = this.getPlants();
         current.forEach((p) => saveDocumentFirestore('plants', p.id, p));
       }
+
       subscribeCollectionFirestore<Plant>('plants', (plantsList) => {
-        if (plantsList) {
+        if (plantsList && plantsList.length > 0) {
           const activeDeleted = getDeletedIds();
-          const localPlants = this.getPlants();
-          const map = new Map<string, Plant>();
-          INITIAL_PLANTS.filter((p) => !activeDeleted.has(p.id)).forEach((p) => map.set(p.id, p));
-          plantsList.filter((p) => !activeDeleted.has(p.id)).forEach((p) => map.set(p.id, p));
-          localPlants.filter((p) => !activeDeleted.has(p.id)).forEach((p) => {
-            const existing = map.get(p.id);
-            if (!existing) {
-              map.set(p.id, p);
-            } else {
-              map.set(p.id, { ...existing, ...p });
-            }
-          });
-          setStoredItem(STORAGE_KEYS.PLANTS, Array.from(map.values()).filter((p) => !activeDeleted.has(p.id)));
+          const validPlants = plantsList.filter((p) => !activeDeleted.has(p.id));
+          setStoredItem(STORAGE_KEYS.PLANTS, validPlants);
           if (onSyncComplete) onSyncComplete();
         }
       });
@@ -593,13 +683,15 @@ export const StorageService = {
       if (remoteServices !== null && remoteServices.length > 0) {
         const validServices = remoteServices.filter((s) => !deleted.has(s.id));
         setStoredItem(STORAGE_KEYS.SERVICES, validServices);
-      } else if (remoteServices === null) {
+      } else if (remoteServices === null || remoteServices.length === 0) {
         const currentSrv = this.getServices();
         currentSrv.forEach((s) => saveDocumentFirestore('services', s.id, s));
       }
+
       subscribeCollectionFirestore<Service>('services', (servicesList) => {
-        if (servicesList) {
-          const validServices = servicesList.filter((s) => !getDeletedIds().has(s.id));
+        if (servicesList && servicesList.length > 0) {
+          const activeDeleted = getDeletedIds();
+          const validServices = servicesList.filter((s) => !activeDeleted.has(s.id));
           setStoredItem(STORAGE_KEYS.SERVICES, validServices);
           if (onSyncComplete) onSyncComplete();
         }
@@ -610,13 +702,15 @@ export const StorageService = {
       if (remoteProjects !== null && remoteProjects.length > 0) {
         const validProj = remoteProjects.filter((pr) => !deleted.has(pr.id));
         setStoredItem(STORAGE_KEYS.PROJECTS, validProj);
-      } else if (remoteProjects === null) {
+      } else if (remoteProjects === null || remoteProjects.length === 0) {
         const currentProj = this.getProjects();
         currentProj.forEach((pr) => saveDocumentFirestore('projects', pr.id, pr));
       }
+
       subscribeCollectionFirestore<Project>('projects', (projList) => {
-        if (projList) {
-          const validProj = projList.filter((pr) => !getDeletedIds().has(pr.id));
+        if (projList && projList.length > 0) {
+          const activeDeleted = getDeletedIds();
+          const validProj = projList.filter((pr) => !activeDeleted.has(pr.id));
           setStoredItem(STORAGE_KEYS.PROJECTS, validProj);
           if (onSyncComplete) onSyncComplete();
         }
@@ -625,40 +719,18 @@ export const StorageService = {
       // 6. Sync gallery from Firestore
       const remoteGallery = await fetchCollectionFirestore<GalleryItem>('gallery');
       if (remoteGallery !== null && remoteGallery.length > 0) {
-        const localGal = this.getGallery();
-        const map = new Map<string, GalleryItem>();
-        INITIAL_GALLERY.filter((g) => !deleted.has(g.id)).forEach((g) => map.set(g.id, g));
-        remoteGallery.filter((g) => !deleted.has(g.id)).forEach((g) => map.set(g.id, g));
-        localGal.filter((g) => !deleted.has(g.id)).forEach((g) => {
-          const existing = map.get(g.id);
-          if (!existing) {
-            map.set(g.id, g);
-          } else {
-            map.set(g.id, { ...existing, ...g });
-          }
-        });
-        const mergedGal = Array.from(map.values()).filter((g) => !deleted.has(g.id));
-        setStoredItem(STORAGE_KEYS.GALLERY, mergedGal);
-      } else if (remoteGallery === null) {
+        const validGal = remoteGallery.filter((g) => !deleted.has(g.id));
+        setStoredItem(STORAGE_KEYS.GALLERY, validGal);
+      } else if (remoteGallery === null || remoteGallery.length === 0) {
         const currentGal = this.getGallery();
         currentGal.forEach((g) => saveDocumentFirestore('gallery', g.id, g));
       }
+
       subscribeCollectionFirestore<GalleryItem>('gallery', (galList) => {
-        if (galList) {
+        if (galList && galList.length > 0) {
           const activeDeleted = getDeletedIds();
-          const localGal = this.getGallery();
-          const map = new Map<string, GalleryItem>();
-          INITIAL_GALLERY.filter((g) => !activeDeleted.has(g.id)).forEach((g) => map.set(g.id, g));
-          galList.filter((g) => !activeDeleted.has(g.id)).forEach((g) => map.set(g.id, g));
-          localGal.filter((g) => !activeDeleted.has(g.id)).forEach((g) => {
-            const existing = map.get(g.id);
-            if (!existing) {
-              map.set(g.id, g);
-            } else {
-              map.set(g.id, { ...existing, ...g });
-            }
-          });
-          setStoredItem(STORAGE_KEYS.GALLERY, Array.from(map.values()).filter((g) => !activeDeleted.has(g.id)));
+          const validGal = galList.filter((g) => !activeDeleted.has(g.id));
+          setStoredItem(STORAGE_KEYS.GALLERY, validGal);
           if (onSyncComplete) onSyncComplete();
         }
       });
@@ -668,13 +740,15 @@ export const StorageService = {
       if (remoteInquiries !== null && remoteInquiries.length > 0) {
         const validInq = remoteInquiries.filter((inq) => !deleted.has(inq.id));
         setStoredItem(STORAGE_KEYS.INQUIRIES, validInq);
-      } else if (remoteInquiries === null) {
+      } else if (remoteInquiries === null || remoteInquiries.length === 0) {
         const currentInq = this.getInquiries();
         currentInq.forEach((inq) => saveDocumentFirestore('inquiries', inq.id, inq));
       }
+
       subscribeCollectionFirestore<CustomerInquiry>('inquiries', (inqList) => {
-        if (inqList) {
-          const validInq = inqList.filter((inq) => !getDeletedIds().has(inq.id));
+        if (inqList && inqList.length > 0) {
+          const activeDeleted = getDeletedIds();
+          const validInq = inqList.filter((inq) => !activeDeleted.has(inq.id));
           setStoredItem(STORAGE_KEYS.INQUIRIES, validInq);
           if (onSyncComplete) onSyncComplete();
         }
@@ -685,21 +759,38 @@ export const StorageService = {
       if (remoteTestimonials !== null && remoteTestimonials.length > 0) {
         const validTest = remoteTestimonials.filter((t) => !deleted.has(t.id));
         setStoredItem(STORAGE_KEYS.TESTIMONIALS, validTest);
-      } else if (remoteTestimonials === null) {
+      } else if (remoteTestimonials === null || remoteTestimonials.length === 0) {
         const currentTest = this.getTestimonials();
         currentTest.forEach((t) => saveDocumentFirestore('testimonials', t.id, t));
       }
+
       subscribeCollectionFirestore<Testimonial>('testimonials', (testList) => {
-        if (testList) {
-          const validTest = testList.filter((t) => !getDeletedIds().has(t.id));
+        if (testList && testList.length > 0) {
+          const activeDeleted = getDeletedIds();
+          const validTest = testList.filter((t) => !activeDeleted.has(t.id));
           setStoredItem(STORAGE_KEYS.TESTIMONIALS, validTest);
           if (onSyncComplete) onSyncComplete();
         }
       });
 
+      // Listen for cross-tab storage changes
+      if (typeof window !== 'undefined') {
+        window.addEventListener('storage', () => {
+          this.reFilterAllCollections();
+          if (onSyncComplete) onSyncComplete();
+        });
+
+        if (broadcastChannel) {
+          broadcastChannel.onmessage = () => {
+            this.reFilterAllCollections();
+            if (onSyncComplete) onSyncComplete();
+          };
+        }
+      }
+
       if (onSyncComplete) onSyncComplete();
     } catch (e) {
-      console.warn('Firebase sync completed with local fallback:', e);
+      console.warn('Firebase sync initialized with fallback:', e);
       if (onSyncComplete) onSyncComplete();
     }
   },
@@ -739,6 +830,7 @@ export const StorageService = {
     localStorage.setItem(STORAGE_KEYS.GALLERY, JSON.stringify(INITIAL_GALLERY));
     localStorage.setItem(STORAGE_KEYS.TESTIMONIALS, JSON.stringify(INITIAL_TESTIMONIALS));
     localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(INITIAL_INQUIRIES));
+    saveDocumentFirestore('metadata', 'deleted_registry', { ids: [], updatedAt: Date.now() });
+    notifyLocalChange();
   },
 };
-

@@ -56,8 +56,8 @@ export const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({
     setUploadProgress(15);
 
     try {
-      // 1. Client-side lightweight compression (reduces 5MB to ~60-120KB)
-      const compressed = await compressImageFile(file, 1200, 1200, 0.78);
+      // 1. Client-side lightweight compression (reduces 5MB to ~40-70KB)
+      const compressed = await compressImageFile(file, 960, 960, 0.72);
       setUploadProgress(40);
 
       if (!isConfigured) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Sprout, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -11,31 +11,64 @@ export const PageLoader: React.FC<PageLoaderProps> = ({ nurseryName = 'The Everg
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState<'seed' | 'sprout' | 'bloom'>('seed');
   const [isHiding, setIsHiding] = useState(false);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   const displayName = nurseryName || 'The Evergreen Nursery';
-  const nameCharacters = Array.from(displayName);
 
   useEffect(() => {
+    let isMounted = true;
+    let finishTriggered = false;
+
+    const triggerFinish = () => {
+      if (finishTriggered) return;
+      finishTriggered = true;
+      if (isMounted) {
+        setIsHiding(true);
+        setTimeout(() => {
+          if (isMounted) {
+            onCompleteRef.current();
+          }
+        }, 400);
+      }
+    };
+
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(timer);
-          setTimeout(() => {
-            setIsHiding(true);
-            setTimeout(onComplete, 700);
-          }, 150);
+          triggerFinish();
           return 100;
         }
 
-        const next = prev + Math.floor(Math.random() * 12) + 6;
-        if (next > 30 && stage === 'seed') setStage('sprout');
-        if (next > 75 && stage === 'sprout') setStage('bloom');
-        return next > 100 ? 100 : next;
+        const next = prev + Math.floor(Math.random() * 14) + 8;
+        if (next > 30 && next <= 75) setStage('sprout');
+        if (next > 75) setStage('bloom');
+        if (next >= 100) {
+          clearInterval(timer);
+          triggerFinish();
+          return 100;
+        }
+        return next;
       });
-    }, 90);
+    }, 60);
 
-    return () => clearInterval(timer);
-  }, [onComplete, stage]);
+    // Hard fallback safety timer (maximum 1.2s) so mobile refresh never stalls
+    const maxSafetyTimer = setTimeout(() => {
+      if (!finishTriggered) {
+        clearInterval(timer);
+        setProgress(100);
+        setStage('bloom');
+        triggerFinish();
+      }
+    }, 1200);
+
+    return () => {
+      isMounted = false;
+      clearInterval(timer);
+      clearTimeout(maxSafetyTimer);
+    };
+  }, []);
 
   // Container motion variant for staggered children
   const containerVariants = {

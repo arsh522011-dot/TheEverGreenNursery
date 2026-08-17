@@ -1,17 +1,17 @@
 /**
  * Client-side image compression utility using HTML5 Canvas.
- * Prevents localStorage QuotaExceededError by compressing photos before storage or upload.
+ * Prevents localStorage QuotaExceededError and Firestore 1MB limits by compressing photos before storage or upload.
  */
 
 export async function compressImageFile(
   file: File,
-  maxWidth = 1200,
-  maxHeight = 1200,
-  quality = 0.75
+  maxWidth = 960,
+  maxHeight = 960,
+  quality = 0.72
 ): Promise<{ dataUrl: string; blob: Blob; file: File }> {
   return new Promise((resolve, reject) => {
     // If it's an SVG or already tiny, don't re-encode with canvas
-    if (file.type === 'image/svg+xml' || (file.size < 50 * 1024 && file.type === 'image/webp')) {
+    if (file.type === 'image/svg+xml' || (file.size < 50 * 1024 && (file.type === 'image/webp' || file.type === 'image/jpeg'))) {
       const reader = new FileReader();
       reader.onload = () => {
         const dataUrl = reader.result as string;
@@ -56,7 +56,6 @@ export async function compressImageFile(
         ctx.fillRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Convert to webp if supported, else jpeg
         const outputMime = 'image/jpeg';
         const dataUrl = canvas.toDataURL(outputMime, quality);
 
@@ -71,7 +70,7 @@ export async function compressImageFile(
                   lastModified: Date.now(),
                 }
               );
-              resolve({ dataUrl, blob, file: compressedFile });
+              resolve({ dataUrl, blob: blob, file: compressedFile });
             } else {
               resolve({ dataUrl, blob: file, file });
             }
@@ -95,15 +94,15 @@ export async function compressImageFile(
 }
 
 /**
- * Compresses an existing base64 data URL string if it exceeds a threshold (e.g. > 150KB).
+ * Compresses an existing base64 data URL string if it exceeds a threshold (e.g. > 80KB).
  */
 export async function compressBase64String(
   base64Str: string,
-  maxWidth = 800,
-  maxHeight = 800,
+  maxWidth = 900,
+  maxHeight = 900,
   quality = 0.7
 ): Promise<string> {
-  if (!base64Str || !base64Str.startsWith('data:image/') || base64Str.length < 150 * 1024) {
+  if (!base64Str || !base64Str.startsWith('data:image/') || base64Str.length < 80 * 1024) {
     return base64Str;
   }
 

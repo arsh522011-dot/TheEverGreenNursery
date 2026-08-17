@@ -1,14 +1,14 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import {
+  initializeFirestore,
   getFirestore,
+  setLogLevel,
   doc,
   setDoc,
   getDoc,
   collection,
   getDocs,
-  addDoc,
-  updateDoc,
   deleteDoc,
   onSnapshot
 } from 'firebase/firestore';
@@ -18,7 +18,25 @@ import firebaseConfig from '../../firebase-applet-config.json';
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+// Suppress benign connection retry warning noise
+try {
+  setLogLevel('error');
+} catch {
+  // Ignore log level errors
+}
+
+// Initialize Firestore with auto-detect long polling for reliable connectivity across mobile & proxies
+let dbInstance;
+try {
+  dbInstance = initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
+  });
+} catch {
+  dbInstance = getFirestore(app);
+}
+
+export const db = dbInstance;
 
 // Helper to save a document to Firestore
 export async function saveDocumentFirestore<T extends Record<string, any>>(collectionName: string, docId: string, data: T) {

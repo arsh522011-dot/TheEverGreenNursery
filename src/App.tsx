@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { PageLoader } from './components/common/PageLoader';
 import { Header } from './components/common/Header';
 import { Footer } from './components/common/Footer';
@@ -26,15 +26,35 @@ import { StorageService } from './services/storage';
 import { Plant, Category, Service, Project, GalleryItem, Testimonial, SiteSettings } from './types';
 import { getPageSEO } from './utils/seoData';
 
-// Helper to parse route from URL
+// Helper to parse route from URL (pathname, hash, or query params)
 function parseUrlRoute(): { view: string; params: Record<string, string> } {
   try {
-    const rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '');
+    let rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '');
     const searchParams = new URLSearchParams(window.location.search);
     const params: Record<string, string> = {};
     searchParams.forEach((val, key) => {
       params[key] = val;
     });
+
+    // If pathname is empty, check hash routing fallback (e.g., #plants, #/about, #/plants/123)
+    if (!rawPath && window.location.hash) {
+      const hashStr = window.location.hash.replace(/^#\/?/, '').trim();
+      const hashParts = hashStr.split('?');
+      rawPath = hashParts[0] || '';
+      if (hashParts[1]) {
+        const hashParams = new URLSearchParams(hashParts[1]);
+        hashParams.forEach((val, key) => {
+          params[key] = val;
+        });
+      }
+    }
+
+    // Query parameter fallback (e.g. ?view=plants or ?page=about)
+    if ((!rawPath || rawPath === '') && params.view) {
+      rawPath = params.view;
+    } else if ((!rawPath || rawPath === '') && params.page) {
+      rawPath = params.page;
+    }
 
     if (!rawPath || rawPath === '') {
       return { view: 'home', params };
@@ -100,6 +120,10 @@ export default function App() {
   const [currentView, setCurrentView] = useState<string>(initialRoute.view);
   const [viewParams, setViewParams] = useState<Record<string, string>>(initialRoute.params);
 
+  const handleLoaderComplete = useCallback(() => {
+    setIsLoading(false);
+  }, []);
+
   // Data States
   const [settings, setSettings] = useState<SiteSettings>(StorageService.getSettings());
   const [categories, setCategories] = useState<Category[]>(StorageService.getCategories());
@@ -129,7 +153,7 @@ export default function App() {
     currentIndex: 0,
   });
 
-  const refreshData = () => {
+  const refreshData = useCallback(() => {
     setSettings(StorageService.getSettings());
     setCategories(StorageService.getCategories());
     setPlants(StorageService.getPlants());
@@ -137,20 +161,24 @@ export default function App() {
     setProjects(StorageService.getProjects());
     setGallery(StorageService.getGallery());
     setTestimonials(StorageService.getTestimonials());
-  };
+  }, []);
 
   useEffect(() => {
     StorageService.initFirebaseSync(refreshData);
 
-    const handlePopState = () => {
+    const handleRouteSync = () => {
       const parsed = parseUrlRoute();
       setCurrentView(parsed.view);
       setViewParams(parsed.params);
     };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+    window.addEventListener('popstate', handleRouteSync);
+    window.addEventListener('hashchange', handleRouteSync);
+    return () => {
+      window.removeEventListener('popstate', handleRouteSync);
+      window.removeEventListener('hashchange', handleRouteSync);
+    };
+  }, [refreshData]);
 
   // Synchronize Canonical Tag, Title, Keywords, OpenGraph & Breadcrumbs with Canonical Live Domain
   useEffect(() => {
@@ -326,7 +354,7 @@ export default function App() {
   return (
     <div className="relative min-h-screen bg-[#faf8f5] text-[#1a2e26] selection:bg-[#155e43] selection:text-white">
       {/* Seed Growth Page Loader */}
-      {isLoading && <PageLoader nurseryName={settings.nurseryName} onComplete={() => setIsLoading(false)} />}
+      {isLoading && <PageLoader nurseryName={settings.nurseryName} onComplete={handleLoaderComplete} />}
 
       {/* Main Navigation Header */}
       <Header
