@@ -17,6 +17,7 @@ import {
   subscribeCollectionFirestore,
   subscribeDocumentFirestore,
 } from './firebase';
+import { sanitizeForLocalStorage } from '../utils/imageCompressor';
 
 const STORAGE_KEYS = {
   SETTINGS: 'verdant_realm_settings_v1',
@@ -44,12 +45,62 @@ function getStoredItem<T>(key: string, fallback: T): T {
   return fallback;
 }
 
-// Helper for setItem
+// Clean up stale or oversized data from localStorage when quota is tight
+function freeStorageSpace(): void {
+  try {
+    // 1. Trim inquiries to max 15 recent items
+    const inq = localStorage.getItem(STORAGE_KEYS.INQUIRIES);
+    if (inq) {
+      try {
+        const parsed = JSON.parse(inq);
+        if (Array.isArray(parsed) && parsed.length > 15) {
+          localStorage.setItem(STORAGE_KEYS.INQUIRIES, JSON.stringify(parsed.slice(0, 15)));
+        }
+      } catch {}
+    }
+
+    // 2. Remove legacy non-standard keys if any exist
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && !Object.values(STORAGE_KEYS).includes(k) && !k.startsWith('firebase')) {
+        keysToRemove.push(k);
+      }
+    }
+    keysToRemove.forEach((k) => localStorage.removeItem(k));
+  } catch (e) {
+    console.warn('Storage cleanup attempted:', e);
+  }
+}
+
+// Helper for setItem with QuotaExceeded resilience
 function setStoredItem<T>(key: string, value: T): void {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (err) {
-    console.error(`Error saving ${key} to localStorage:`, err);
+    const sanitized = sanitizeForLocalStorage(value);
+    localStorage.setItem(key, JSON.stringify(sanitized));
+  } catch (err: any) {
+    const isQuotaError =
+      err &&
+      (err.name === 'QuotaExceededError' ||
+        err.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+        err.code === 22 ||
+        err.code === 1014 ||
+        (err.message && err.message.toLowerCase().includes('quota')));
+
+    if (isQuotaError) {
+      console.warn(`LocalStorage quota reached for ${key}. Attempting emergency optimization...`);
+      try {
+        freeStorageSpace();
+        // Aggressively sanitize the value
+        const sanitized = sanitizeForLocalStorage(value);
+        localStorage.setItem(key, JSON.stringify(sanitized));
+        return;
+      } catch (retryErr) {
+        console.warn(`Could not save full payload to localStorage for ${key}, data maintained in session memory.`);
+        return;
+      }
+    }
+    console.warn(`Error saving ${key} to localStorage:`, err);
   }
 }
 
@@ -344,15 +395,53 @@ export const StorageService = {
         const currentCats = getStoredItem<Category[]>(STORAGE_KEYS.CATEGORIES, INITIAL_CATEGORIES);
         currentCats.forEach((c) => saveDocumentFirestore('categories', c.id, c));
       }
+      subscribeCollectionFirestore<Category>('categories', (cats) => {
+        if (cats && cats.length > 0) {
+          setStoredItem(STORAGE_KEYS.CATEGORIES, cats);
+          if (onSyncComplete) onSyncComplete();
+        }
+      });
 
-      // 3. Sync plants from Firestore
+      // 3. Sync plants from Firestore (dynamic, unlimited plant photos)
       const remotePlants = await fetchCollectionFirestore<Plant>('plants');
       if (remotePlants !== null && remotePlants.length > 0) {
-        setStoredItem(STORAGE_KEYS.PLANTS, remotePlants);
+        const localPlants = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, INITIAL_PLANTS);
+        const map = new Map<string, Plant>();
+        INITIAL_PLANTS.forEach((p) => map.set(p.id, p));
+        remotePlants.forEach((p) => map.set(p.id, p));
+        localPlants.forEach((p) => {
+          // Priority to local plants if they contain custom real photos
+          const existing = map.get(p.id);
+          if (!existing) {
+            map.set(p.id, p);
+          } else {
+            map.set(p.id, { ...existing, ...p });
+          }
+        });
+        const mergedPlants = Array.from(map.values());
+        setStoredItem(STORAGE_KEYS.PLANTS, mergedPlants);
       } else if (remotePlants === null) {
         const current = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, INITIAL_PLANTS);
         current.forEach((p) => saveDocumentFirestore('plants', p.id, p));
       }
+      subscribeCollectionFirestore<Plant>('plants', (plantsList) => {
+        if (plantsList && plantsList.length > 0) {
+          const localPlants = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, INITIAL_PLANTS);
+          const map = new Map<string, Plant>();
+          INITIAL_PLANTS.forEach((p) => map.set(p.id, p));
+          plantsList.forEach((p) => map.set(p.id, p));
+          localPlants.forEach((p) => {
+            const existing = map.get(p.id);
+            if (!existing) {
+              map.set(p.id, p);
+            } else {
+              map.set(p.id, { ...existing, ...p });
+            }
+          });
+          setStoredItem(STORAGE_KEYS.PLANTS, Array.from(map.values()));
+          if (onSyncComplete) onSyncComplete();
+        }
+      });
 
       // 4. Sync services from Firestore
       const remoteServices = await fetchCollectionFirestore<Service>('services');
@@ -362,6 +451,12 @@ export const StorageService = {
         const currentSrv = getStoredItem<Service[]>(STORAGE_KEYS.SERVICES, INITIAL_SERVICES);
         currentSrv.forEach((s) => saveDocumentFirestore('services', s.id, s));
       }
+      subscribeCollectionFirestore<Service>('services', (servicesList) => {
+        if (servicesList && servicesList.length > 0) {
+          setStoredItem(STORAGE_KEYS.SERVICES, servicesList);
+          if (onSyncComplete) onSyncComplete();
+        }
+      });
 
       // 5. Sync projects from Firestore
       const remoteProjects = await fetchCollectionFirestore<Project>('projects');
@@ -371,15 +466,52 @@ export const StorageService = {
         const currentProj = getStoredItem<Project[]>(STORAGE_KEYS.PROJECTS, INITIAL_PROJECTS);
         currentProj.forEach((pr) => saveDocumentFirestore('projects', pr.id, pr));
       }
+      subscribeCollectionFirestore<Project>('projects', (projList) => {
+        if (projList && projList.length > 0) {
+          setStoredItem(STORAGE_KEYS.PROJECTS, projList);
+          if (onSyncComplete) onSyncComplete();
+        }
+      });
 
-      // 6. Sync gallery from Firestore
+      // 6. Sync gallery from Firestore (dynamic, unlimited gallery photography)
       const remoteGallery = await fetchCollectionFirestore<GalleryItem>('gallery');
       if (remoteGallery !== null && remoteGallery.length > 0) {
-        setStoredItem(STORAGE_KEYS.GALLERY, remoteGallery);
+        const localGal = getStoredItem<GalleryItem[]>(STORAGE_KEYS.GALLERY, INITIAL_GALLERY);
+        const map = new Map<string, GalleryItem>();
+        INITIAL_GALLERY.forEach((g) => map.set(g.id, g));
+        remoteGallery.forEach((g) => map.set(g.id, g));
+        localGal.forEach((g) => {
+          const existing = map.get(g.id);
+          if (!existing) {
+            map.set(g.id, g);
+          } else {
+            map.set(g.id, { ...existing, ...g });
+          }
+        });
+        const mergedGal = Array.from(map.values());
+        setStoredItem(STORAGE_KEYS.GALLERY, mergedGal);
       } else if (remoteGallery === null) {
         const currentGal = getStoredItem<GalleryItem[]>(STORAGE_KEYS.GALLERY, INITIAL_GALLERY);
         currentGal.forEach((g) => saveDocumentFirestore('gallery', g.id, g));
       }
+      subscribeCollectionFirestore<GalleryItem>('gallery', (galList) => {
+        if (galList && galList.length > 0) {
+          const localGal = getStoredItem<GalleryItem[]>(STORAGE_KEYS.GALLERY, INITIAL_GALLERY);
+          const map = new Map<string, GalleryItem>();
+          INITIAL_GALLERY.forEach((g) => map.set(g.id, g));
+          galList.forEach((g) => map.set(g.id, g));
+          localGal.forEach((g) => {
+            const existing = map.get(g.id);
+            if (!existing) {
+              map.set(g.id, g);
+            } else {
+              map.set(g.id, { ...existing, ...g });
+            }
+          });
+          setStoredItem(STORAGE_KEYS.GALLERY, Array.from(map.values()));
+          if (onSyncComplete) onSyncComplete();
+        }
+      });
 
       // 7. Sync inquiries from Firestore
       const remoteInquiries = await fetchCollectionFirestore<CustomerInquiry>('inquiries');
@@ -389,6 +521,12 @@ export const StorageService = {
         const currentInq = getStoredItem<CustomerInquiry[]>(STORAGE_KEYS.INQUIRIES, INITIAL_INQUIRIES);
         currentInq.forEach((inq) => saveDocumentFirestore('inquiries', inq.id, inq));
       }
+      subscribeCollectionFirestore<CustomerInquiry>('inquiries', (inqList) => {
+        if (inqList) {
+          setStoredItem(STORAGE_KEYS.INQUIRIES, inqList);
+          if (onSyncComplete) onSyncComplete();
+        }
+      });
 
       // 8. Sync testimonials from Firestore
       const remoteTestimonials = await fetchCollectionFirestore<Testimonial>('testimonials');
@@ -398,6 +536,12 @@ export const StorageService = {
         const currentTest = getStoredItem<Testimonial[]>(STORAGE_KEYS.TESTIMONIALS, INITIAL_TESTIMONIALS);
         currentTest.forEach((t) => saveDocumentFirestore('testimonials', t.id, t));
       }
+      subscribeCollectionFirestore<Testimonial>('testimonials', (testList) => {
+        if (testList && testList.length > 0) {
+          setStoredItem(STORAGE_KEYS.TESTIMONIALS, testList);
+          if (onSyncComplete) onSyncComplete();
+        }
+      });
 
       if (onSyncComplete) onSyncComplete();
     } catch (e) {

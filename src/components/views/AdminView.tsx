@@ -168,12 +168,23 @@ export const AdminView: React.FC<AdminViewProps> = ({
     if (!editingPlant || !editingPlant.name) return;
 
     const current = StorageService.getPlants();
+    
+    // Ensure images array has valid photos
+    const plantImages = (editingPlant.images && editingPlant.images.length > 0)
+      ? editingPlant.images.filter((img) => Boolean(img && img.trim()))
+      : ['https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=1000&q=80'];
+
     if (editingPlant.id) {
-      // Update
-      const updated = current.map((p) => (p.id === editingPlant.id ? ({ ...p, ...editingPlant } as Plant) : p));
+      // Update existing plant
+      const updated = current.map((p) =>
+        p.id === editingPlant.id
+          ? ({ ...p, ...editingPlant, images: plantImages.length > 0 ? plantImages : p.images } as Plant)
+          : p
+      );
       StorageService.savePlants(updated);
+      setSavedSuccess(`Updated "${editingPlant.name}" successfully with ${plantImages.length} photo(s)!`);
     } else {
-      // Create
+      // Create new plant
       const newP: Plant = {
         id: `plant-${Date.now()}`,
         name: editingPlant.name || 'New Plant',
@@ -181,7 +192,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
         category: editingPlant.category || categories[0]?.name || 'Indoor Plants',
         shortDescription: editingPlant.shortDescription || 'Short description',
         description: editingPlant.description || 'Full description',
-        images: editingPlant.images && editingPlant.images.length ? editingPlant.images : ['https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=1000&q=80'],
+        images: plantImages,
         sunlight: editingPlant.sunlight || 'Indirect Light',
         water: editingPlant.water || 'Moderate',
         difficulty: editingPlant.difficulty || 'Easy Care',
@@ -197,6 +208,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
         createdAt: new Date().toISOString().split('T')[0],
       };
       StorageService.savePlants([newP, ...current]);
+      setSavedSuccess(`Added new plant "${newP.name}" with real photo(s)!`);
     }
 
     setEditingPlant(null);
@@ -3283,15 +3295,101 @@ export const AdminView: React.FC<AdminViewProps> = ({
                     </select>
                   </div>
 
-                  <div className="sm:col-span-2">
-                    <CloudinaryUploader
-                      value={editingPlant.images ? editingPlant.images[0] : ''}
-                      onChange={(url) => setEditingPlant({ ...editingPlant, images: [url] })}
-                      label="Plant Photo (Cloudinary or Image URL)"
-                      placeholder="https://images.unsplash.com/..."
-                      siteSettings={siteForm}
-                      helpText="Upload plant photo file directly to Cloudinary or paste a direct image URL."
-                    />
+                  <div className="sm:col-span-2 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-mono font-bold text-emerald-950 uppercase tracking-wider">
+                        Plant Specimen Photos ({editingPlant.images?.length || 0})
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const currentImages = editingPlant.images || [];
+                          setEditingPlant({
+                            ...editingPlant,
+                            images: [...currentImages, ''],
+                          });
+                        }}
+                        className="text-[11px] font-mono font-semibold text-emerald-700 hover:text-emerald-900 bg-emerald-100/70 hover:bg-emerald-100 px-2.5 py-1 rounded-lg flex items-center gap-1 border border-emerald-300/60"
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span>Add Another Photo</span>
+                      </button>
+                    </div>
+
+                    {/* Render primary photo uploader */}
+                    <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-900/10 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-mono font-bold text-emerald-900 flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                          Primary Cover Photo (Shown on Catalogue & Homepage)
+                        </span>
+                        {editingPlant.images && editingPlant.images[0] && editingPlant.images[0].includes('unsplash.com') && (
+                          <span className="text-[10px] font-mono bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-300">
+                            Currently Default Photo — Upload Real Photo Below
+                          </span>
+                        )}
+                      </div>
+
+                      <CloudinaryUploader
+                        value={editingPlant.images && editingPlant.images[0] ? editingPlant.images[0] : ''}
+                        onChange={(url) => {
+                          const rest = (editingPlant.images || []).slice(1);
+                          setEditingPlant({ ...editingPlant, images: [url, ...rest] });
+                        }}
+                        label="Primary Photo File or Link"
+                        placeholder="Paste image link or upload your real photo file..."
+                        siteSettings={siteForm}
+                        helpText="Upload your real nursery photo directly from your device (JPG, PNG, WEBP)."
+                      />
+                    </div>
+
+                    {/* Additional Gallery Photos if any */}
+                    {editingPlant.images && editingPlant.images.length > 1 && (
+                      <div className="space-y-3 pt-2">
+                        <span className="text-xs font-mono font-bold text-emerald-900 block">
+                          Additional Gallery Photos ({editingPlant.images.length - 1})
+                        </span>
+                        <div className="space-y-3">
+                          {editingPlant.images.slice(1).map((imgUrl, extraIdx) => {
+                            const actualIdx = extraIdx + 1;
+                            return (
+                              <div
+                                key={actualIdx}
+                                className="p-3 bg-white rounded-2xl border border-emerald-900/10 flex flex-col gap-2 relative shadow-sm"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[11px] font-mono text-emerald-800 font-bold">
+                                    Photo #{actualIdx + 1}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const updatedImages = (editingPlant.images || []).filter((_, idx) => idx !== actualIdx);
+                                      setEditingPlant({ ...editingPlant, images: updatedImages });
+                                    }}
+                                    className="p-1 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-800 text-xs flex items-center gap-1 font-mono"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Remove Photo</span>
+                                  </button>
+                                </div>
+
+                                <CloudinaryUploader
+                                  value={imgUrl}
+                                  onChange={(url) => {
+                                    const updated = [...(editingPlant.images || [])];
+                                    updated[actualIdx] = url;
+                                    setEditingPlant({ ...editingPlant, images: updated });
+                                  }}
+                                  placeholder="Upload additional photo or paste image URL..."
+                                  siteSettings={siteForm}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 

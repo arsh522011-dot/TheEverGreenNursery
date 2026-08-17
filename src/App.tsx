@@ -29,33 +29,40 @@ import { getPageSEO } from './utils/seoData';
 // Helper to parse route from URL
 function parseUrlRoute(): { view: string; params: Record<string, string> } {
   try {
-    const pathname = window.location.pathname.replace(/^\/+|\/+$/g, '');
+    const rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '');
     const searchParams = new URLSearchParams(window.location.search);
     const params: Record<string, string> = {};
     searchParams.forEach((val, key) => {
       params[key] = val;
     });
 
-    if (!pathname || pathname === '') {
+    if (!rawPath || rawPath === '') {
       return { view: 'home', params };
     }
 
-    // SEO-friendly Aliases
-    if (pathname === 'wholesale-plants') {
+    const decodedPath = decodeURIComponent(rawPath);
+    const normalized = decodedPath.toLowerCase();
+
+    // SEO-friendly Aliases & Special Routes
+    if (normalized === 'wholesale-plants') {
       return { view: 'plants', params };
     }
-    if (pathname === 'indoor-plants') {
+    if (normalized === 'indoor-plants') {
       return { view: 'plants', params: { ...params, category: 'Indoor Plants' } };
     }
-    if (pathname === 'outdoor-plants') {
+    if (normalized === 'outdoor-plants') {
       return { view: 'plants', params: { ...params, category: 'Outdoor & Landscape' } };
     }
-    if (pathname === 'landscaping-plants') {
+    if (normalized === 'landscaping-plants') {
       return { view: 'plants', params: { ...params, category: 'Architectural Palms' } };
     }
+    if (normalized === 'pots') {
+      return { view: 'plants', params: { ...params, category: 'Pots' } };
+    }
 
-    if (pathname.startsWith('plants/')) {
-      const id = pathname.replace('plants/', '');
+    // Direct /plants/:id routes
+    if (normalized.startsWith('plants/')) {
+      const id = decodedPath.slice(7).trim();
       return { view: 'plant-detail', params: { ...params, id } };
     }
 
@@ -75,9 +82,12 @@ function parseUrlRoute(): { view: string; params: Record<string, string> } {
       'admin',
     ];
 
-    if (validViews.includes(pathname)) {
-      return { view: pathname, params };
+    if (validViews.includes(normalized)) {
+      return { view: normalized, params };
     }
+
+    // Unknown route fallback to themed 404 page
+    return { view: 'not-found', params };
   } catch {
     // fallback
   }
@@ -306,7 +316,7 @@ export default function App() {
 
   const selectedPlantDetail =
     currentView === 'plant-detail' && viewParams.id
-      ? plants.find((p) => p.id === viewParams.id)
+      ? plants.find((p) => p.id === viewParams.id || p.id.toLowerCase() === viewParams.id.toLowerCase())
       : null;
 
   const relatedPlants = selectedPlantDetail
@@ -334,7 +344,7 @@ export default function App() {
           <HomeView
             settings={settings}
             categories={categories}
-            featuredPlants={plants.filter((p) => p.isFeatured && p.published)}
+            featuredPlants={plants.filter((p) => p.published)}
             services={services}
             projects={projects}
             gallery={gallery}
@@ -386,7 +396,11 @@ export default function App() {
         )}
 
         {currentView === 'gallery' && (
-          <GalleryView gallery={gallery} onOpenLightbox={handleOpenLightbox} />
+          <GalleryView
+            gallery={gallery}
+            plants={plants.filter((p) => p.published)}
+            onOpenLightbox={handleOpenLightbox}
+          />
         )}
 
         {currentView === 'contact' && (

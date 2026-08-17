@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Upload, Link as LinkIcon, CheckCircle2, AlertCircle, X, Image as ImageIcon, Loader2, Cloud, ExternalLink } from 'lucide-react';
 import { SiteSettings } from '../../types';
 import { StorageService } from '../../services/storage';
+import { compressImageFile } from '../../utils/imageCompressor';
 
 interface CloudinaryUploaderProps {
   value: string;
@@ -45,41 +46,41 @@ export const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({
       return;
     }
 
-    // Check size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setErrorMessage('Image size exceeds 10MB limit.');
-      return;
-    }
-
-    if (!isConfigured) {
-      // If Cloudinary isn't configured, fall back to base64 with a warning
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = reader.result as string;
-        onChange(base64);
-        setSuccessMessage('Image loaded (Base64). Connect Cloudinary in Admin Settings for high-speed CDN hosting!');
-      };
-      reader.readAsDataURL(file);
+    // Check size (max 15MB)
+    if (file.size > 15 * 1024 * 1024) {
+      setErrorMessage('Image size exceeds 15MB limit.');
       return;
     }
 
     setIsUploading(true);
-    setUploadProgress(20);
+    setUploadProgress(15);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', uploadPreset);
+      // 1. Client-side lightweight compression (reduces 5MB to ~60-120KB)
+      const compressed = await compressImageFile(file, 1200, 1200, 0.78);
+      setUploadProgress(40);
 
-      setUploadProgress(50);
+      if (!isConfigured) {
+        // If Cloudinary isn't configured, store optimized lightweight data URL
+        onChange(compressed.dataUrl);
+        setSuccessMessage('Optimized photo loaded! Connect Cloudinary in Admin Settings for cloud CDN hosting.');
+        setIsUploading(false);
+        setUploadProgress(0);
+        return;
+      }
+
+      // 2. Upload compressed blob/file to Cloudinary
+      setUploadProgress(60);
+      const formData = new FormData();
+      formData.append('file', compressed.file);
+      formData.append('upload_preset', uploadPreset.trim());
 
       const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName.trim()}/image/upload`, {
         method: 'POST',
         body: formData,
       });
 
-      setUploadProgress(80);
-
+      setUploadProgress(90);
       const data = await response.json();
 
       if (!response.ok) {
@@ -91,10 +92,17 @@ export const CloudinaryUploader: React.FC<CloudinaryUploaderProps> = ({
       onChange(imageUrl);
       setSuccessMessage('Successfully uploaded to Cloudinary CDN!');
     } catch (err: any) {
-      console.error('Cloudinary upload error:', err);
-      setErrorMessage(
-        err.message || 'Cloudinary upload failed. Check your Cloud Name and Unsigned Upload Preset in Admin Settings.'
-      );
+      console.error('Image upload error:', err);
+      // Fall back gracefully to compressed data url if Cloudinary network failed
+      try {
+        const compressedFallback = await compressImageFile(file, 800, 800, 0.7);
+        onChange(compressedFallback.dataUrl);
+        setErrorMessage(
+          `Cloudinary note: ${err.message || 'Upload failed'}. Loaded local optimized copy.`
+        );
+      } catch {
+        setErrorMessage(err.message || 'Failed to process image file.');
+      }
     } finally {
       setIsUploading(false);
       setUploadProgress(0);

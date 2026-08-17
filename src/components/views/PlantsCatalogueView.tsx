@@ -194,6 +194,8 @@ export const PlantsCatalogueView: React.FC<PlantsCatalogueViewProps> = ({
                     <img
                       src={plant.images[0]}
                       alt={plant.name}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-[#062319]/80 text-emerald-300 text-[10px] font-mono border border-emerald-500/30">

@@ -99,9 +99,7 @@ export function subscribeCollectionFirestore<T>(collectionName: string, callback
       snapshot.forEach((doc) => {
         items.push({ id: doc.id, ...doc.data() } as T);
       });
-      if (items.length > 0) {
-        callback(items);
-      }
+      callback(items);
     }, (err) => {
       console.warn(`Firestore snapshot error for ${collectionName}:`, err);
     });

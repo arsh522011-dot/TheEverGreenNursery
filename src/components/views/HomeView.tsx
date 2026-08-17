@@ -363,7 +363,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           {/* Clean Plant Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredPlants.slice(0, 8).map((plant) => (
+            {filteredPlants.map((plant) => (
               <div
                 key={plant.id}
                 className="group bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
@@ -376,6 +376,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <img
                       src={plant.images[0]}
                       alt={plant.name}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold font-mono uppercase tracking-wider shadow">
