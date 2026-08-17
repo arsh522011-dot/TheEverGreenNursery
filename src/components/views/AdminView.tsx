@@ -3295,7 +3295,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block font-mono text-emerald-900 mb-1 font-semibold">Sunlight</label>
                     <select
@@ -3333,20 +3333,6 @@ export const AdminView: React.FC<AdminViewProps> = ({
                       <option value="Easy Care">Easy Care</option>
                       <option value="Intermediate">Intermediate</option>
                       <option value="Expert">Expert</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block font-mono text-emerald-900 mb-1 font-semibold">Scale / Size</label>
-                    <select
-                      value={editingPlant.size || 'Medium (2-4 ft)'}
-                      onChange={(e) => setEditingPlant({ ...editingPlant, size: e.target.value as any })}
-                      className="w-full bg-[#faf8f5] border rounded-xl p-2"
-                    >
-                      <option value="Compact (1-2 ft)">Compact (1-2 ft)</option>
-                      <option value="Medium (2-4 ft)">Medium (2-4 ft)</option>
-                      <option value="Large (4-6 ft)">Large (4-6 ft)</option>
-                      <option value="Feature Tree (6+ ft)">Feature Tree (6+ ft)</option>
                     </select>
                   </div>
                 </div>

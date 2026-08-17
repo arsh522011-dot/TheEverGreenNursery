@@ -104,7 +104,7 @@ export const PlantDetailView: React.FC<PlantDetailViewProps> = ({
             </p>
 
             {/* Spec Highlights Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-2">
               <div className="bg-white p-4 rounded-2xl border border-emerald-900/10 shadow-sm space-y-1">
                 <span className="text-[10px] font-mono uppercase text-emerald-800 flex items-center gap-1">
                   <Sun className="w-3.5 h-3.5 text-amber-500" /> Sunlight
@@ -117,13 +117,6 @@ export const PlantDetailView: React.FC<PlantDetailViewProps> = ({
                   <Droplets className="w-3.5 h-3.5 text-blue-500" /> Hydration
                 </span>
                 <p className="font-serif text-base text-[#062319]">{plant.water}</p>
-              </div>
-
-              <div className="bg-white p-4 rounded-2xl border border-emerald-900/10 shadow-sm space-y-1">
-                <span className="text-[10px] font-mono uppercase text-emerald-800 flex items-center gap-1">
-                  <Sprout className="w-3.5 h-3.5 text-emerald-600" /> Scale
-                </span>
-                <p className="font-serif text-base text-[#062319]">{plant.size}</p>
               </div>
             </div>
 
