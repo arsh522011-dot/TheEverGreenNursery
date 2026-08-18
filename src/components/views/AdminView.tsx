@@ -643,15 +643,6 @@ export const AdminView: React.FC<AdminViewProps> = ({
             </button>
 
             <button
-              onClick={handleResetData}
-              className="px-3.5 py-2 rounded-xl bg-emerald-950 border border-red-500/30 text-red-300 hover:bg-red-950 text-xs font-mono uppercase flex items-center gap-1.5"
-              title="Reset data back to initial seed"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset Defaults</span>
-            </button>
-
-            <button
               onClick={handleLogout}
               className="px-4 py-2 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-emerald-200 text-xs font-semibold uppercase tracking-wider flex items-center gap-2"
             >
