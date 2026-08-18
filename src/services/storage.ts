@@ -18,6 +18,7 @@ import {
   subscribeDocumentFirestore,
 } from './firebase';
 import { sanitizeForLocalStorage } from '../utils/imageCompressor';
+import { ImageCache } from './imageCache';
 
 const STORAGE_KEYS = {
   SETTINGS: 'verdant_realm_settings_v1',
@@ -313,8 +314,12 @@ export const StorageService = {
   getPlants(): Plant[] {
     const deleted = getDeletedIds();
     const filteredInitial = INITIAL_PLANTS.filter((p) => !deleted.has(p.id));
-    const stored = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, filteredInitial);
-    const active = (stored || []).filter((p) => !deleted.has(p.id));
+    const rawStored = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, filteredInitial);
+    
+    // Apply registered uploaded photos synchronously on initial load to prevent stock image flashes
+    const storedWithUploadedPhotos = ImageCache.applyUploadedPhotos(rawStored || filteredInitial);
+    const active = storedWithUploadedPhotos.filter((p) => !deleted.has(p.id));
+
     let changed = false;
     const normalized = active.map((p) => {
       let cat = p.category;
@@ -343,6 +348,9 @@ export const StorageService = {
       return { ...p, category: cat };
     });
 
+    // Register photos into fast in-memory map & preload them
+    ImageCache.registerPlants(normalized);
+
     if (changed) {
       setStoredItem(STORAGE_KEYS.PLANTS, normalized);
     }
@@ -362,6 +370,9 @@ export const StorageService = {
     plants.forEach((p) => {
       if (deleted.has(p.id)) unmarkAsDeleted(p.id);
     });
+
+    // Register images immediately into local photo cache
+    ImageCache.registerPlants(plants);
 
     setStoredItem(STORAGE_KEYS.PLANTS, plants);
     plants.forEach((plant) => saveDocumentFirestore('plants', plant.id, plant));
@@ -624,31 +635,121 @@ export const StorageService = {
 
       const deleted = getDeletedIds();
 
-      // 1. Sync Site Settings from Firestore
-      const remoteSettings = await fetchDocumentFirestore<SiteSettings>('settings', 'site_config');
-      if (remoteSettings !== null) {
-        setStoredItem(STORAGE_KEYS.SETTINGS, remoteSettings);
-      } else {
-        const currentSettings = this.getSettings();
-        saveDocumentFirestore('settings', 'site_config', currentSettings);
-      }
+      // Parallel high-speed fetch for all collections
+      await Promise.allSettled([
+        // 1. Settings
+        (async () => {
+          const remoteSettings = await fetchDocumentFirestore<SiteSettings>('settings', 'site_config');
+          if (remoteSettings !== null) {
+            setStoredItem(STORAGE_KEYS.SETTINGS, remoteSettings);
+            if (onSyncComplete) onSyncComplete();
+          } else {
+            const currentSettings = this.getSettings();
+            saveDocumentFirestore('settings', 'site_config', currentSettings);
+          }
+        })(),
 
+        // 2. Categories
+        (async () => {
+          const remoteCategories = await fetchCollectionFirestore<Category>('categories');
+          if (remoteCategories !== null && remoteCategories.length > 0) {
+            const validRemote = remoteCategories.filter((c) => !deleted.has(c.id));
+            setStoredItem(STORAGE_KEYS.CATEGORIES, validRemote);
+            if (onSyncComplete) onSyncComplete();
+          } else if (remoteCategories === null || remoteCategories.length === 0) {
+            const currentCats = this.getCategories();
+            currentCats.forEach((c) => saveDocumentFirestore('categories', c.id, c));
+          }
+        })(),
+
+        // 3. Plants (Highest priority - register photos immediately)
+        (async () => {
+          const remotePlants = await fetchCollectionFirestore<Plant>('plants');
+          if (remotePlants !== null && remotePlants.length > 0) {
+            const validPlants = remotePlants.filter((p) => !deleted.has(p.id));
+            ImageCache.registerPlants(validPlants);
+            setStoredItem(STORAGE_KEYS.PLANTS, validPlants);
+            if (onSyncComplete) onSyncComplete();
+          } else if (remotePlants === null || remotePlants.length === 0) {
+            const current = this.getPlants();
+            ImageCache.registerPlants(current);
+            current.forEach((p) => saveDocumentFirestore('plants', p.id, p));
+          }
+        })(),
+
+        // 4. Services
+        (async () => {
+          const remoteServices = await fetchCollectionFirestore<Service>('services');
+          if (remoteServices !== null && remoteServices.length > 0) {
+            const validServices = remoteServices.filter((s) => !deleted.has(s.id));
+            setStoredItem(STORAGE_KEYS.SERVICES, validServices);
+            if (onSyncComplete) onSyncComplete();
+          } else if (remoteServices === null || remoteServices.length === 0) {
+            const currentSrv = this.getServices();
+            currentSrv.forEach((s) => saveDocumentFirestore('services', s.id, s));
+          }
+        })(),
+
+        // 5. Projects
+        (async () => {
+          const remoteProjects = await fetchCollectionFirestore<Project>('projects');
+          if (remoteProjects !== null && remoteProjects.length > 0) {
+            const validProj = remoteProjects.filter((pr) => !deleted.has(pr.id));
+            setStoredItem(STORAGE_KEYS.PROJECTS, validProj);
+            if (onSyncComplete) onSyncComplete();
+          } else if (remoteProjects === null || remoteProjects.length === 0) {
+            const currentProj = this.getProjects();
+            currentProj.forEach((pr) => saveDocumentFirestore('projects', pr.id, pr));
+          }
+        })(),
+
+        // 6. Gallery
+        (async () => {
+          const remoteGallery = await fetchCollectionFirestore<GalleryItem>('gallery');
+          if (remoteGallery !== null && remoteGallery.length > 0) {
+            const validGal = remoteGallery.filter((g) => !deleted.has(g.id));
+            setStoredItem(STORAGE_KEYS.GALLERY, validGal);
+            if (onSyncComplete) onSyncComplete();
+          } else if (remoteGallery === null || remoteGallery.length === 0) {
+            const currentGal = this.getGallery();
+            currentGal.forEach((g) => saveDocumentFirestore('gallery', g.id, g));
+          }
+        })(),
+
+        // 7. Inquiries
+        (async () => {
+          const remoteInquiries = await fetchCollectionFirestore<CustomerInquiry>('inquiries');
+          if (remoteInquiries !== null && remoteInquiries.length > 0) {
+            const validInq = remoteInquiries.filter((inq) => !deleted.has(inq.id));
+            setStoredItem(STORAGE_KEYS.INQUIRIES, validInq);
+            if (onSyncComplete) onSyncComplete();
+          } else if (remoteInquiries === null || remoteInquiries.length === 0) {
+            const currentInq = this.getInquiries();
+            currentInq.forEach((inq) => saveDocumentFirestore('inquiries', inq.id, inq));
+          }
+        })(),
+
+        // 8. Testimonials
+        (async () => {
+          const remoteTestimonials = await fetchCollectionFirestore<Testimonial>('testimonials');
+          if (remoteTestimonials !== null && remoteTestimonials.length > 0) {
+            const validTest = remoteTestimonials.filter((t) => !deleted.has(t.id));
+            setStoredItem(STORAGE_KEYS.TESTIMONIALS, validTest);
+            if (onSyncComplete) onSyncComplete();
+          } else if (remoteTestimonials === null || remoteTestimonials.length === 0) {
+            const currentTest = this.getTestimonials();
+            currentTest.forEach((t) => saveDocumentFirestore('testimonials', t.id, t));
+          }
+        })(),
+      ]);
+
+      // Set up real-time listeners for live updates across all devices
       subscribeDocumentFirestore<SiteSettings>('settings', 'site_config', (updatedSettings) => {
         if (updatedSettings) {
           setStoredItem(STORAGE_KEYS.SETTINGS, updatedSettings);
           if (onSyncComplete) onSyncComplete();
         }
       });
-
-      // 2. Sync categories from Firestore
-      const remoteCategories = await fetchCollectionFirestore<Category>('categories');
-      if (remoteCategories !== null && remoteCategories.length > 0) {
-        const validRemote = remoteCategories.filter((c) => !deleted.has(c.id));
-        setStoredItem(STORAGE_KEYS.CATEGORIES, validRemote);
-      } else if (remoteCategories === null || remoteCategories.length === 0) {
-        const currentCats = this.getCategories();
-        currentCats.forEach((c) => saveDocumentFirestore('categories', c.id, c));
-      }
 
       subscribeCollectionFirestore<Category>('categories', (cats) => {
         if (cats && cats.length > 0) {
@@ -659,34 +760,15 @@ export const StorageService = {
         }
       });
 
-      // 3. Sync plants from Firestore (Authoritative source across mobile and laptop)
-      const remotePlants = await fetchCollectionFirestore<Plant>('plants');
-      if (remotePlants !== null && remotePlants.length > 0) {
-        const validPlants = remotePlants.filter((p) => !deleted.has(p.id));
-        setStoredItem(STORAGE_KEYS.PLANTS, validPlants);
-      } else if (remotePlants === null || remotePlants.length === 0) {
-        const current = this.getPlants();
-        current.forEach((p) => saveDocumentFirestore('plants', p.id, p));
-      }
-
       subscribeCollectionFirestore<Plant>('plants', (plantsList) => {
         if (plantsList && plantsList.length > 0) {
           const activeDeleted = getDeletedIds();
           const validPlants = plantsList.filter((p) => !activeDeleted.has(p.id));
+          ImageCache.registerPlants(validPlants);
           setStoredItem(STORAGE_KEYS.PLANTS, validPlants);
           if (onSyncComplete) onSyncComplete();
         }
       });
-
-      // 4. Sync services from Firestore
-      const remoteServices = await fetchCollectionFirestore<Service>('services');
-      if (remoteServices !== null && remoteServices.length > 0) {
-        const validServices = remoteServices.filter((s) => !deleted.has(s.id));
-        setStoredItem(STORAGE_KEYS.SERVICES, validServices);
-      } else if (remoteServices === null || remoteServices.length === 0) {
-        const currentSrv = this.getServices();
-        currentSrv.forEach((s) => saveDocumentFirestore('services', s.id, s));
-      }
 
       subscribeCollectionFirestore<Service>('services', (servicesList) => {
         if (servicesList && servicesList.length > 0) {
@@ -697,16 +779,6 @@ export const StorageService = {
         }
       });
 
-      // 5. Sync projects from Firestore
-      const remoteProjects = await fetchCollectionFirestore<Project>('projects');
-      if (remoteProjects !== null && remoteProjects.length > 0) {
-        const validProj = remoteProjects.filter((pr) => !deleted.has(pr.id));
-        setStoredItem(STORAGE_KEYS.PROJECTS, validProj);
-      } else if (remoteProjects === null || remoteProjects.length === 0) {
-        const currentProj = this.getProjects();
-        currentProj.forEach((pr) => saveDocumentFirestore('projects', pr.id, pr));
-      }
-
       subscribeCollectionFirestore<Project>('projects', (projList) => {
         if (projList && projList.length > 0) {
           const activeDeleted = getDeletedIds();
@@ -715,16 +787,6 @@ export const StorageService = {
           if (onSyncComplete) onSyncComplete();
         }
       });
-
-      // 6. Sync gallery from Firestore
-      const remoteGallery = await fetchCollectionFirestore<GalleryItem>('gallery');
-      if (remoteGallery !== null && remoteGallery.length > 0) {
-        const validGal = remoteGallery.filter((g) => !deleted.has(g.id));
-        setStoredItem(STORAGE_KEYS.GALLERY, validGal);
-      } else if (remoteGallery === null || remoteGallery.length === 0) {
-        const currentGal = this.getGallery();
-        currentGal.forEach((g) => saveDocumentFirestore('gallery', g.id, g));
-      }
 
       subscribeCollectionFirestore<GalleryItem>('gallery', (galList) => {
         if (galList && galList.length > 0) {
@@ -735,16 +797,6 @@ export const StorageService = {
         }
       });
 
-      // 7. Sync inquiries from Firestore
-      const remoteInquiries = await fetchCollectionFirestore<CustomerInquiry>('inquiries');
-      if (remoteInquiries !== null && remoteInquiries.length > 0) {
-        const validInq = remoteInquiries.filter((inq) => !deleted.has(inq.id));
-        setStoredItem(STORAGE_KEYS.INQUIRIES, validInq);
-      } else if (remoteInquiries === null || remoteInquiries.length === 0) {
-        const currentInq = this.getInquiries();
-        currentInq.forEach((inq) => saveDocumentFirestore('inquiries', inq.id, inq));
-      }
-
       subscribeCollectionFirestore<CustomerInquiry>('inquiries', (inqList) => {
         if (inqList && inqList.length > 0) {
           const activeDeleted = getDeletedIds();
@@ -753,16 +805,6 @@ export const StorageService = {
           if (onSyncComplete) onSyncComplete();
         }
       });
-
-      // 8. Sync testimonials from Firestore
-      const remoteTestimonials = await fetchCollectionFirestore<Testimonial>('testimonials');
-      if (remoteTestimonials !== null && remoteTestimonials.length > 0) {
-        const validTest = remoteTestimonials.filter((t) => !deleted.has(t.id));
-        setStoredItem(STORAGE_KEYS.TESTIMONIALS, validTest);
-      } else if (remoteTestimonials === null || remoteTestimonials.length === 0) {
-        const currentTest = this.getTestimonials();
-        currentTest.forEach((t) => saveDocumentFirestore('testimonials', t.id, t));
-      }
 
       subscribeCollectionFirestore<Testimonial>('testimonials', (testList) => {
         if (testList && testList.length > 0) {

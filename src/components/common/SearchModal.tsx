@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Search, X, Leaf, ArrowRight, Sparkles } from 'lucide-react';
 import { Plant } from '../../types';
 import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
+import { OptimizedPlantImage } from './OptimizedPlantImage';
+import { ImageCache } from '../../services/imageCache';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -64,46 +66,46 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           </div>
 
           {filteredPlants.length > 0 ? (
-            filteredPlants.map((plant) => (
-              <button
-                key={plant.id}
-                onClick={() => {
-                  onSelectPlant(plant.id);
-                  onClose();
-                }}
-                className="w-full text-left p-3.5 rounded-2xl bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-800/40 hover:border-emerald-500/50 transition-all flex items-center justify-between group"
-              >
-                <div className="flex items-center gap-4">
-                  <img
-                    src={plant.images && plant.images[0] ? plant.images[0] : 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=400&q=80'}
-                    alt={plant.name}
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      if (target.src !== 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=400&q=80') {
-                        target.src = 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=400&q=80';
-                      }
-                    }}
-                    className="w-14 h-14 rounded-xl object-cover border border-emerald-500/30 shrink-0"
-                  />
-                  <div>
-                    <h4 className="font-serif text-base text-emerald-100 group-hover:text-emerald-300 transition-colors">
-                      {plant.name}
-                    </h4>
-                    <span className="block text-xs italic text-emerald-400 font-mono">
-                      {plant.scientificName}
-                    </span>
-                    <span className="inline-block mt-1 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-900 text-emerald-300">
-                      {plant.category}
-                    </span>
-                  </div>
-                </div>
+            filteredPlants.map((plant, index) => {
+              const plantImage = ImageCache.getPrimaryImageUrl(plant, 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=400&q=80');
 
-                <div className="flex items-center gap-2 text-xs text-emerald-400 group-hover:translate-x-1 transition-transform">
-                  <span>View Details</span>
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              </button>
-            ))
+              return (
+                <button
+                  key={plant.id}
+                  onClick={() => {
+                    onSelectPlant(plant.id);
+                    onClose();
+                  }}
+                  className="w-full text-left p-3.5 rounded-2xl bg-emerald-950/60 hover:bg-emerald-900/80 border border-emerald-800/40 hover:border-emerald-500/50 transition-all flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-4">
+                    <OptimizedPlantImage
+                      src={plantImage}
+                      alt={plant.name}
+                      priority={index < 4}
+                      fallbackSrc="https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=400&q=80"
+                      className="w-14 h-14 rounded-xl border border-emerald-500/30 shrink-0"
+                    />
+                    <div>
+                      <h4 className="font-serif text-base text-emerald-100 group-hover:text-emerald-300 transition-colors">
+                        {plant.name}
+                      </h4>
+                      <span className="block text-xs italic text-emerald-400 font-mono">
+                        {plant.scientificName}
+                      </span>
+                      <span className="inline-block mt-1 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-900 text-emerald-300">
+                        {plant.category}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-xs text-emerald-400 group-hover:translate-x-1 transition-transform">
+                    <span>View Details</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </button>
+              );
+            })
           ) : (
             <div className="py-12 text-center text-emerald-400/80 space-y-2">
               <Leaf className="w-10 h-10 mx-auto text-emerald-600 opacity-50" />

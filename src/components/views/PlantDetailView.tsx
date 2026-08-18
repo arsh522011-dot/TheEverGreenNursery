@@ -13,6 +13,8 @@ import {
   HeartHandshake,
 } from 'lucide-react';
 import { Plant } from '../../types';
+import { OptimizedPlantImage } from '../common/OptimizedPlantImage';
+import { ImageCache } from '../../services/imageCache';
 
 interface PlantDetailViewProps {
   plant: Plant;
@@ -52,10 +54,12 @@ export const PlantDetailView: React.FC<PlantDetailViewProps> = ({
               onClick={() => onOpenLightbox(plant.images, activeImageIdx, plant.name)}
               data-cursor="EXPAND"
             >
-              <img
-                src={plant.images[activeImageIdx] || plant.images[0]}
+              <OptimizedPlantImage
+                src={plant.images[activeImageIdx] || plant.images[0] || ''}
                 alt={plant.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                priority={true}
+                className="w-full h-full"
+                imgClassName="group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute top-4 right-4 p-3 rounded-full bg-[#062319]/80 text-emerald-300 backdrop-blur-md border border-emerald-500/30">
                 <Maximize2 className="w-4 h-4" />
@@ -78,7 +82,11 @@ export const PlantDetailView: React.FC<PlantDetailViewProps> = ({
                         : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <OptimizedPlantImage
+                      src={img}
+                      alt={`${plant.name} view ${idx + 1}`}
+                      className="w-full h-full"
+                    />
                   </button>
                 ))}
               </div>
@@ -223,7 +231,11 @@ export const PlantDetailView: React.FC<PlantDetailViewProps> = ({
                   onClick={() => onNavigate('plant-detail', { id: rp.id })}
                   className="group bg-white p-4 rounded-2xl border border-emerald-900/10 shadow-sm hover:shadow-lg transition-all cursor-pointer flex items-center gap-4"
                 >
-                  <img src={rp.images[0]} alt={rp.name} className="w-16 h-16 rounded-xl object-cover shrink-0" />
+                  <OptimizedPlantImage
+                    src={rp.images[0]}
+                    alt={rp.name}
+                    className="w-16 h-16 rounded-xl shrink-0"
+                  />
                   <div>
                     <h4 className="font-serif text-base text-[#062319] group-hover:text-emerald-700">{rp.name}</h4>
                     <span className="text-[10px] italic text-emerald-800 font-mono block">{rp.scientificName}</span>

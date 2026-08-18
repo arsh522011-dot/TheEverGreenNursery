@@ -10,7 +10,9 @@ import {
   collection,
   getDocs,
   deleteDoc,
-  onSnapshot
+  onSnapshot,
+  persistentLocalCache,
+  persistentMultipleTabManager
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
@@ -26,14 +28,23 @@ try {
   // Ignore log level errors
 }
 
-// Initialize Firestore with auto-detect long polling for reliable connectivity across mobile & proxies
+// Initialize Firestore with persistent IndexedDB local cache and auto-detect long polling for ultra-fast instant local reads
 let dbInstance;
 try {
   dbInstance = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager(),
+    }),
     experimentalAutoDetectLongPolling: true,
   });
 } catch {
-  dbInstance = getFirestore(app);
+  try {
+    dbInstance = initializeFirestore(app, {
+      experimentalAutoDetectLongPolling: true,
+    });
+  } catch {
+    dbInstance = getFirestore(app);
+  }
 }
 
 export const db = dbInstance;

@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { Plant, Category, Service, Project, GalleryItem, Testimonial, SiteSettings } from '../../types';
 import { BeforeAfterSlider } from '../common/BeforeAfterSlider';
+import { OptimizedPlantImage } from '../common/OptimizedPlantImage';
+import { ImageCache } from '../../services/imageCache';
 
 interface HomeViewProps {
   settings: SiteSettings;
@@ -394,33 +396,31 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           {/* Clean Plant Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredPlants.map((plant) => (
-              <div
-                key={plant.id}
-                className="group bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
-              >
-                <div>
-                  <div
-                    className="relative h-60 overflow-hidden cursor-pointer bg-gray-50"
-                    onClick={() => onNavigate('plant-detail', { id: plant.id })}
-                  >
-                    <img
-                      src={plant.images && plant.images[0] ? plant.images[0] : 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80'}
-                      alt={plant.name}
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        const target = e.currentTarget;
-                        if (target.src !== 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80') {
-                          target.src = 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80';
-                        }
-                      }}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold font-mono uppercase tracking-wider shadow">
-                      {plant.category}
-                    </span>
-                  </div>
+            {filteredPlants.map((plant, index) => {
+              const plantImage = ImageCache.getPrimaryImageUrl(plant, 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80');
+
+              return (
+                <div
+                  key={plant.id}
+                  className="group bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
+                >
+                  <div>
+                    <div
+                      className="relative h-60 overflow-hidden cursor-pointer bg-gray-50"
+                      onClick={() => onNavigate('plant-detail', { id: plant.id })}
+                    >
+                      <OptimizedPlantImage
+                        src={plantImage}
+                        alt={plant.name}
+                        priority={index < 4}
+                        fallbackSrc="https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80"
+                        className="w-full h-full"
+                        imgClassName="group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold font-mono uppercase tracking-wider shadow">
+                        {plant.category}
+                      </span>
+                    </div>
 
                   <div className="p-5 space-y-2">
                     <div
@@ -452,23 +452,24 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   </div>
                 </div>
 
-                <div className="p-5 pt-0 flex gap-2">
-                  <button
-                    onClick={() => onNavigate('plant-detail', { id: plant.id })}
-                    className="flex-1 py-2 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200 text-xs font-bold uppercase tracking-wider hover:bg-emerald-100 transition-colors"
-                  >
-                    Details
-                  </button>
+                  <div className="p-5 pt-0 flex gap-2">
+                    <button
+                      onClick={() => onNavigate('plant-detail', { id: plant.id })}
+                      className="flex-1 py-2 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200 text-xs font-bold uppercase tracking-wider hover:bg-emerald-100 transition-colors"
+                    >
+                      Details
+                    </button>
 
-                  <button
-                    onClick={() => onOpenEnquiry(plant)}
-                    className="py-2 px-4 rounded-xl bg-[#183925] hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
-                  >
-                    Enquire
-                  </button>
+                    <button
+                      onClick={() => onOpenEnquiry(plant)}
+                      className="py-2 px-4 rounded-xl bg-[#183925] hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                    >
+                      Enquire
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="text-center pt-4">

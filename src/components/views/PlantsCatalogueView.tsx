@@ -11,6 +11,8 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { Plant, Category, FilterState } from '../../types';
+import { OptimizedPlantImage } from '../common/OptimizedPlantImage';
+import { ImageCache } from '../../services/imageCache';
 
 interface PlantsCatalogueViewProps {
   plants: Plant[];
@@ -345,8 +347,8 @@ export const PlantsCatalogueView: React.FC<PlantsCatalogueViewProps> = ({
         <div className="w-full">
           {filteredPlants.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6">
-              {filteredPlants.map((plant) => {
-                const plantImage = (plant.images && plant.images[0]) ? plant.images[0] : DEFAULT_PLANT_IMAGE;
+              {filteredPlants.map((plant, index) => {
+                const plantImage = ImageCache.getPrimaryImageUrl(plant, DEFAULT_PLANT_IMAGE);
 
                 return (
                   <div
@@ -360,18 +362,13 @@ export const PlantsCatalogueView: React.FC<PlantsCatalogueViewProps> = ({
                         className="relative h-64 w-full overflow-hidden cursor-pointer bg-gray-100"
                         onClick={() => onNavigate('plant-detail', { id: plant.id })}
                       >
-                        <img
+                        <OptimizedPlantImage
                           src={plantImage}
                           alt={plant.name}
-                          loading="lazy"
-                          decoding="async"
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            if (target.src !== DEFAULT_PLANT_IMAGE) {
-                              target.src = DEFAULT_PLANT_IMAGE;
-                            }
-                          }}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          priority={index < 4}
+                          fallbackSrc={DEFAULT_PLANT_IMAGE}
+                          className="w-full h-full"
+                          imgClassName="group-hover:scale-105 transition-transform duration-500"
                         />
                         <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-[#183925]/90 text-white text-[10px] font-mono font-bold tracking-wider uppercase border border-emerald-400/40 shadow-xs">
                           {plant.category}
