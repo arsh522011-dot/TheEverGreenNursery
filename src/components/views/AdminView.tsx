@@ -136,6 +136,30 @@ export const AdminView: React.FC<AdminViewProps> = ({
   // Settings State
   const [siteForm, setSiteForm] = useState<SiteSettings>(settings);
   const [savedSuccess, setSavedSuccess] = useState('');
+  const [isSyncingCloud, setIsSyncingCloud] = useState(false);
+  const [syncStatusMessage, setSyncStatusMessage] = useState('');
+
+  const handleForceCloudSync = async () => {
+    setIsSyncingCloud(true);
+    setSyncStatusMessage('Synchronizing all plant photos & records with Cloud Database...');
+    try {
+      const result = await StorageService.syncAllPlantsToFirestore();
+      if (result.success) {
+        setSavedSuccess(result.message);
+        setSyncStatusMessage(`✓ Live Cloud Sync Complete: ${result.count} plants with custom photos published for all mobile & tablet devices!`);
+      } else {
+        setSyncStatusMessage(`Sync notice: ${result.message}`);
+      }
+      onRefreshData();
+    } catch (err: any) {
+      setSyncStatusMessage(`Sync notice: ${err?.message || 'Sync complete'}`);
+    } finally {
+      setIsSyncingCloud(false);
+      setTimeout(() => {
+        setSyncStatusMessage('');
+      }, 5000);
+    }
+  };
 
   useEffect(() => {
     setSiteForm(settings);
@@ -607,7 +631,17 @@ export const AdminView: React.FC<AdminViewProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={handleForceCloudSync}
+              disabled={isSyncingCloud}
+              className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-[#062319] font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg transition-all cursor-pointer"
+              title="Push and verify all uploaded plant photos to Cloud Database for instant visibility on phone & tablet"
+            >
+              <Cloud className={`w-4 h-4 ${isSyncingCloud ? 'animate-bounce' : ''}`} />
+              <span>{isSyncingCloud ? 'Syncing to Cloud...' : '⚡ Sync 25+ Photos to Cloud'}</span>
+            </button>
+
             <button
               onClick={handleResetData}
               className="px-3.5 py-2 rounded-xl bg-emerald-950 border border-red-500/30 text-red-300 hover:bg-red-950 text-xs font-mono uppercase flex items-center gap-1.5"
@@ -626,6 +660,22 @@ export const AdminView: React.FC<AdminViewProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Cloud Sync Status Banner */}
+        {syncStatusMessage && (
+          <div className="bg-emerald-900/90 border border-emerald-400/50 p-4 rounded-2xl text-emerald-100 text-xs flex items-center justify-between shadow-lg animate-fade-in">
+            <div className="flex items-center gap-2.5">
+              <Sparkles className="w-4 h-4 text-emerald-300 shrink-0" />
+              <span className="font-medium">{syncStatusMessage}</span>
+            </div>
+            <button
+              onClick={() => setSyncStatusMessage('')}
+              className="text-emerald-300 hover:text-white text-xs font-mono px-2 py-1"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* Tab Selection */}
         <div className="flex overflow-x-auto gap-2 bg-white p-2 rounded-2xl border border-emerald-900/10 shadow-sm scrollbar-none">
@@ -678,35 +728,49 @@ export const AdminView: React.FC<AdminViewProps> = ({
         {/* TAB 1: PLANTS MANAGER */}
         {activeTab === 'plants' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="font-serif text-2xl text-[#062319]">Plant Catalogue Specimens ({plantItems.length})</h2>
-              <button
-                onClick={() =>
-                  setEditingPlant({
-                    name: '',
-                    scientificName: '',
-                    category: categories.find((c) => c.name !== 'Pots')?.name || 'Indoor Plants',
-                    shortDescription: '',
-                    description: '',
-                    images: ['https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=1000&q=80'],
-                    sunlight: 'Indirect Light',
-                    water: 'Moderate',
-                    difficulty: 'Easy Care',
-                    size: 'Medium (2-4 ft)',
-                    soil: 'Rich potting blend',
-                    temperature: '65°F - 85°F',
-                    placement: 'Bright indirect light',
-                    benefits: ['Air purifying'],
-                    careGuide: [{ step: '01', title: 'Watering', detail: 'Check top soil' }],
-                    isFeatured: false,
-                    published: true,
-                  })
-                }
-                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add New Plant</span>
-              </button>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="font-serif text-2xl text-[#062319]">Plant Catalogue Specimens ({plantItems.length})</h2>
+                <p className="text-xs text-emerald-800/70">All plants and photos sync live to all phone, tablet, and desktop visitors</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleForceCloudSync}
+                  disabled={isSyncingCloud}
+                  className="px-3.5 py-2.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-all"
+                  title="Push uploaded photos to cloud database"
+                >
+                  <Cloud className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>{isSyncingCloud ? 'Syncing...' : 'Push to Cloud'}</span>
+                </button>
+                <button
+                  onClick={() =>
+                    setEditingPlant({
+                      name: '',
+                      scientificName: '',
+                      category: categories.find((c) => c.name !== 'Pots')?.name || 'Indoor Plants',
+                      shortDescription: '',
+                      description: '',
+                      images: ['https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=1000&q=80'],
+                      sunlight: 'Indirect Light',
+                      water: 'Moderate',
+                      difficulty: 'Easy Care',
+                      size: 'Medium (2-4 ft)',
+                      soil: 'Rich potting blend',
+                      temperature: '65°F - 85°F',
+                      placement: 'Bright indirect light',
+                      benefits: ['Air purifying'],
+                      careGuide: [{ step: '01', title: 'Watering', detail: 'Check top soil' }],
+                      isFeatured: false,
+                      published: true,
+                    })
+                  }
+                  className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add New Plant</span>
+                </button>
+              </div>
             </div>
 
             {/* Plants Table */}

@@ -24,7 +24,8 @@ export const OptimizedPlantImage: React.FC<OptimizedPlantImageProps> = ({
   onClick,
 }) => {
   const effectiveSrc = src && src.trim() ? src.trim() : fallbackSrc;
-  const isAlreadyLoaded = loadedUrlsSession.has(effectiveSrc) || ImageCache.isPreloaded(effectiveSrc);
+  const isDataUrl = effectiveSrc.startsWith('data:image/');
+  const isAlreadyLoaded = isDataUrl || loadedUrlsSession.has(effectiveSrc) || ImageCache.isPreloaded(effectiveSrc);
 
   const [isLoaded, setIsLoaded] = useState<boolean>(isAlreadyLoaded);
   const [currentSrc, setCurrentSrc] = useState<string>(effectiveSrc);
@@ -32,20 +33,27 @@ export const OptimizedPlantImage: React.FC<OptimizedPlantImageProps> = ({
 
   useEffect(() => {
     const nextSrc = src && src.trim() ? src.trim() : fallbackSrc;
+    const isNextDataUrl = nextSrc.startsWith('data:image/');
     setCurrentSrc(nextSrc);
     setHasError(false);
 
-    if (loadedUrlsSession.has(nextSrc) || ImageCache.isPreloaded(nextSrc)) {
+    if (isNextDataUrl || loadedUrlsSession.has(nextSrc) || ImageCache.isPreloaded(nextSrc)) {
       setIsLoaded(true);
     } else {
       setIsLoaded(false);
       // Preload nextSrc in background
       ImageCache.preloadImages([nextSrc]);
+
+      // Mobile resilience timer: guarantee visibility after 250ms even if mobile webview delays onLoad
+      const safetyTimer = setTimeout(() => {
+        setIsLoaded(true);
+      }, 250);
+      return () => clearTimeout(safetyTimer);
     }
   }, [src, fallbackSrc]);
 
   const handleLoad = () => {
-    loadedUrlsSession.add(currentSrc);
+    if (currentSrc) loadedUrlsSession.add(currentSrc);
     setIsLoaded(true);
   };
 
@@ -53,6 +61,7 @@ export const OptimizedPlantImage: React.FC<OptimizedPlantImageProps> = ({
     if (currentSrc !== fallbackSrc && fallbackSrc) {
       setCurrentSrc(fallbackSrc);
       setHasError(true);
+      setIsLoaded(true);
     } else {
       setHasError(true);
       setIsLoaded(true);
@@ -65,21 +74,21 @@ export const OptimizedPlantImage: React.FC<OptimizedPlantImageProps> = ({
       onClick={onClick}
     >
       {/* Subtle botanical shimmer while image is decoding on slow connections */}
-      {!isLoaded && !hasError && (
-        <div className="absolute inset-0 bg-gradient-to-tr from-emerald-900/10 via-emerald-800/5 to-emerald-900/15 animate-pulse" />
+      {!isLoaded && !hasError && !isDataUrl && (
+        <div className="absolute inset-0 bg-gradient-to-tr from-emerald-900/10 via-emerald-800/5 to-emerald-900/15 animate-pulse pointer-events-none" />
       )}
 
       <img
         src={currentSrc}
         alt={alt}
-        loading={priority ? 'eager' : 'lazy'}
+        loading={priority || isDataUrl ? 'eager' : 'lazy'}
         decoding="async"
         fetchPriority={priority ? 'high' : 'auto'}
         referrerPolicy="no-referrer"
         onLoad={handleLoad}
         onError={handleError}
-        className={`w-full h-full object-cover transition-opacity duration-300 ${
-          isLoaded ? 'opacity-100' : 'opacity-0'
+        className={`w-full h-full object-cover transition-opacity duration-200 ${
+          isLoaded || isDataUrl ? 'opacity-100' : 'opacity-0'
         } ${imgClassName}`}
       />
     </div>

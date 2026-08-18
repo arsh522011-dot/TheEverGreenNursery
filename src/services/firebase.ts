@@ -49,11 +49,33 @@ try {
 
 export const db = dbInstance;
 
-// Helper to save a document to Firestore
+// Helper to recursively strip undefined and sanitize objects for Firestore
+export function cleanForFirestore<T>(data: T): T {
+  if (data === undefined) return null as any;
+  if (data === null || typeof data !== 'object') return data;
+  
+  if (Array.isArray(data)) {
+    return data
+      .filter((item) => item !== undefined)
+      .map((item) => cleanForFirestore(item)) as any;
+  }
+
+  const cleaned: Record<string, any> = {};
+  for (const [key, value] of Object.entries(data as Record<string, any>)) {
+    if (value !== undefined) {
+      cleaned[key] = cleanForFirestore(value);
+    }
+  }
+  return cleaned as T;
+}
+
+// Helper to save a document to Firestore with automatic sanitization
 export async function saveDocumentFirestore<T extends Record<string, any>>(collectionName: string, docId: string, data: T) {
   try {
-    const docRef = doc(db, collectionName, docId);
-    await setDoc(docRef, data, { merge: true });
+    if (!docId || typeof docId !== 'string') return false;
+    const docRef = doc(db, collectionName, docId.trim());
+    const cleaned = cleanForFirestore(data);
+    await setDoc(docRef, cleaned, { merge: true });
     return true;
   } catch (error) {
     console.warn(`Firestore write error for ${collectionName}/${docId}:`, error);

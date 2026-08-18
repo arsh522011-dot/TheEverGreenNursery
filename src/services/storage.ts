@@ -375,7 +375,45 @@ export const StorageService = {
     ImageCache.registerPlants(plants);
 
     setStoredItem(STORAGE_KEYS.PLANTS, plants);
-    plants.forEach((plant) => saveDocumentFirestore('plants', plant.id, plant));
+    
+    // Save each plant to Firestore with automatic sanitization
+    plants.forEach((plant) => {
+      saveDocumentFirestore('plants', plant.id, plant);
+    });
+  },
+  async syncAllPlantsToFirestore(): Promise<{ count: number; success: boolean; message: string }> {
+    try {
+      const plants = this.getPlants();
+      if (!plants || plants.length === 0) {
+        return { count: 0, success: false, message: 'No plants found in local memory to sync.' };
+      }
+
+      ImageCache.registerPlants(plants);
+      setStoredItem(STORAGE_KEYS.PLANTS, plants);
+
+      let successCount = 0;
+      const writePromises = plants.map(async (plant) => {
+        const ok = await saveDocumentFirestore('plants', plant.id, plant);
+        if (ok) successCount++;
+        return ok;
+      });
+
+      await Promise.allSettled(writePromises);
+      notifyLocalChange(STORAGE_KEYS.PLANTS);
+
+      return {
+        count: successCount,
+        success: successCount > 0,
+        message: `Successfully synchronized ${successCount} of ${plants.length} plant records & uploaded photos to Cloud Database!`,
+      };
+    } catch (err: any) {
+      console.error('Error during manual syncAllPlantsToFirestore:', err);
+      return {
+        count: 0,
+        success: false,
+        message: `Cloud sync encountered an issue: ${err?.message || 'Unknown error'}`,
+      };
+    }
   },
   deletePlant(id: string): void {
     markAsDeleted(id);
@@ -664,16 +702,26 @@ export const StorageService = {
 
         // 3. Plants (Highest priority - register photos immediately)
         (async () => {
-          const remotePlants = await fetchCollectionFirestore<Plant>('plants');
-          if (remotePlants !== null && remotePlants.length > 0) {
-            const validPlants = remotePlants.filter((p) => !deleted.has(p.id));
-            ImageCache.registerPlants(validPlants);
-            setStoredItem(STORAGE_KEYS.PLANTS, validPlants);
-            if (onSyncComplete) onSyncComplete();
-          } else if (remotePlants === null || remotePlants.length === 0) {
-            const current = this.getPlants();
-            ImageCache.registerPlants(current);
-            current.forEach((p) => saveDocumentFirestore('plants', p.id, p));
+          try {
+            const remotePlants = await fetchCollectionFirestore<Plant>('plants');
+            if (remotePlants !== null && remotePlants.length > 0) {
+              const validPlants = remotePlants.filter((p) => !deleted.has(p.id));
+              ImageCache.registerPlants(validPlants);
+              setStoredItem(STORAGE_KEYS.PLANTS, validPlants);
+              if (onSyncComplete) onSyncComplete();
+            } else {
+              const current = this.getPlants();
+              ImageCache.registerPlants(current);
+              // Only push to remote if local has custom images or user-created plants
+              const hasCustomPhotos = current.some((p) =>
+                p.images && p.images.some((img) => img.startsWith('data:image/') || (!img.includes('unsplash.com') && !img.includes('placeholder')))
+              );
+              if (hasCustomPhotos && current.length > 0) {
+                current.forEach((p) => saveDocumentFirestore('plants', p.id, p));
+              }
+            }
+          } catch (err) {
+            console.warn('Plant collection fetch error:', err);
           }
         })(),
 
