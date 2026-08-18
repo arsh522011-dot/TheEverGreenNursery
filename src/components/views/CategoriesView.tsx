@@ -13,13 +13,13 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, onNa
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <span className="text-xs font-mono uppercase tracking-[0.25em] text-emerald-700 block">
-            BOTANICAL FAMILIES
+            BOTANICAL FAMILIES & TAXONOMY
           </span>
           <h1 className="font-serif text-3xl sm:text-5xl text-[#062319] font-light">
-            Plant Categories & Taxonomy
+            Plant Categories • Exotic Plants, Palms & Succulents
           </h1>
           <p className="text-sm text-emerald-900/70 leading-relaxed">
-            Discover plants sorted by growth habit, light requirement, and aesthetic scale. Select any category to view available nursery specimens.
+            Discover specimens sorted by growth scale and habitat — from indoor plants nursery foliage to outdoor palms and avenue trees, native plants, shrubs, groundcover plants, and cactus and succulent plants.
           </p>
         </div>
 
@@ -33,7 +33,7 @@ export const CategoriesView: React.FC<CategoriesViewProps> = ({ categories, onNa
             >
               <img
                 src={cat.image}
-                alt={cat.name}
+                alt={`${cat.name} specimens at The Ever Green Nursery`}
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#062319] via-[#062319]/30 to-transparent" />

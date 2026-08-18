@@ -13,13 +13,13 @@ export const ServicesView: React.FC<ServicesViewProps> = ({ services, onOpenEnqu
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <span className="text-xs font-mono uppercase tracking-[0.25em] text-emerald-700 block">
-            HORTICULTURAL ARCHITECTURE
+            PLANT NURSERY AND LANDSCAPE
           </span>
           <h1 className="font-serif text-3xl sm:text-5xl text-[#062319] font-light">
-            Our Landscape & Botanical Services
+            Landscaping Services & Landscaping Solutions
           </h1>
           <p className="text-sm text-emerald-900/70 leading-relaxed">
-            From estate master planning to luxury indoor greening, our senior horticulturalists and landscape architects engineer living works of art.
+            From comprehensive landscaping solutions to unique greenery for gardens, our plant nursery and landscape experts design living environments with high quality plants.
           </p>
         </div>
 
@@ -32,7 +32,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({ services, onOpenEnqu
               }`}
             >
               <div className="lg:col-span-6 h-72 sm:h-96 rounded-2xl overflow-hidden shadow-md">
-                <img src={srv.image} alt={srv.title} className="w-full h-full object-cover" />
+                <img src={srv.image} alt={`${srv.title} - Landscaping Solutions by The Ever Green Nursery`} className="w-full h-full object-cover" />
               </div>
 
               <div className="lg:col-span-6 space-y-4">

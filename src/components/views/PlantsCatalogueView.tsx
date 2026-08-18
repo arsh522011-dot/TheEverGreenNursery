@@ -244,13 +244,13 @@ export const PlantsCatalogueView: React.FC<PlantsCatalogueViewProps> = ({
 
           <div className="relative z-10 space-y-2 max-w-2xl">
             <span className="text-xs font-mono font-bold uppercase tracking-[0.25em] text-emerald-300 block drop-shadow-xs">
-              COMPLETE BOTANICAL CATALOGUE
+              EXOTIC PLANTS NURSERY • LIVING BOTANICAL COLLECTION
             </span>
             <h1 className="font-serif text-2xl sm:text-4xl text-white font-bold drop-shadow-md">
-              Explore Our Living Collection
+              Exotic Plants, Native Plants, Palms, Avenue Trees & Succulents
             </h1>
             <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed drop-shadow-xs">
-              Browse our nursery-grown indoor foliage, architectural outdoor trees, exotic palms, and artisanal planters.
+              Browse high quality specimens from our indoor plants nursery, exotic plants nursery, palms and avenue trees, shrubs, groundcover plants, cactus and succulent plants.
             </p>
           </div>
 
@@ -364,7 +364,7 @@ export const PlantsCatalogueView: React.FC<PlantsCatalogueViewProps> = ({
                       >
                         <OptimizedPlantImage
                           src={plantImage}
-                          alt={plant.name}
+                          alt={`${plant.name} - ${plant.category || 'High Quality Plants'} at The Ever Green Nursery`}
                           priority={index < 4}
                           fallbackSrc={DEFAULT_PLANT_IMAGE}
                           className="w-full h-full"

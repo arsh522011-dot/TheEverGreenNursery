@@ -29,10 +29,10 @@ export const AboutView: React.FC<AboutViewProps> = ({ settings, onNavigate }) =>
 
           <div className="relative z-10 space-y-3 sm:space-y-4">
             <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-emerald-400 block">
-              {settings.aboutEyebrow || 'OUR BOTANICAL HERITAGE'}
+              {settings.aboutEyebrow || 'THE EVER GREEN NURSERY • BOTANICAL HERITAGE & LANDSCAPE'}
             </span>
             <h1 className="font-serif text-2xl sm:text-5xl md:text-6xl text-emerald-100 font-light max-w-3xl mx-auto leading-tight">
-              {settings.aboutTitle || 'Cultivating Life, Beauty & Architectural Flora Since 2012'}
+              {settings.aboutTitle || 'Cultivating High Quality Plants, Native and Exotic Plants & Landscaping Solutions Since 2012'}
             </h1>
             <p className="text-xs sm:text-base text-emerald-100/90 max-w-2xl mx-auto leading-relaxed font-light">
               {settings.aboutStory}

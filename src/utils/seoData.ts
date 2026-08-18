@@ -8,79 +8,79 @@ export interface PageSEO {
 
 export const SEO_PAGE_CONFIGS: Record<string, PageSEO> = {
   home: {
-    title: 'The Ever Green Nursery | Wholesale Plant Nursery in Gajraula & Delhi Road (NH-24)',
-    description: 'The Ever Green Nursery is a premier wholesale plant nursery located on NH-24 Delhi Road in Gajraula (Amroha). We supply wholesale indoor plants, landscape trees, ornamental shrubs & bulk nursery plants for landscapers, builders, hotels, institutions & contractors.',
-    keywords: 'wholesale plant nursery, wholesale plants, wholesale nursery, plants wholesale supplier, wholesale plants in Gajraula, wholesale plant nursery in Amroha, plant nursery near Hasanpur, wholesale plants near Sambhal, wholesale nursery near NH-24, plant nursery near Delhi Road, commercial plant supplier, bulk plants supplier, plants for landscaping, landscaping plants supplier, indoor plants wholesale, outdoor plants wholesale',
+    title: 'The Ever Green Nursery | Plant Nursery for Exotic & Native Plants, Palms, Avenue Trees & Indoor Plants',
+    description: 'Discover high quality plants, exotic plants, native plants, indoor plants, palms, avenue trees, groundcover plants, shrubs, cactus, succulents, and unique greenery for gardens at The Ever Green Nursery in Gajraula on NH-24 Delhi Road.',
+    keywords: 'Plant Nursery, Exotic Plants, Native Plants, Indoor Plants, Palms, Avenue Trees, Groundcover Plants, Shrubs, Cactus, Succulents, High Quality Plants, Unique Greenery for Gardens, The Ever Green Nursery',
     canonicalPath: '/',
-    h1: 'Wholesale Plant Nursery in Gajraula & Commercial Plant Supplier',
+    h1: 'Plant Nursery for Exotic Plants, Native Plants & Unique Greenery for Gardens',
   },
   plants: {
-    title: 'Wholesale Plants & Bulk Nursery Supplies in Gajraula, Amroha | The Ever Green Nursery',
-    description: 'Explore wholesale indoor plants, outdoor landscape trees, flowering ornamentals, palms & shrubs at direct nursery rates from The Ever Green Nursery in Gajraula, Amroha, Hasanpur & Sambhal.',
-    keywords: 'wholesale plants, wholesale nursery plants, landscaping plants supplier, bulk plants Gajraula Amroha, commercial plant supplier, indoor plants wholesale, outdoor plants wholesale',
+    title: 'Exotic Plants, Native Plants, Palms, Avenue Trees & Succulents | The Ever Green Nursery',
+    description: 'Explore high quality plants from our exotic plants nursery and indoor plants nursery. Featuring palms and avenue trees, shrubs, groundcover plants, cactus and succulent plants at The Ever Green Nursery.',
+    keywords: 'Exotic Plants, Native Plants, Indoor Plants, Palms, Avenue Trees, Groundcover Plants, Shrubs, Cactus, Succulents, Exotic Plants Nursery, Indoor Plants Nursery, Palms and Avenue Trees, Cactus and Succulent Plants, High Quality Plants, The Ever Green Nursery',
     canonicalPath: '/plants',
-    h1: 'Wholesale Nursery Plants & Bulk Commercial Flora',
+    h1: 'Exotic Plants, Native Plants, Palms, Avenue Trees & Succulent Plants',
   },
   categories: {
-    title: 'Wholesale Plant Categories | Indoor, Outdoor & Pots | The Ever Green Nursery',
-    description: 'Browse wholesale plant categories including Indoor Plants, Outdoor Plants, and Pots at The Ever Green Nursery in Gajraula on NH-24 Delhi Road.',
-    keywords: 'indoor plants wholesale, outdoor plants wholesale, pots wholesale, nursery pots, wholesale plant nursery in Gajraula, nursery categories',
+    title: 'Plant Categories • Exotic Plants, Indoor Plants Nursery & Succulents | The Ever Green Nursery',
+    description: 'Browse curated botanical categories including Indoor Plants Nursery, Outdoor Landscape Trees, Palms and Avenue Trees, Shrubs, Cactus and Succulent Plants, and Pots at The Ever Green Nursery.',
+    keywords: 'Indoor Plants Nursery, Exotic Plants Nursery, Palms and Avenue Trees, Groundcover Plants, Shrubs, Cactus and Succulent Plants, High Quality Plants, The Ever Green Nursery',
     canonicalPath: '/categories',
-    h1: 'Wholesale Plant Categories & Varieties',
+    h1: 'Plant Categories • Exotic Plants, Palms & Indoor Plants Nursery',
   },
   'bulk-orders': {
-    title: 'Bulk & Commercial Plant Supplier | Landscaping & Contractors | The Ever Green Nursery',
-    description: 'Order bulk plants for commercial projects, corporate campuses, builders, hotels & landscaping contracts near Gajraula, Amroha, Hasanpur, Sambhal & Delhi NCR with verified quality.',
-    keywords: 'commercial plant supplier, bulk plants supplier, plants for landscaping, bulk plants for commercial projects, wholesale nursery near NH-24, B2B plant orders',
+    title: 'Bulk & Commercial Plant Supplier | High Quality Plants | The Ever Green Nursery',
+    description: 'Order high quality plants, exotic plants, native plants, avenue trees, palms, and shrubs in bulk for commercial landscaping, builders, hotels, and institutional projects from The Ever Green Nursery.',
+    keywords: 'High Quality Plants, Plant Nursery and Landscape, Bulk Plants, Palms and Avenue Trees, Landscaping Solutions, The Ever Green Nursery',
     canonicalPath: '/bulk-orders',
-    h1: 'Bulk Plant Orders & Wholesale Commercial Supply',
+    h1: 'Bulk Orders & Commercial Supply of High Quality Plants',
   },
   services: {
-    title: 'Commercial Landscaping & Nursery Services near Amroha, Sambhal | The Ever Green Nursery',
-    description: 'Professional landscape architecture, farm plantation, corporate plant maintenance & wholesale nursery supply across Gajraula, Amroha, Hasanpur, Sambhal and NH-24 Delhi Road.',
-    keywords: 'commercial plant supplier, landscaping plants supplier, nursery plants supplier, Delhi Road, landscape contractors Gajraula, estate plantation Amroha',
+    title: 'Landscaping Services & Landscaping Solutions | Plant Nursery and Landscape | The Ever Green Nursery',
+    description: 'Professional landscaping solutions, landscaping services, estate master planning, and plant nursery and landscape contracting featuring high quality plants and unique greenery for gardens.',
+    keywords: 'Landscaping Solutions, Landscaping Services, Plant Nursery and Landscape, High Quality Plants, Unique Greenery for Gardens, The Ever Green Nursery',
     canonicalPath: '/services',
-    h1: 'Commercial Landscaping & Horticultural Contracting Services',
+    h1: 'Landscaping Services & Tailored Landscaping Solutions',
   },
   projects: {
-    title: 'Commercial Landscaping & Plantation Projects | The Ever Green Nursery',
-    description: 'View our completed commercial plantation, estate landscaping, and wholesale nursery supply projects in Gajraula, Amroha, Sambhal, and surrounding regions.',
-    keywords: 'landscaping plants supplier near Delhi Road, commercial plant projects, estate landscaping Gajraula, institutional plantation Amroha',
+    title: 'Plant Nursery and Landscape Projects Portfolio | The Ever Green Nursery',
+    description: 'Explore our completed estate landscaping projects, residential gardens, and commercial landscaping solutions featuring high quality plants and unique greenery for gardens.',
+    keywords: 'Plant Nursery and Landscape, Landscaping Solutions, High Quality Plants, Unique Greenery for Gardens, Landscaping Services, The Ever Green Nursery',
     canonicalPath: '/projects',
-    h1: 'Completed Commercial & Estate Landscaping Projects',
+    h1: 'Completed Plant Nursery and Landscape Projects',
   },
   gallery: {
-    title: 'Wholesale Plant Nursery Farm & Greenhouse Gallery | Gajraula, NH-24',
-    description: 'Tour our 15-acre wholesale plant nursery greenhouses, mother beds, and specimen groves located on NH-24 Delhi Road near Gajraula and Amroha.',
-    keywords: 'plant nursery near Gajraula, wholesale nursery near NH-24, plant nursery near Delhi Road, nursery greenhouse gallery Gajraula',
+    title: '15-Acre Plant Nursery Farm & Greenhouses Gallery | The Ever Green Nursery',
+    description: 'Tour 15 acres of climate-controlled shade houses, mother beds, and specimen groves showcasing exotic plants, palms, avenue trees, cactus and succulents at The Ever Green Nursery.',
+    keywords: 'Plant Nursery, Exotic Plants Nursery, Palms and Avenue Trees, Cactus and Succulent Plants, High Quality Plants, The Ever Green Nursery',
     canonicalPath: '/gallery',
-    h1: '15-Acre Wholesale Nursery Farm & Greenhouse Gallery',
+    h1: '15-Acre Plant Nursery Farm & Greenhouse Gallery',
   },
   about: {
-    title: 'About The Ever Green Nursery | Wholesale Plant Grower & Supplier in Gajraula',
-    description: 'Learn about The Ever Green Nursery, a trusted wholesale plant nursery growing over 650+ varieties of indoor, outdoor, and landscaping plants on NH-24 Delhi Road, Amroha.',
-    keywords: 'wholesale plant nursery in Gajraula, wholesale nursery near Amroha, plant nursery near Hasanpur, nursery history Gajraula',
+    title: 'About The Ever Green Nursery | Plant Nursery and Landscape Solutions',
+    description: 'Learn about The Ever Green Nursery, a trusted plant nursery and landscape partner growing high quality plants, native and exotic plants, palms, and delivering turnkey landscaping solutions since 2012.',
+    keywords: 'The Ever Green Nursery, Evergreen Nursery, Plant Nursery, Native and Exotic Plants, High Quality Plants, Plant Nursery and Landscape, Landscaping Solutions',
     canonicalPath: '/about',
-    h1: 'About The Ever Green Nursery - Botanical Heritage & Wholesale Cultivation',
+    h1: 'About The Ever Green Nursery - Plant Nursery and Landscape Solutions',
   },
   contact: {
-    title: 'Contact Wholesale Nursery in Gajraula, Amroha | The Ever Green Nursery',
-    description: 'Get in touch with The Ever Green Nursery on NH-24 Delhi Road, Gajraula, District Amroha (UP). Visit our wholesale farm or contact us for instant B2B quotes and nursery visits.',
-    keywords: 'plant nursery near Gajraula, plants supplier in Amroha, Hasanpur, Sambhal, wholesale nursery contact NH-24 Delhi Road',
+    title: 'Visit Our Plant Nursery on NH-24 Delhi Road, Gajraula | The Ever Green Nursery',
+    description: 'Get in touch with The Ever Green Nursery on NH-24 Delhi Road, Gajraula (District Amroha). Visit our plant nursery for high quality plants, exotic plants, palms, and custom landscaping solutions.',
+    keywords: 'The Ever Green Nursery, Plant Nursery, Plant Nursery in Gajraula, High Quality Plants, Landscaping Solutions',
     canonicalPath: '/contact',
-    h1: 'Visit Our Wholesale Nursery on NH-24 Delhi Road, Gajraula',
+    h1: 'Visit The Ever Green Nursery on NH-24 Delhi Road, Gajraula',
   },
   'privacy-policy': {
     title: 'Privacy Policy | The Ever Green Nursery',
-    description: 'Privacy policy and client data protection practices for The Ever Green Nursery wholesale plant portal and inquiries.',
-    keywords: 'privacy policy, The Ever Green Nursery',
+    description: 'Privacy policy and customer data protection practices for The Ever Green Nursery plant portal and inquiries.',
+    keywords: 'Privacy Policy, The Ever Green Nursery',
     canonicalPath: '/privacy-policy',
     h1: 'Privacy Policy',
   },
   terms: {
-    title: 'Terms & Conditions | Wholesale Plant Supply | The Ever Green Nursery',
-    description: 'Terms and conditions governing wholesale plant orders, commercial shipments, and horticultural contracts with The Ever Green Nursery.',
-    keywords: 'terms and conditions, wholesale nursery terms',
+    title: 'Terms & Conditions | The Ever Green Nursery',
+    description: 'Terms and conditions governing plant nursery sales, commercial shipments, and landscaping services with The Ever Green Nursery.',
+    keywords: 'Terms and Conditions, The Ever Green Nursery, Plant Nursery',
     canonicalPath: '/terms',
     h1: 'Terms & Conditions',
   },
@@ -88,26 +88,26 @@ export const SEO_PAGE_CONFIGS: Record<string, PageSEO> = {
 
 export function getPageSEO(view: string, params?: Record<string, string>, plantName?: string, plantDescription?: string): PageSEO {
   if (view === 'plant-detail' && params?.id) {
-    const name = plantName || 'Wholesale Specimen Plant';
+    const name = plantName || 'High Quality Specimen Plant';
     return {
-      title: `${name} Wholesale & Bulk Supply | The Ever Green Nursery Gajraula`,
+      title: `${name} | Exotic Plants & High Quality Nursery Flora | The Ever Green Nursery`,
       description: plantDescription 
-        ? `Wholesale ${name} available in bulk for landscapers, nurseries & commercial projects from The Ever Green Nursery in Gajraula (Amroha). ${plantDescription.slice(0, 120)}`
-        : `Wholesale ${name} available in commercial bulk quantities with direct nursery rates from The Ever Green Nursery on NH-24 Delhi Road, Gajraula.`,
-      keywords: `wholesale ${name}, buy ${name} in bulk, ${name} price wholesale, commercial plant supplier Gajraula, landscaping plants supplier Amroha`,
+        ? `${name} from The Ever Green Nursery. High quality plants and unique greenery for gardens. ${plantDescription.slice(0, 120)}`
+        : `Discover high quality ${name} from The Ever Green Nursery on NH-24 Delhi Road, Gajraula. Available for retail, bulk orders, and landscaping solutions.`,
+      keywords: `${name}, Exotic Plants, High Quality Plants, Unique Greenery for Gardens, Plant Nursery, The Ever Green Nursery`,
       canonicalPath: `/plants/${params.id}`,
-      h1: `${name} - Wholesale Commercial Supply`,
+      h1: `${name} - High Quality Plants & Living Decor`,
     };
   }
 
   if (view === 'plants' && params?.category) {
     const cat = params.category;
     return {
-      title: `Wholesale ${cat} Plants in Gajraula, Amroha | The Ever Green Nursery`,
-      description: `Wholesale ${cat} plants available in commercial bulk volumes. Direct nursery prices for contractors, landscapers and builders across Gajraula, Amroha, Hasanpur & Sambhal.`,
-      keywords: `wholesale ${cat} plants, ${cat} plants bulk supplier, wholesale nursery Gajraula, commercial ${cat} plants Amroha`,
+      title: `${cat} • High Quality Plants & Unique Greenery | The Ever Green Nursery`,
+      description: `Explore our collection of ${cat} at The Ever Green Nursery. High quality plants, native and exotic plants, palms, shrubs, and succulents curated for gardens and landscapes.`,
+      keywords: `${cat}, High Quality Plants, Exotic Plants, Native Plants, Plant Nursery, Unique Greenery for Gardens, The Ever Green Nursery`,
       canonicalPath: `/plants?category=${encodeURIComponent(cat)}`,
-      h1: `Wholesale ${cat} Plants & Commercial Supply`,
+      h1: `${cat} - High Quality Plants & Nursery Collection`,
     };
   }
 

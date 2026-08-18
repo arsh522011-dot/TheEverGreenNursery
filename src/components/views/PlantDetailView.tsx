@@ -56,7 +56,7 @@ export const PlantDetailView: React.FC<PlantDetailViewProps> = ({
             >
               <OptimizedPlantImage
                 src={plant.images[activeImageIdx] || plant.images[0] || ''}
-                alt={plant.name}
+                alt={`${plant.name} - High Quality ${plant.category || 'Plant'} at The Ever Green Nursery`}
                 priority={true}
                 className="w-full h-full"
                 imgClassName="group-hover:scale-105 transition-transform duration-700"

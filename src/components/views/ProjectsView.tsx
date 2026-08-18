@@ -14,13 +14,13 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ projects, onOpenEnqu
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <span className="text-xs font-mono uppercase tracking-[0.25em] text-emerald-700 block">
-            LANDSCAPE PORTFOLIO
+            PLANT NURSERY AND LANDSCAPE PORTFOLIO
           </span>
           <h1 className="font-serif text-3xl sm:text-5xl text-[#062319] font-light">
-            Estate & Commercial Projects
+            Landscaping Projects & Unique Greenery for Gardens
           </h1>
           <p className="text-sm text-emerald-900/70 leading-relaxed">
-            Explore our completed landscape architectural projects and turnkey botanical designs.
+            Explore our completed estate landscaping solutions, high quality plants installations, and bespoke living botanical architecture.
           </p>
         </div>
 

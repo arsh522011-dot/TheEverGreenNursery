@@ -102,10 +102,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
     projects[0] ||
     null;
 
-  // Four Clean Botanical & Planter Categories
+  // Popular Botanical Categories for Quick Selection
   const quickCategories = [
     {
-      name: 'All Categories',
+      name: 'All Plants',
       icon: '🌿',
       category: 'All'
     },
@@ -115,12 +115,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
       category: 'Indoor Plants'
     },
     {
-      name: 'Outdoor Plants',
+      name: 'Exotic Plants',
+      icon: 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=400&q=80',
+      category: 'Exotic Plants'
+    },
+    {
+      name: 'Palms & Trees',
       icon: 'https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785874090/Gemini_Generated_Image_g53lbrg53lbrg53l_ggjnrn.png',
       category: 'Outdoor Plants'
     },
     {
-      name: 'Pots',
+      name: 'Succulents & Cactus',
+      icon: 'https://images.unsplash.com/photo-1509423350716-97f9360b4e09?auto=format&fit=crop&w=400&q=80',
+      category: 'Succulents'
+    },
+    {
+      name: 'Pots & Planters',
       icon: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=400&q=80',
       category: 'Pots'
     },
@@ -344,16 +354,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </section>
 
-      {/* SECTION 4: PLANT CATALOGUE GRID ("Flowering Bulbs & Nursery Best Sellers") */}
+      {/* SECTION 4: PLANT CATALOGUE GRID ("High Quality Plants & Best Sellers") */}
       <section className="py-12 bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-gray-100 pb-6">
             <div>
               <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-700 block mb-1">
-                CURATED FOR YOU
+                HIGH QUALITY PLANTS & UNIQUE GREENERY FOR GARDENS
               </span>
               <h2 className="font-serif text-2xl sm:text-4xl text-[#132e1f] font-bold">
-                Flowering Bulbs & Nursery Best Sellers
+                Exotic Plants, Indoor Plants, Palms & Best Sellers
               </h2>
             </div>
 
@@ -524,10 +534,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
           <div>
             <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-700 block mb-1">
-              EXPLORE BY FAMILY
+              EXPLORE BOTANICAL FAMILIES
             </span>
             <h2 className="font-serif text-2xl sm:text-4xl text-[#132e1f] font-bold">
-              Plant Categories
+              Plant Categories • Exotic Plants, Palms, Avenue Trees & Succulents
             </h2>
           </div>
           <button
@@ -548,7 +558,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             >
               <img
                 src={cat.image}
-                alt={cat.name}
+                alt={`${cat.name} at The Ever Green Nursery`}
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#132e1f] via-[#132e1f]/30 to-transparent" />
@@ -575,7 +585,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             <div className="text-center space-y-2 max-w-2xl mx-auto">
               <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-700 block">
-                {settings.featuredProjectSectionSubtitle || 'LANDSCAPE ARCHITECTURE'}
+                {settings.featuredProjectSectionSubtitle || 'PLANT NURSERY AND LANDSCAPE SOLUTIONS'}
               </span>
               <h2 className="font-serif text-2xl sm:text-4xl text-[#132e1f] font-bold">
                 {settings.featuredProjectSectionTitle || 'Featured Completed Project'}
@@ -595,13 +605,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="text-center space-y-3 max-w-3xl mx-auto">
             <span className="text-xs font-mono font-bold uppercase tracking-[0.25em] text-emerald-700 block">
-              B2B WHOLESALE & LANDSCAPING PARTNER
+              PLANT NURSERY & LANDSCAPING SOLUTIONS
             </span>
             <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#132e1f]">
-              Direct Wholesale Plant Nursery in Gajraula & NH-24 Delhi Road
+              Plant Nursery in Gajraula • Native & Exotic Plants, Avenue Trees & Groundcover Plants
             </h2>
             <p className="text-sm text-gray-600 leading-relaxed">
-              We cultivate, acclimatize, and supply commercial-grade nursery plants across Uttar Pradesh and Delhi NCR, serving landscapers, real estate builders, luxury hotels, corporate campuses, and garden contractors.
+              We cultivate, acclimatize, and supply high quality plants, exotic plants, native plants, palms, avenue trees, shrubs, groundcover plants, cactus and succulents across Uttar Pradesh and Delhi NCR for gardens, estates, and landscaping solutions.
             </p>
           </div>
 
@@ -611,10 +621,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <Sprout className="w-6 h-6" />
               </div>
               <h3 className="font-serif text-xl font-bold text-[#132e1f]">
-                Wholesale Indoor & Air-Purifying Plants
+                Indoor Plants Nursery & Living Decor
               </h3>
               <p className="text-xs text-gray-600 leading-relaxed">
-                Large volumes of shade-loving and interior foliage plants including Areca Palms, Snake Plants, ZZ Plants, Money Plants, and Ficus varieties for corporate offices, malls, and interior decorators.
+                Large volumes of high quality indoor plants, air-purifying foliage, shade-loving specimens, and unique greenery for gardens and interior spaces.
               </p>
             </div>
 
@@ -623,10 +633,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <Building2 className="w-6 h-6" />
               </div>
               <h3 className="font-serif text-xl font-bold text-[#132e1f]">
-                Outdoor Trees & Landscaping Shrubs
+                Palms, Avenue Trees & Shrubs
               </h3>
               <p className="text-xs text-gray-600 leading-relaxed">
-                Mature avenue trees, boundary hedge plants, ornamental palms, and flowering ground covers acclimatized for highways, residential townships, school campuses, and hospitality resorts.
+                Mature avenue trees, boundary hedge shrubs, ornamental palms, and flowering groundcover plants acclimatized for gardens, residential estates, and hospitality resorts.
               </p>
             </div>
 
@@ -635,10 +645,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <Truck className="w-6 h-6" />
               </div>
               <h3 className="font-serif text-xl font-bold text-[#132e1f]">
-                Regional Logistics & Guaranteed Quality
+                High Quality Plants & Landscaping Solutions
               </h3>
               <p className="text-xs text-gray-600 leading-relaxed">
-                Direct nursery dispatch to Gajraula, Amroha, Hasanpur, Sambhal, Moradabad, Hapur, Meerut, and Delhi NCR with verified root-ball integrity and bulk transportation options.
+                Direct nursery dispatch from NH-24 Delhi Road, Gajraula across Amroha, Hasanpur, Sambhal, Moradabad, and Delhi NCR with verified quality and root-ball integrity.
               </p>
             </div>
           </div>
