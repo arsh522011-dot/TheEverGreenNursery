@@ -3,6 +3,7 @@ import { ImageCache } from '../../services/imageCache';
 
 interface OptimizedPlantImageProps {
   src: string;
+  hoverSrc?: string | null;
   alt: string;
   className?: string;
   imgClassName?: string;
@@ -16,6 +17,7 @@ const loadedUrlsSession = new Set<string>();
 
 export const OptimizedPlantImage: React.FC<OptimizedPlantImageProps> = ({
   src,
+  hoverSrc,
   alt,
   className = '',
   imgClassName = '',
@@ -23,74 +25,127 @@ export const OptimizedPlantImage: React.FC<OptimizedPlantImageProps> = ({
   fallbackSrc = 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80',
   onClick,
 }) => {
-  const effectiveSrc = src && src.trim() ? src.trim() : fallbackSrc;
-  const isDataUrl = effectiveSrc.startsWith('data:image/');
-  const isAlreadyLoaded = isDataUrl || loadedUrlsSession.has(effectiveSrc) || ImageCache.isPreloaded(effectiveSrc);
+  const effectiveMainSrc = src && src.trim() ? src.trim() : fallbackSrc;
+  const isMainDataUrl = effectiveMainSrc.startsWith('data:image/');
+  const isMainAlreadyLoaded = isMainDataUrl || loadedUrlsSession.has(effectiveMainSrc) || ImageCache.isPreloaded(effectiveMainSrc);
 
-  const [isLoaded, setIsLoaded] = useState<boolean>(isAlreadyLoaded);
-  const [currentSrc, setCurrentSrc] = useState<string>(effectiveSrc);
-  const [hasError, setHasError] = useState<boolean>(false);
+  const [isMainLoaded, setIsMainLoaded] = useState<boolean>(isMainAlreadyLoaded);
+  const [currentMainSrc, setCurrentMainSrc] = useState<string>(effectiveMainSrc);
+  const [hasMainError, setHasMainError] = useState<boolean>(false);
+
+  // Hover image state
+  const cleanHoverSrc = hoverSrc && hoverSrc.trim() && hoverSrc.trim() !== effectiveMainSrc ? hoverSrc.trim() : null;
+  const isHoverAlreadyLoaded = cleanHoverSrc ? (cleanHoverSrc.startsWith('data:image/') || loadedUrlsSession.has(cleanHoverSrc) || ImageCache.isPreloaded(cleanHoverSrc)) : false;
+
+  const [currentHoverSrc, setCurrentHoverSrc] = useState<string | null>(cleanHoverSrc);
+  const [isHoverLoaded, setIsHoverLoaded] = useState<boolean>(isHoverAlreadyLoaded);
+  const [hasHoverError, setHasHoverError] = useState<boolean>(false);
 
   useEffect(() => {
-    const nextSrc = src && src.trim() ? src.trim() : fallbackSrc;
-    const isNextDataUrl = nextSrc.startsWith('data:image/');
-    setCurrentSrc(nextSrc);
-    setHasError(false);
+    const nextMainSrc = src && src.trim() ? src.trim() : fallbackSrc;
+    const isNextMainDataUrl = nextMainSrc.startsWith('data:image/');
+    setCurrentMainSrc(nextMainSrc);
+    setHasMainError(false);
 
-    if (isNextDataUrl || loadedUrlsSession.has(nextSrc) || ImageCache.isPreloaded(nextSrc)) {
-      setIsLoaded(true);
+    if (isNextMainDataUrl || loadedUrlsSession.has(nextMainSrc) || ImageCache.isPreloaded(nextMainSrc)) {
+      setIsMainLoaded(true);
     } else {
-      setIsLoaded(false);
-      // Preload nextSrc in background
-      ImageCache.preloadImages([nextSrc]);
+      setIsMainLoaded(false);
+      ImageCache.preloadImages([nextMainSrc]);
 
-      // Mobile resilience timer: guarantee visibility after 250ms even if mobile webview delays onLoad
       const safetyTimer = setTimeout(() => {
-        setIsLoaded(true);
+        setIsMainLoaded(true);
       }, 250);
       return () => clearTimeout(safetyTimer);
     }
   }, [src, fallbackSrc]);
 
-  const handleLoad = () => {
-    if (currentSrc) loadedUrlsSession.add(currentSrc);
-    setIsLoaded(true);
+  useEffect(() => {
+    const nextHover = hoverSrc && hoverSrc.trim() && hoverSrc.trim() !== currentMainSrc ? hoverSrc.trim() : null;
+    setCurrentHoverSrc(nextHover);
+    setHasHoverError(false);
+
+    if (nextHover) {
+      if (nextHover.startsWith('data:image/') || loadedUrlsSession.has(nextHover) || ImageCache.isPreloaded(nextHover)) {
+        setIsHoverLoaded(true);
+      } else {
+        setIsHoverLoaded(false);
+        ImageCache.preloadImages([nextHover]);
+      }
+    } else {
+      setIsHoverLoaded(false);
+    }
+  }, [hoverSrc, currentMainSrc]);
+
+  const handleMainLoad = () => {
+    if (currentMainSrc) loadedUrlsSession.add(currentMainSrc);
+    setIsMainLoaded(true);
   };
 
-  const handleError = () => {
-    if (currentSrc !== fallbackSrc && fallbackSrc) {
-      setCurrentSrc(fallbackSrc);
-      setHasError(true);
-      setIsLoaded(true);
+  const handleMainError = () => {
+    if (currentMainSrc !== fallbackSrc && fallbackSrc) {
+      setCurrentMainSrc(fallbackSrc);
+      setHasMainError(true);
+      setIsMainLoaded(true);
     } else {
-      setHasError(true);
-      setIsLoaded(true);
+      setHasMainError(true);
+      setIsMainLoaded(true);
     }
   };
 
+  const handleHoverLoad = () => {
+    if (currentHoverSrc) loadedUrlsSession.add(currentHoverSrc);
+    setIsHoverLoaded(true);
+  };
+
+  const handleHoverError = () => {
+    setHasHoverError(true);
+    setIsHoverLoaded(false);
+  };
+
+  const canShowHover = Boolean(currentHoverSrc && !hasHoverError && isHoverLoaded);
+
   return (
     <div
-      className={`relative overflow-hidden bg-emerald-950/5 ${className}`}
+      className={`relative overflow-hidden bg-emerald-950/5 select-none ${className}`}
       onClick={onClick}
     >
-      {/* Subtle botanical shimmer while image is decoding on slow connections */}
-      {!isLoaded && !hasError && !isDataUrl && (
+      {/* Subtle botanical shimmer while primary image is decoding on slow connections */}
+      {!isMainLoaded && !hasMainError && !isMainDataUrl && (
         <div className="absolute inset-0 bg-gradient-to-tr from-emerald-900/10 via-emerald-800/5 to-emerald-900/15 animate-pulse pointer-events-none" />
       )}
 
+      {/* Main Image */}
       <img
-        src={currentSrc}
+        src={currentMainSrc}
         alt={alt}
-        loading={priority || isDataUrl ? 'eager' : 'lazy'}
+        loading={priority || isMainDataUrl ? 'eager' : 'lazy'}
         decoding="async"
         fetchPriority={priority ? 'high' : 'auto'}
         referrerPolicy="no-referrer"
-        onLoad={handleLoad}
-        onError={handleError}
-        className={`w-full h-full object-cover transition-opacity duration-200 ${
-          isLoaded || isDataUrl ? 'opacity-100' : 'opacity-0'
-        } ${imgClassName}`}
+        onLoad={handleMainLoad}
+        onError={handleMainError}
+        className={`w-full h-full object-cover transition-all duration-500 ease-out ${
+          isMainLoaded || isMainDataUrl ? 'opacity-100' : 'opacity-0'
+        } ${canShowHover ? 'group-hover:opacity-0 group-hover:scale-105' : 'group-hover:scale-105'} ${imgClassName}`}
       />
+
+      {/* Hover Image (Secondary) - Smooth fade-in on mouse hover */}
+      {currentHoverSrc && !hasHoverError && (
+        <img
+          src={currentHoverSrc}
+          alt={`${alt} - Alternate View`}
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          onLoad={handleHoverLoad}
+          onError={handleHoverError}
+          className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out pointer-events-none ${
+            isHoverLoaded ? 'opacity-0 group-hover:opacity-100 group-hover:scale-105' : 'opacity-0'
+          } ${imgClassName}`}
+        />
+      )}
     </div>
   );
 };
+

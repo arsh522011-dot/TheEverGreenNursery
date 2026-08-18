@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Plant, Category, FilterState } from '../../types';
 import { OptimizedPlantImage } from '../common/OptimizedPlantImage';
+import { ProductCard } from '../common/ProductCard';
 import { ImageCache } from '../../services/imageCache';
 
 interface PlantsCatalogueViewProps {
@@ -347,91 +348,16 @@ export const PlantsCatalogueView: React.FC<PlantsCatalogueViewProps> = ({
         <div className="w-full">
           {filteredPlants.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6">
-              {filteredPlants.map((plant, index) => {
-                const plantImage = ImageCache.getPrimaryImageUrl(plant, DEFAULT_PLANT_IMAGE);
-
-                return (
-                  <div
-                    key={plant.id}
-                    data-cursor="VIEW"
-                    className="group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-gray-200 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
-                  >
-                    <div>
-                      {/* Plant Image Card Header */}
-                      <div
-                        className="relative h-64 w-full overflow-hidden cursor-pointer bg-gray-100"
-                        onClick={() => onNavigate('plant-detail', { id: plant.id })}
-                      >
-                        <OptimizedPlantImage
-                          src={plantImage}
-                          alt={`${plant.name} - ${plant.category || 'High Quality Plants'} at The Ever Green Nursery`}
-                          priority={index < 4}
-                          fallbackSrc={DEFAULT_PLANT_IMAGE}
-                          className="w-full h-full"
-                          imgClassName="group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-[#183925]/90 text-white text-[10px] font-mono font-bold tracking-wider uppercase border border-emerald-400/40 shadow-xs">
-                          {plant.category}
-                        </span>
-
-                        {plant.isFeatured && (
-                          <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[9px] font-mono font-extrabold uppercase shadow-xs">
-                            ★ Featured
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Plant Information */}
-                      <div className="p-4 sm:p-5 space-y-2.5">
-                        <div
-                          className="cursor-pointer"
-                          onClick={() => onNavigate('plant-detail', { id: plant.id })}
-                        >
-                          <h3 className="font-serif text-lg sm:text-xl font-bold text-[#132e1f] group-hover:text-emerald-700 transition-colors line-clamp-1">
-                            {plant.name}
-                          </h3>
-                          <p className="text-xs italic text-gray-500 font-mono mt-0.5 line-clamp-1">
-                            {plant.scientificName}
-                          </p>
-                        </div>
-
-                        <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
-                          {plant.shortDescription || plant.description}
-                        </p>
-
-                        <div className="flex items-center gap-4 text-xs font-mono text-gray-600 pt-1.5 border-t border-gray-100">
-                          <span className="flex items-center gap-1">
-                            <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                            <span className="truncate">{plant.sunlight}</span>
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Droplets className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                            <span className="truncate">{plant.water}</span>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="p-4 sm:p-5 pt-0 flex gap-2">
-                      <button
-                        onClick={() => onNavigate('plant-detail', { id: plant.id })}
-                        className="flex-1 py-2.5 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200 text-xs font-bold uppercase tracking-wider hover:bg-emerald-100 transition-colors cursor-pointer text-center"
-                      >
-                        Details
-                      </button>
-
-                      <button
-                        onClick={() => onOpenEnquiry(plant)}
-                        className="py-2.5 px-4 rounded-xl bg-[#183925] text-white hover:bg-emerald-800 text-xs font-bold uppercase tracking-wider transition-colors shadow-xs cursor-pointer active:scale-95"
-                        title="Enquire via WhatsApp"
-                      >
-                        Enquire
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+              {filteredPlants.map((plant, index) => (
+                <ProductCard
+                  key={plant.id}
+                  plant={plant}
+                  index={index}
+                  priority={index < 4}
+                  onNavigate={onNavigate}
+                  onOpenEnquiry={onOpenEnquiry}
+                />
+              ))}
             </div>
           ) : (
             <div className="py-16 sm:py-20 text-center bg-white rounded-3xl border border-emerald-900/10 p-8 space-y-4 shadow-xs">

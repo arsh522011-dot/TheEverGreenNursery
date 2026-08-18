@@ -88,9 +88,12 @@ export const ImageCache = {
           hasChanges = true;
         }
 
-        // Add primary photo to preload queue
+        // Add primary and hover photo to preload queue
         if (validImages[0]) {
           urlsToPreload.push(validImages[0]);
+        }
+        if (validImages[1]) {
+          urlsToPreload.push(validImages[1]);
         }
       }
     });
@@ -180,5 +183,25 @@ export const ImageCache = {
     }
 
     return fallback;
+  },
+
+  /**
+   * Get hover image for a plant if available and distinct from primary.
+   */
+  getHoverImageUrl(plant: Plant): string | null {
+    if (!plant) return null;
+
+    const registered = inMemoryPhotoMap.get(plant.id);
+    const images = registered && registered.length > 0 ? registered : plant.images;
+
+    if (Array.isArray(images) && images.length > 1) {
+      const primary = (images[0] || '').trim();
+      const hover = (images[1] || '').trim();
+      if (hover && hover !== primary) {
+        return hover;
+      }
+    }
+
+    return null;
   },
 };
