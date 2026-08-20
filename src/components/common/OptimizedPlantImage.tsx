@@ -3,7 +3,7 @@ import { ImageCache } from '../../services/imageCache';
 
 interface OptimizedPlantImageProps {
   src: string;
-  hoverSrc?: string | null;
+  hoverSrc?: string;
   alt: string;
   className?: string;
   imgClassName?: string;
@@ -25,123 +25,92 @@ export const OptimizedPlantImage: React.FC<OptimizedPlantImageProps> = ({
   fallbackSrc = 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80',
   onClick,
 }) => {
-  const effectiveMainSrc = src && src.trim() ? src.trim() : fallbackSrc;
-  const isMainDataUrl = effectiveMainSrc.startsWith('data:image/');
-  const isMainAlreadyLoaded = isMainDataUrl || loadedUrlsSession.has(effectiveMainSrc) || ImageCache.isPreloaded(effectiveMainSrc);
+  const effectiveSrc = src && src.trim() ? src.trim() : fallbackSrc;
+  const effectiveHoverSrc = hoverSrc && hoverSrc.trim() && hoverSrc.trim() !== effectiveSrc ? hoverSrc.trim() : null;
 
-  const [isMainLoaded, setIsMainLoaded] = useState<boolean>(isMainAlreadyLoaded);
-  const [currentMainSrc, setCurrentMainSrc] = useState<string>(effectiveMainSrc);
-  const [hasMainError, setHasMainError] = useState<boolean>(false);
+  const isDataUrl = effectiveSrc.startsWith('data:image/');
+  const isAlreadyLoaded = isDataUrl || loadedUrlsSession.has(effectiveSrc) || ImageCache.isPreloaded(effectiveSrc);
 
-  // Hover image state
-  const cleanHoverSrc = hoverSrc && hoverSrc.trim() && hoverSrc.trim() !== effectiveMainSrc ? hoverSrc.trim() : null;
-  const isHoverAlreadyLoaded = cleanHoverSrc ? (cleanHoverSrc.startsWith('data:image/') || loadedUrlsSession.has(cleanHoverSrc) || ImageCache.isPreloaded(cleanHoverSrc)) : false;
-
-  const [currentHoverSrc, setCurrentHoverSrc] = useState<string | null>(cleanHoverSrc);
-  const [isHoverLoaded, setIsHoverLoaded] = useState<boolean>(isHoverAlreadyLoaded);
-  const [hasHoverError, setHasHoverError] = useState<boolean>(false);
+  const [isLoaded, setIsLoaded] = useState<boolean>(isAlreadyLoaded);
+  const [currentSrc, setCurrentSrc] = useState<string>(effectiveSrc);
+  const [hasError, setHasError] = useState<boolean>(false);
+  const [hoverLoaded, setHoverLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    const nextMainSrc = src && src.trim() ? src.trim() : fallbackSrc;
-    const isNextMainDataUrl = nextMainSrc.startsWith('data:image/');
-    setCurrentMainSrc(nextMainSrc);
-    setHasMainError(false);
+    const nextSrc = src && src.trim() ? src.trim() : fallbackSrc;
+    const isNextDataUrl = nextSrc.startsWith('data:image/');
+    setCurrentSrc(nextSrc);
+    setHasError(false);
 
-    if (isNextMainDataUrl || loadedUrlsSession.has(nextMainSrc) || ImageCache.isPreloaded(nextMainSrc)) {
-      setIsMainLoaded(true);
+    if (isNextDataUrl || loadedUrlsSession.has(nextSrc) || ImageCache.isPreloaded(nextSrc)) {
+      setIsLoaded(true);
     } else {
-      setIsMainLoaded(false);
-      ImageCache.preloadImages([nextMainSrc]);
+      setIsLoaded(false);
+      ImageCache.preloadImages([nextSrc]);
 
       const safetyTimer = setTimeout(() => {
-        setIsMainLoaded(true);
+        setIsLoaded(true);
       }, 250);
       return () => clearTimeout(safetyTimer);
     }
-  }, [src, fallbackSrc]);
 
-  useEffect(() => {
-    const nextHover = hoverSrc && hoverSrc.trim() && hoverSrc.trim() !== currentMainSrc ? hoverSrc.trim() : null;
-    setCurrentHoverSrc(nextHover);
-    setHasHoverError(false);
-
-    if (nextHover) {
-      if (nextHover.startsWith('data:image/') || loadedUrlsSession.has(nextHover) || ImageCache.isPreloaded(nextHover)) {
-        setIsHoverLoaded(true);
-      } else {
-        setIsHoverLoaded(false);
-        ImageCache.preloadImages([nextHover]);
-      }
-    } else {
-      setIsHoverLoaded(false);
+    if (effectiveHoverSrc) {
+      ImageCache.preloadImages([effectiveHoverSrc]);
     }
-  }, [hoverSrc, currentMainSrc]);
+  }, [src, fallbackSrc, effectiveHoverSrc]);
 
-  const handleMainLoad = () => {
-    if (currentMainSrc) loadedUrlsSession.add(currentMainSrc);
-    setIsMainLoaded(true);
+  const handleLoad = () => {
+    if (currentSrc) loadedUrlsSession.add(currentSrc);
+    setIsLoaded(true);
   };
 
-  const handleMainError = () => {
-    if (currentMainSrc !== fallbackSrc && fallbackSrc) {
-      setCurrentMainSrc(fallbackSrc);
-      setHasMainError(true);
-      setIsMainLoaded(true);
+  const handleError = () => {
+    if (currentSrc !== fallbackSrc && fallbackSrc) {
+      setCurrentSrc(fallbackSrc);
+      setHasError(true);
+      setIsLoaded(true);
     } else {
-      setHasMainError(true);
-      setIsMainLoaded(true);
+      setHasError(true);
+      setIsLoaded(true);
     }
   };
-
-  const handleHoverLoad = () => {
-    if (currentHoverSrc) loadedUrlsSession.add(currentHoverSrc);
-    setIsHoverLoaded(true);
-  };
-
-  const handleHoverError = () => {
-    setHasHoverError(true);
-    setIsHoverLoaded(false);
-  };
-
-  const canShowHover = Boolean(currentHoverSrc && !hasHoverError && isHoverLoaded);
 
   return (
     <div
-      className={`relative overflow-hidden bg-emerald-950/5 select-none ${className}`}
+      className={`relative overflow-hidden bg-emerald-950/5 ${className}`}
       onClick={onClick}
     >
-      {/* Subtle botanical shimmer while primary image is decoding on slow connections */}
-      {!isMainLoaded && !hasMainError && !isMainDataUrl && (
+      {/* Subtle botanical shimmer while image is decoding on slow connections */}
+      {!isLoaded && !hasError && !isDataUrl && (
         <div className="absolute inset-0 bg-gradient-to-tr from-emerald-900/10 via-emerald-800/5 to-emerald-900/15 animate-pulse pointer-events-none" />
       )}
 
-      {/* Main Image */}
+      {/* Primary Image */}
       <img
-        src={currentMainSrc}
+        src={currentSrc}
         alt={alt}
-        loading={priority || isMainDataUrl ? 'eager' : 'lazy'}
+        loading={priority || isDataUrl ? 'eager' : 'lazy'}
         decoding="async"
         fetchPriority={priority ? 'high' : 'auto'}
         referrerPolicy="no-referrer"
-        onLoad={handleMainLoad}
-        onError={handleMainError}
-        className={`w-full h-full object-cover transition-all duration-500 ease-out ${
-          isMainLoaded || isMainDataUrl ? 'opacity-100' : 'opacity-0'
-        } ${canShowHover ? 'group-hover:opacity-0 group-hover:scale-105' : 'group-hover:scale-105'} ${imgClassName}`}
+        onLoad={handleLoad}
+        onError={handleError}
+        className={`w-full h-full object-cover transition-all duration-700 ease-out ${
+          isLoaded || isDataUrl ? 'opacity-100' : 'opacity-0'
+        } ${effectiveHoverSrc ? 'group-hover:opacity-0 group-hover:scale-105' : 'group-hover:scale-105'} ${imgClassName}`}
       />
 
-      {/* Hover Image (Secondary) - Smooth fade-in on mouse hover */}
-      {currentHoverSrc && !hasHoverError && (
+      {/* Secondary Hover Image with smooth crossfade and zoom transition */}
+      {effectiveHoverSrc && (
         <img
-          src={currentHoverSrc}
-          alt={`${alt} - Alternate View`}
+          src={effectiveHoverSrc}
+          alt={`${alt} alternate view`}
           loading="lazy"
           decoding="async"
           referrerPolicy="no-referrer"
-          onLoad={handleHoverLoad}
-          onError={handleHoverError}
-          className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out pointer-events-none ${
-            isHoverLoaded ? 'opacity-0 group-hover:opacity-100 group-hover:scale-105' : 'opacity-0'
+          onLoad={() => setHoverLoaded(true)}
+          className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out pointer-events-none opacity-0 scale-100 group-hover:opacity-100 group-hover:scale-105 ${
+            hoverLoaded ? '' : 'blur-xs'
           } ${imgClassName}`}
         />
       )}

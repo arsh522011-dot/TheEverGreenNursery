@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { PageLoader } from './components/common/PageLoader';
 import { Header } from './components/common/Header';
 import { Footer } from './components/common/Footer';
@@ -6,6 +7,7 @@ import { WhatsAppButton } from './components/common/WhatsAppButton';
 import { EnquiryModal } from './components/common/EnquiryModal';
 import { Lightbox } from './components/common/Lightbox';
 import { SearchModal } from './components/common/SearchModal';
+import { useSmoothScroll } from './hooks/useSmoothScroll';
 
 import { HomeView } from './components/views/HomeView';
 import { PlantsCatalogueView } from './components/views/PlantsCatalogueView';
@@ -115,6 +117,7 @@ function parseUrlRoute(): { view: string; params: Record<string, string> } {
 }
 
 export default function App() {
+  useSmoothScroll();
   const initialRoute = parseUrlRoute();
   const [isLoading, setIsLoading] = useState(true);
   const [currentView, setCurrentView] = useState<string>(initialRoute.view);
@@ -366,117 +369,126 @@ export default function App() {
         onOpenEnquiry={() => handleOpenEnquiry()}
       />
 
-      {/* Main View Router */}
-      <main className="min-h-screen">
-        {currentView === 'home' && (
-          <HomeView
-            settings={settings}
-            categories={categories}
-            featuredPlants={plants.filter((p) => p.published !== false)}
-            services={services}
-            projects={projects}
-            gallery={gallery}
-            testimonials={testimonials}
-            onNavigate={navigateTo}
-            onOpenEnquiry={handleOpenEnquiry}
-            onOpenLightbox={handleOpenLightbox}
-          />
-        )}
-
-        {currentView === 'plants' && (
-          <PlantsCatalogueView
-            plants={plants.filter((p) => p.published !== false)}
-            categories={categories}
-            initialCategory={viewParams.category}
-            onNavigate={navigateTo}
-            onOpenEnquiry={handleOpenEnquiry}
-          />
-        )}
-
-        {currentView === 'plant-detail' && (
-          selectedPlantDetail ? (
-            <PlantDetailView
-              plant={selectedPlantDetail}
-              relatedPlants={relatedPlants}
+      {/* Main View Router with Smooth Fade + Slide Page Transition */}
+      <AnimatePresence mode="wait">
+        <motion.main
+          key={currentView}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="min-h-screen"
+        >
+          {currentView === 'home' && (
+            <HomeView
+              settings={settings}
+              categories={categories}
+              featuredPlants={plants.filter((p) => p.published !== false)}
+              services={services}
+              projects={projects}
+              gallery={gallery}
+              testimonials={testimonials}
               onNavigate={navigateTo}
               onOpenEnquiry={handleOpenEnquiry}
               onOpenLightbox={handleOpenLightbox}
             />
-          ) : (
-            <NotFoundView onNavigate={navigateTo} />
-          )
-        )}
+          )}
 
-        {currentView === 'categories' && (
-          <CategoriesView categories={categories} onNavigate={navigateTo} />
-        )}
+          {currentView === 'plants' && (
+            <PlantsCatalogueView
+              plants={plants.filter((p) => p.published !== false)}
+              categories={categories}
+              initialCategory={viewParams.category}
+              onNavigate={navigateTo}
+              onOpenEnquiry={handleOpenEnquiry}
+            />
+          )}
 
-        {currentView === 'about' && (
-          <AboutView settings={settings} onNavigate={navigateTo} />
-        )}
+          {currentView === 'plant-detail' && (
+            selectedPlantDetail ? (
+              <PlantDetailView
+                plant={selectedPlantDetail}
+                relatedPlants={relatedPlants}
+                onNavigate={navigateTo}
+                onOpenEnquiry={handleOpenEnquiry}
+                onOpenLightbox={handleOpenLightbox}
+              />
+            ) : (
+              <NotFoundView onNavigate={navigateTo} />
+            )
+          )}
 
-        {currentView === 'services' && (
-          <ServicesView services={services} onOpenEnquiry={handleOpenEnquiry} />
-        )}
+          {currentView === 'categories' && (
+            <CategoriesView categories={categories} onNavigate={navigateTo} />
+          )}
 
-        {currentView === 'projects' && (
-          <ProjectsView projects={projects} onOpenEnquiry={() => handleOpenEnquiry()} />
-        )}
+          {currentView === 'about' && (
+            <AboutView settings={settings} onNavigate={navigateTo} />
+          )}
 
-        {currentView === 'gallery' && (
-          <GalleryView
-            gallery={gallery}
-            plants={plants.filter((p) => p.published !== false)}
-            onOpenLightbox={handleOpenLightbox}
-          />
-        )}
+          {currentView === 'services' && (
+            <ServicesView services={services} onOpenEnquiry={handleOpenEnquiry} />
+          )}
 
-        {currentView === 'contact' && (
-          <ContactView settings={settings} onOpenEnquiry={() => handleOpenEnquiry()} />
-        )}
+          {currentView === 'projects' && (
+            <ProjectsView projects={projects} onOpenEnquiry={() => handleOpenEnquiry()} />
+          )}
 
-        {currentView === 'bulk-orders' && (
-          <BulkOrderView settings={settings} onNavigate={navigateTo} />
-        )}
+          {currentView === 'gallery' && (
+            <GalleryView
+              gallery={gallery}
+              plants={plants.filter((p) => p.published !== false)}
+              onOpenLightbox={handleOpenLightbox}
+            />
+          )}
 
-        {currentView === 'privacy-policy' && (
-          <PrivacyPolicyView settings={settings} onNavigate={navigateTo} />
-        )}
+          {currentView === 'contact' && (
+            <ContactView settings={settings} onOpenEnquiry={() => handleOpenEnquiry()} />
+          )}
 
-        {currentView === 'terms' && (
-          <TermsView settings={settings} onNavigate={navigateTo} />
-        )}
+          {currentView === 'bulk-orders' && (
+            <BulkOrderView settings={settings} onNavigate={navigateTo} />
+          )}
 
-        {currentView === 'admin' && (
-          <AdminView
-            settings={settings}
-            categories={categories}
-            plants={plants}
-            services={services}
-            projects={projects}
-            gallery={gallery}
-            testimonials={testimonials}
-            onRefreshData={refreshData}
-            onNavigate={navigateTo}
-          />
-        )}
+          {currentView === 'privacy-policy' && (
+            <PrivacyPolicyView settings={settings} onNavigate={navigateTo} />
+          )}
 
-        {![
-          'home',
-          'plants',
-          'plant-detail',
-          'categories',
-          'about',
-          'services',
-          'projects',
-          'gallery',
-          'contact',
-          'bulk-orders',
-          'privacy-policy',
-          'terms',
-          'admin',
-        ].includes(currentView) && <NotFoundView onNavigate={navigateTo} />}
-      </main>
+          {currentView === 'terms' && (
+            <TermsView settings={settings} onNavigate={navigateTo} />
+          )}
+
+          {currentView === 'admin' && (
+            <AdminView
+              settings={settings}
+              categories={categories}
+              plants={plants}
+              services={services}
+              projects={projects}
+              gallery={gallery}
+              testimonials={testimonials}
+              onRefreshData={refreshData}
+              onNavigate={navigateTo}
+            />
+          )}
+
+          {![
+            'home',
+            'plants',
+            'plant-detail',
+            'categories',
+            'about',
+            'services',
+            'projects',
+            'gallery',
+            'contact',
+            'bulk-orders',
+            'privacy-policy',
+            'terms',
+            'admin',
+          ].includes(currentView) && <NotFoundView onNavigate={navigateTo} />}
+        </motion.main>
+      </AnimatePresence>
 
       {/* Nursery Footer */}
       <Footer

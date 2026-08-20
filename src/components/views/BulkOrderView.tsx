@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { Package, Building2, Send, CheckCircle2, Phone, Mail, MapPin, Truck, ShieldCheck, Sparkles, HelpCircle, FileText } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SiteSettings } from '../../types';
 import { StorageService } from '../../services/storage';
+import { ScrollReveal, StaggerContainer, StaggerItem } from '../common/Animations';
 
 interface BulkOrderViewProps {
   settings: SiteSettings;
@@ -87,35 +89,37 @@ export const BulkOrderView: React.FC<BulkOrderViewProps> = ({ settings, onNaviga
           <div className="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px] opacity-20" />
         </div>
 
-        <div className="max-w-5xl mx-auto text-center relative z-10 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-xs font-mono font-medium tracking-wide">
-            <Package className="w-4 h-4 text-emerald-400" />
-            <span>B2B & Wholesale Nursery Supply</span>
+        <ScrollReveal direction="up">
+          <div className="max-w-5xl mx-auto text-center relative z-10 space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-xs font-mono font-medium tracking-wide">
+              <Package className="w-4 h-4 text-emerald-400" />
+              <span>B2B & Wholesale Nursery Supply</span>
+            </div>
+
+            <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white max-w-3xl mx-auto">
+              Bulk Order & Wholesale Plant Inquiries
+            </h1>
+
+            <p className="text-emerald-100/90 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+              Looking for 50 to 10,000+ healthy plants for corporate gifting, resort landscaping, office greening, or retail resale? Request a tailored quote below with no payment required upfront.
+            </p>
+
+            <div className="pt-2 flex flex-wrap justify-center gap-4 text-xs text-emerald-200 font-mono">
+              <span className="bg-emerald-900/60 border border-emerald-700/50 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                Direct Nursery Tier Pricing
+              </span>
+              <span className="bg-emerald-900/60 border border-emerald-700/50 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                <Truck className="w-3.5 h-3.5 text-emerald-400" />
+                Pan-India Safe Logistics
+              </span>
+              <span className="bg-emerald-900/60 border border-emerald-700/50 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                Custom Branding & Pots Available
+              </span>
+            </div>
           </div>
-
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white max-w-3xl mx-auto">
-            Bulk Order & Wholesale Plant Inquiries
-          </h1>
-
-          <p className="text-emerald-100/90 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-            Looking for 50 to 10,000+ healthy plants for corporate gifting, resort landscaping, office greening, or retail resale? Request a tailored quote below with no payment required upfront.
-          </p>
-
-          <div className="pt-2 flex flex-wrap justify-center gap-4 text-xs text-emerald-200 font-mono">
-            <span className="bg-emerald-900/60 border border-emerald-700/50 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              Direct Nursery Tier Pricing
-            </span>
-            <span className="bg-emerald-900/60 border border-emerald-700/50 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <Truck className="w-3.5 h-3.5 text-emerald-400" />
-              Pan-India Safe Logistics
-            </span>
-            <span className="bg-emerald-900/60 border border-emerald-700/50 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              Custom Branding & Pots Available
-            </span>
-          </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* MAIN CONTENT AREA */}
@@ -123,7 +127,7 @@ export const BulkOrderView: React.FC<BulkOrderViewProps> = ({ settings, onNaviga
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           
           {/* LEFT FORM COLUMN (7 cols) */}
-          <div className="lg:col-span-7 bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 shadow-xl relative">
+          <ScrollReveal direction="up" className="lg:col-span-7 bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 shadow-xl relative">
             <div className="mb-6 pb-4 border-b border-gray-100">
               <span className="text-xs font-mono uppercase tracking-widest text-emerald-700 font-bold block mb-1">
                 Inquiry Only • No Payment Required
@@ -157,20 +161,24 @@ export const BulkOrderView: React.FC<BulkOrderViewProps> = ({ settings, onNaviga
                 </div>
 
                 <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.96 }}
                     onClick={handleWhatsAppInquiry}
-                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all"
+                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
                   >
                     <Send className="w-4 h-4" />
                     <span>Send via WhatsApp for Immediate Quote</span>
-                  </button>
+                  </motion.button>
 
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.96 }}
                     onClick={() => setSubmitted(false)}
-                    className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-xs transition-all"
+                    className="w-full sm:w-auto px-5 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-xs transition-all cursor-pointer"
                   >
                     Submit Another Inquiry
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             ) : (
@@ -343,29 +351,33 @@ export const BulkOrderView: React.FC<BulkOrderViewProps> = ({ settings, onNaviga
                 </div>
 
                 <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
                     type="submit"
-                    className="flex-1 py-3.5 px-6 rounded-xl bg-[#0f3822] hover:bg-[#165232] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all"
+                    className="flex-1 py-3.5 px-6 rounded-xl bg-[#0f3822] hover:bg-[#165232] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
                   >
                     <FileText className="w-4 h-4 text-emerald-400" />
                     <span>Submit Bulk Inquiry Form</span>
-                  </button>
+                  </motion.button>
 
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
                     type="button"
                     onClick={handleWhatsAppInquiry}
-                    className="py-3.5 px-5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all"
+                    className="py-3.5 px-5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
                   >
                     <Send className="w-4 h-4" />
                     <span>Inquire via WhatsApp</span>
-                  </button>
+                  </motion.button>
                 </div>
               </form>
             )}
-          </div>
+          </ScrollReveal>
 
           {/* RIGHT INFO / FAQ COLUMN (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
+          <ScrollReveal direction="up" delay={0.1} className="lg:col-span-5 space-y-6">
             <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-sm space-y-4">
               <h3 className="font-serif text-xl font-bold text-[#132e1f] flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-emerald-700" />
@@ -439,7 +451,7 @@ export const BulkOrderView: React.FC<BulkOrderViewProps> = ({ settings, onNaviga
                 </div>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
     </div>

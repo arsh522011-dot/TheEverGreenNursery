@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { FeedbackModal } from '../common/FeedbackModal';
 import {
   ArrowRight,
@@ -24,8 +24,8 @@ import {
 import { Plant, Category, Service, Project, GalleryItem, Testimonial, SiteSettings } from '../../types';
 import { BeforeAfterSlider } from '../common/BeforeAfterSlider';
 import { OptimizedPlantImage } from '../common/OptimizedPlantImage';
-import { ProductCard } from '../common/ProductCard';
 import { ImageCache } from '../../services/imageCache';
+import { ScrollReveal, StaggerContainer, StaggerItem, HoverLiftCard } from '../common/Animations';
 
 interface HomeViewProps {
   settings: SiteSettings;
@@ -231,134 +231,157 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* SECTION 2: SLEEK TRUST HIGHLIGHTS BAR BELOW HERO */}
       <section className="bg-emerald-950 text-emerald-100 border-b border-emerald-900 py-3.5 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center divide-x divide-emerald-800/60">
-            <div className="flex items-center justify-center gap-2.5 px-2">
+          <StaggerContainer staggerDelay={0.06} className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center divide-x divide-emerald-800/60">
+            <StaggerItem className="flex items-center justify-center gap-2.5 px-2">
               <Truck className="w-5 h-5 text-emerald-400 shrink-0" />
               <div className="text-left">
                 <p className="text-xs font-bold text-white leading-tight">Pan India Delivery</p>
                 <p className="text-[10px] text-emerald-300/80 hidden sm:block">Safe & Secure Transit</p>
               </div>
-            </div>
+            </StaggerItem>
 
-            <div className="flex items-center justify-center gap-2.5 px-2">
+            <StaggerItem className="flex items-center justify-center gap-2.5 px-2">
               <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
               <div className="text-left">
                 <p className="text-xs font-bold text-white leading-tight">100% Healthy Plants</p>
                 <p className="text-[10px] text-emerald-300/80 hidden sm:block">Nursery Fresh Guarantee</p>
               </div>
-            </div>
+            </StaggerItem>
 
-            <div className="flex items-center justify-center gap-2.5 px-2">
+            <StaggerItem className="flex items-center justify-center gap-2.5 px-2">
               <Sprout className="w-5 h-5 text-emerald-400 shrink-0" />
               <div className="text-left">
                 <p className="text-xs font-bold text-white leading-tight">Direct Nursery Rates</p>
                 <p className="text-[10px] text-emerald-300/80 hidden sm:block">No Middlemen Markup</p>
               </div>
-            </div>
+            </StaggerItem>
 
-            <div className="flex items-center justify-center gap-2.5 px-2">
+            <StaggerItem className="flex items-center justify-center gap-2.5 px-2">
               <Award className="w-5 h-5 text-emerald-400 shrink-0" />
               <div className="text-left">
                 <p className="text-xs font-bold text-white leading-tight">Expert Care Advice</p>
                 <p className="text-[10px] text-emerald-300/80 hidden sm:block">Free Guidance On Orders</p>
               </div>
-            </div>
-          </div>
+            </StaggerItem>
+          </StaggerContainer>
         </div>
       </section>
 
-      {/* SECTION 3: DUAL PROMO BANNERS GRID (Match Screenshot 4) */}
+      {/* SECTION 3: DUAL PROMO BANNERS GRID */}
       <section className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+        <StaggerContainer staggerDelay={0.12} className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
           {/* Banner 1 */}
-          <div className="relative h-60 sm:h-72 rounded-2xl sm:rounded-3xl overflow-hidden shadow-md group cursor-pointer" onClick={() => onNavigate('plants')}>
-            <img
-              src="https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785836869/82001171-1747-41d1-afa7-5563e749c1ba_ieesdw.png"
-              alt="Healthy Plants Nursery Fresh"
-              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/15 sm:from-black/75 sm:via-black/35 sm:to-transparent p-5 sm:p-8 flex flex-col justify-center text-white">
-              <span className="text-[11px] sm:text-xs font-mono uppercase tracking-wider text-emerald-300 font-bold mb-1 sm:mb-1.5">
-                Nursery Special
-              </span>
-              <h3 className="font-serif text-xl sm:text-3xl font-bold max-w-[260px] sm:max-w-xs leading-tight mb-3 sm:mb-4 drop-shadow-md">
-                Healthy Plants. Nursery Fresh.
-              </h3>
-              <div>
-                <button className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-full bg-white text-[#132e1f] font-bold text-xs uppercase tracking-wider hover:bg-emerald-50 transition-colors shadow-md active:scale-95">
-                  Explore Collection
-                </button>
+          <StaggerItem>
+            <motion.div
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.25 }}
+              className="relative h-60 sm:h-72 rounded-2xl sm:rounded-3xl overflow-hidden shadow-md group cursor-pointer"
+              onClick={() => onNavigate('plants')}
+            >
+              <img
+                src="https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785836869/82001171-1747-41d1-afa7-5563e749c1ba_ieesdw.png"
+                alt="Healthy Plants Nursery Fresh"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/15 sm:from-black/75 sm:via-black/35 sm:to-transparent p-5 sm:p-8 flex flex-col justify-center text-white">
+                <span className="text-[11px] sm:text-xs font-mono uppercase tracking-wider text-emerald-300 font-bold mb-1 sm:mb-1.5">
+                  Nursery Special
+                </span>
+                <h3 className="font-serif text-xl sm:text-3xl font-bold max-w-[260px] sm:max-w-xs leading-tight mb-3 sm:mb-4 drop-shadow-md">
+                  Healthy Plants. Nursery Fresh.
+                </h3>
+                <div>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-full bg-white text-[#132e1f] font-bold text-xs uppercase tracking-wider hover:bg-emerald-50 transition-colors shadow-md cursor-pointer"
+                  >
+                    Explore Collection
+                  </motion.button>
+                </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </StaggerItem>
 
           {/* Banner 2 */}
-          <div className="relative h-60 sm:h-72 rounded-2xl sm:rounded-3xl overflow-hidden shadow-md group cursor-pointer" onClick={() => onNavigate('plants', { category: 'Indoor' })}>
-            <img
-              src="https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785837651/08d74e52-6be6-4c1f-9484-1006638d874c_hopcsz.png"
-              alt="Turn Every Corner Green"
-              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/15 sm:from-black/75 sm:via-black/35 sm:to-transparent p-5 sm:p-8 flex flex-col justify-center text-white">
-              <span className="text-[11px] sm:text-xs font-mono uppercase tracking-wider text-emerald-300 font-bold mb-1 sm:mb-1.5">
-                Living Decor
-              </span>
-              <h3 className="font-serif text-xl sm:text-3xl font-bold max-w-[260px] sm:max-w-xs leading-tight mb-3 sm:mb-4 drop-shadow-md">
-                Turn Every Corner Green.
-              </h3>
-              <div>
-                <button className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-full bg-white text-[#132e1f] font-bold text-xs uppercase tracking-wider hover:bg-emerald-50 transition-colors shadow-md active:scale-95">
-                  Explore Collection
-                </button>
+          <StaggerItem>
+            <motion.div
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.25 }}
+              className="relative h-60 sm:h-72 rounded-2xl sm:rounded-3xl overflow-hidden shadow-md group cursor-pointer"
+              onClick={() => onNavigate('plants', { category: 'Indoor' })}
+            >
+              <img
+                src="https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785837651/08d74e52-6be6-4c1f-9484-1006638d874c_hopcsz.png"
+                alt="Turn Every Corner Green"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/15 sm:from-black/75 sm:via-black/35 sm:to-transparent p-5 sm:p-8 flex flex-col justify-center text-white">
+                <span className="text-[11px] sm:text-xs font-mono uppercase tracking-wider text-emerald-300 font-bold mb-1 sm:mb-1.5">
+                  Living Decor
+                </span>
+                <h3 className="font-serif text-xl sm:text-3xl font-bold max-w-[260px] sm:max-w-xs leading-tight mb-3 sm:mb-4 drop-shadow-md">
+                  Turn Every Corner Green.
+                </h3>
+                <div>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-full bg-white text-[#132e1f] font-bold text-xs uppercase tracking-wider hover:bg-emerald-50 transition-colors shadow-md cursor-pointer"
+                  >
+                    Explore Collection
+                  </motion.button>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
+            </motion.div>
+          </StaggerItem>
+        </StaggerContainer>
       </section>
 
       {/* QUICK CATEGORY SEARCH SECTION */}
       <section className="py-8 bg-[#f2f7f4] border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-5">
+          <ScrollReveal direction="up" className="text-center mb-5">
             <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-700 block mb-1">
               QUICK SELECTION
             </span>
             <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#132e1f]">
               Shop By Popular Categories
             </h2>
-          </div>
+          </ScrollReveal>
 
-          <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar pb-2 pt-1 justify-start md:justify-center">
+          <StaggerContainer staggerDelay={0.06} className="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar pb-2 pt-1 justify-start md:justify-center">
             {quickCategories.map((item, idx) => (
-              <button
-                key={idx}
-                onClick={() => onNavigate('plants', { category: item.category })}
-                className="flex flex-col items-center gap-2 group shrink-0"
-              >
-                <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white border-2 border-[#76e3b3] flex items-center justify-center text-2xl sm:text-3xl shadow-sm group-hover:scale-105 group-hover:border-emerald-600 transition-all overflow-hidden p-1">
-                  {item.icon.startsWith('http') ? (
-                    <img
-                      src={item.icon}
-                      alt={item.name}
-                      className="w-full h-full object-cover rounded-full"
-                    />
-                  ) : (
-                    <span>{item.icon}</span>
-                  )}
-                </div>
-                <span className="text-xs font-semibold text-[#0f3822] group-hover:text-emerald-700 whitespace-nowrap">
-                  {item.name}
-                </span>
-              </button>
+              <StaggerItem key={idx}>
+                <motion.button
+                  whileHover={{ y: -3, scale: 1.04 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => onNavigate('plants', { category: item.category })}
+                  className="flex flex-col items-center gap-2 group shrink-0 cursor-pointer"
+                >
+                  <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white border-2 border-[#76e3b3] flex items-center justify-center text-2xl sm:text-3xl shadow-sm group-hover:border-emerald-600 transition-all overflow-hidden p-1">
+                    {item.icon.startsWith('http') ? (
+                      <img
+                        src={item.icon}
+                        alt={item.name}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <span>{item.icon}</span>
+                    )}
+                  </div>
+                  <span className="text-xs font-semibold text-[#0f3822] group-hover:text-emerald-700 whitespace-nowrap">
+                    {item.name}
+                  </span>
+                </motion.button>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* SECTION 4: PLANT CATALOGUE GRID ("High Quality Plants & Best Sellers") */}
       <section className="py-12 bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-gray-100 pb-6">
+          <ScrollReveal direction="up" className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 border-b border-gray-100 pb-6">
             <div>
               <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-700 block mb-1">
                 HIGH QUALITY PLANTS & UNIQUE GREENERY FOR GARDENS
@@ -370,105 +393,186 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             {/* Filter Tabs */}
             <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-full border border-gray-200">
-              <button
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setActiveTab('all')}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-all ${
-                  activeTab === 'all' ? 'bg-[#183925] text-white shadow' : 'text-gray-700 hover:text-emerald-800'
+                className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-all cursor-pointer ${
+                  activeTab === 'all' ? 'bg-[#183925] text-white shadow-xs' : 'text-gray-700 hover:text-emerald-800'
                 }`}
               >
                 All
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setActiveTab('indoor')}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-all ${
-                  activeTab === 'indoor' ? 'bg-[#183925] text-white shadow' : 'text-gray-700 hover:text-emerald-800'
+                className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-all cursor-pointer ${
+                  activeTab === 'indoor' ? 'bg-[#183925] text-white shadow-xs' : 'text-gray-700 hover:text-emerald-800'
                 }`}
               >
                 Indoor
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setActiveTab('outdoor')}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-all ${
-                  activeTab === 'outdoor' ? 'bg-[#183925] text-white shadow' : 'text-gray-700 hover:text-emerald-800'
+                className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-all cursor-pointer ${
+                  activeTab === 'outdoor' ? 'bg-[#183925] text-white shadow-xs' : 'text-gray-700 hover:text-emerald-800'
                 }`}
               >
                 Outdoor
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setActiveTab('pots')}
-                className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-all ${
-                  activeTab === 'pots' ? 'bg-[#183925] text-white shadow' : 'text-gray-700 hover:text-emerald-800'
+                className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase transition-all cursor-pointer ${
+                  activeTab === 'pots' ? 'bg-[#183925] text-white shadow-xs' : 'text-gray-700 hover:text-emerald-800'
                 }`}
               >
                 Pots
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </ScrollReveal>
 
           {/* Clean Plant Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredPlants.map((plant, index) => (
-              <ProductCard
-                key={plant.id}
-                plant={plant}
-                index={index}
-                priority={index < 4}
-                onNavigate={onNavigate}
-                onOpenEnquiry={onOpenEnquiry}
-              />
-            ))}
-          </div>
+          <StaggerContainer staggerDelay={0.06} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filteredPlants.map((plant, index) => {
+              const plantImage = ImageCache.getPrimaryImageUrl(plant, 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80');
+              const hoverImage = plant.images && plant.images.length > 1 ? plant.images[1] : undefined;
 
-          <div className="text-center pt-4">
-            <button
+              return (
+                <StaggerItem key={plant.id}>
+                  <motion.div
+                    whileHover={{ y: -4 }}
+                    transition={{ duration: 0.25 }}
+                    data-cursor="VIEW"
+                    className="group bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between h-full"
+                  >
+                    <div>
+                      <div
+                        className="relative h-60 overflow-hidden cursor-pointer bg-gray-50"
+                        onClick={() => onNavigate('plant-detail', { id: plant.id })}
+                      >
+                        <OptimizedPlantImage
+                          src={plantImage}
+                          hoverSrc={hoverImage}
+                          alt={plant.name}
+                          priority={index < 4}
+                          fallbackSrc="https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80"
+                          className="w-full h-full"
+                        />
+                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold font-mono uppercase tracking-wider shadow-xs">
+                          {plant.category}
+                        </span>
+                      </div>
+
+                    <div className="p-5 space-y-2">
+                      <div
+                        className="cursor-pointer"
+                        onClick={() => onNavigate('plant-detail', { id: plant.id })}
+                      >
+                        <h3 className="font-serif text-lg font-bold text-[#132e1f] group-hover:text-emerald-700 transition-colors line-clamp-1">
+                          {plant.name}
+                        </h3>
+                        <p className="text-xs italic text-gray-500 font-mono mt-0.5">
+                          {plant.scientificName}
+                        </p>
+                      </div>
+
+                      <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+                        {plant.shortDescription}
+                      </p>
+
+                      <div className="pt-2 flex items-center justify-between text-xs font-mono text-gray-500 border-t border-gray-100">
+                        <span className="flex items-center gap-1">
+                          <Sun className="w-3.5 h-3.5 text-amber-500" />
+                          {plant.sunlight}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Droplets className="w-3.5 h-3.5 text-blue-500" />
+                          {plant.water}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                    <div className="p-5 pt-0 flex gap-2">
+                      <motion.button
+                        whileTap={{ scale: 0.96 }}
+                        onClick={() => onNavigate('plant-detail', { id: plant.id })}
+                        className="flex-1 py-2 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200 text-xs font-bold uppercase tracking-wider hover:bg-emerald-100 transition-colors cursor-pointer"
+                      >
+                        Details
+                      </motion.button>
+
+                      <motion.button
+                        whileTap={{ scale: 0.96 }}
+                        onClick={() => onOpenEnquiry(plant)}
+                        className="py-2 px-4 rounded-xl bg-[#183925] hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-xs cursor-pointer"
+                      >
+                        Enquire
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                </StaggerItem>
+              );
+            })}
+          </StaggerContainer>
+
+          <ScrollReveal direction="up" className="text-center pt-4">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => onNavigate('plants')}
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#183925] text-white hover:bg-emerald-800 font-bold text-xs uppercase tracking-wider transition-all shadow-md"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#183925] text-white hover:bg-emerald-800 font-bold text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer"
             >
               <span>Explore Entire Catalogue (650+ Varieties)</span>
               <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+            </motion.button>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* SECTION: BULK & WHOLESALE ORDER BANNER */}
-      <section className="relative overflow-hidden bg-[#0d2818] text-white py-12 px-4 sm:px-6 lg:px-8 shadow-inner my-6">
-        {/* Background Image & Overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785822331/640f18b0-1294-4e19-9f77-0790c7ede2dc_xeyimt.png"
-            alt="Botanical Background"
-            className="w-full h-full object-cover object-center"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0d2818]/92 via-[#0d2818]/80 to-[#0d2818]/88 backdrop-brightness-90" />
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center md:text-left">
-            <span className="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold uppercase tracking-widest border border-emerald-500/30 backdrop-blur-sm shadow-sm">
-              Bulk & Wholesale Inquiries
-            </span>
-            <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white drop-shadow-md">
-              Planning Corporate Gifting, Events, or Wholesale Orders?
-            </h3>
-            <p className="text-xs sm:text-sm text-emerald-100/90 max-w-2xl leading-relaxed drop-shadow-xs">
-              Request nursery-direct bulk pricing for 50 to 10,000+ plants. Zero payment required upfront — receive custom quotes, pan-India logistics, and bespoke branding options.
-            </p>
+      <ScrollReveal direction="up">
+        <section className="relative overflow-hidden bg-[#0d2818] text-white py-12 px-4 sm:px-6 lg:px-8 shadow-inner my-6">
+          {/* Background Image & Overlay */}
+          <div className="absolute inset-0 z-0">
+            <img
+              src="https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785822331/640f18b0-1294-4e19-9f77-0790c7ede2dc_xeyimt.png"
+              alt="Botanical Background"
+              className="w-full h-full object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0d2818]/92 via-[#0d2818]/80 to-[#0d2818]/88 backdrop-brightness-90" />
           </div>
 
-          <button
-            onClick={() => onNavigate('bulk-orders')}
-            className="shrink-0 px-7 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-xl transition-all flex items-center gap-2 cursor-pointer hover:scale-105"
-          >
-            <span>Submit Bulk Inquiry</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      </section>
+          <div className="relative z-10 max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="space-y-2 text-center md:text-left">
+              <span className="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold uppercase tracking-widest border border-emerald-500/30 backdrop-blur-sm shadow-xs">
+                Bulk & Wholesale Inquiries
+              </span>
+              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white drop-shadow-md">
+                Planning Corporate Gifting, Events, or Wholesale Orders?
+              </h3>
+              <p className="text-xs sm:text-sm text-emerald-100/90 max-w-2xl leading-relaxed drop-shadow-xs">
+                Request nursery-direct bulk pricing for 50 to 10,000+ plants. Zero payment required upfront — receive custom quotes, pan-India logistics, and bespoke branding options.
+              </p>
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={() => onNavigate('bulk-orders')}
+              className="shrink-0 px-7 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs uppercase tracking-wider shadow-xl transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <span>Submit Bulk Inquiry</span>
+              <ArrowRight className="w-4 h-4" />
+            </motion.button>
+          </div>
+        </section>
+      </ScrollReveal>
 
       {/* SECTION 5: CATEGORIES GRID */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-10">
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+        <ScrollReveal direction="up" className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
           <div>
             <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-700 block mb-1">
               EXPLORE BOTANICAL FAMILIES
@@ -477,62 +581,70 @@ export const HomeView: React.FC<HomeViewProps> = ({
               Plant Categories • Exotic Plants, Palms, Avenue Trees & Succulents
             </h2>
           </div>
-          <button
+          <motion.button
+            whileHover={{ x: 3 }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => onNavigate('categories')}
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-800 hover:text-emerald-600 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-800 hover:text-emerald-600 transition-colors cursor-pointer"
           >
             <span>View All Categories</span>
             <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
+          </motion.button>
+        </ScrollReveal>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <StaggerContainer staggerDelay={0.08} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {categories.slice(0, 6).map((cat) => (
-            <div
-              key={cat.id}
-              onClick={() => onNavigate('plants', { category: cat.name })}
-              className="group relative h-80 rounded-3xl overflow-hidden shadow-md cursor-pointer border border-gray-200"
-            >
-              <img
-                src={cat.image}
-                alt={`${cat.name} at The Ever Green Nursery`}
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#132e1f] via-[#132e1f]/30 to-transparent" />
+            <StaggerItem key={cat.id}>
+              <motion.div
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.3 }}
+                data-cursor="EXPLORE"
+                onClick={() => onNavigate('plants', { category: cat.name })}
+                className="group relative h-80 rounded-3xl overflow-hidden shadow-md cursor-pointer border border-gray-200"
+              >
+                <img
+                  src={cat.image}
+                  alt={`${cat.name} at The Ever Green Nursery`}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#132e1f] via-[#132e1f]/30 to-transparent" />
 
-              <div className="absolute inset-0 p-6 flex flex-col justify-end text-white z-10 space-y-2">
-                <span className="self-start px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-mono tracking-wider text-white uppercase">
-                  {cat.plantCount ? `${cat.plantCount} Varieties` : 'Specimens'}
-                </span>
-                <h3 className="font-serif text-2xl font-bold text-white group-hover:text-emerald-300 transition-colors">
-                  {cat.name}
-                </h3>
-                <p className="text-xs text-gray-200 line-clamp-2 leading-relaxed">
-                  {cat.description}
-                </p>
-              </div>
-            </div>
+                <div className="absolute inset-0 p-6 flex flex-col justify-end text-white z-10 space-y-2">
+                  <span className="self-start px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-mono tracking-wider text-white uppercase">
+                    {cat.plantCount ? `${cat.plantCount} Varieties` : 'Specimens'}
+                  </span>
+                  <h3 className="font-serif text-2xl font-bold text-white group-hover:text-emerald-300 transition-colors">
+                    {cat.name}
+                  </h3>
+                  <p className="text-xs text-gray-200 line-clamp-2 leading-relaxed">
+                    {cat.description}
+                  </p>
+                </div>
+              </motion.div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </section>
 
       {/* SECTION 6: COMPLETED WORK SHOWCASE */}
       {settings.featuredProjectShowOnHome !== false && featuredProject && (
         <section className="py-16 bg-white border-y border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-            <div className="text-center space-y-2 max-w-2xl mx-auto">
+            <ScrollReveal direction="up" className="text-center space-y-2 max-w-2xl mx-auto">
               <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-700 block">
                 {settings.featuredProjectSectionSubtitle || 'PLANT NURSERY AND LANDSCAPE SOLUTIONS'}
               </span>
               <h2 className="font-serif text-2xl sm:text-4xl text-[#132e1f] font-bold">
                 {settings.featuredProjectSectionTitle || 'Featured Completed Project'}
               </h2>
-            </div>
+            </ScrollReveal>
 
-            <BeforeAfterSlider
-              afterImage={featuredProject.afterImage}
-              afterLabel={settings.featuredProjectBadgeLabel || 'THE EVER GREEN NURSERY PROJECT'}
-            />
+            <ScrollReveal direction="up" delay={0.1}>
+              <BeforeAfterSlider
+                afterImage={featuredProject.afterImage}
+                afterLabel={settings.featuredProjectBadgeLabel || 'THE EVER GREEN NURSERY PROJECT'}
+              />
+            </ScrollReveal>
           </div>
         </section>
       )}
@@ -540,7 +652,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* SECTION 6.5: WHOLESALE AUTHORITY & REGIONAL SUPPLY CORRIDOR */}
       <section className="py-16 bg-gradient-to-b from-[#f8faf8] to-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          <div className="text-center space-y-3 max-w-3xl mx-auto">
+          <ScrollReveal direction="up" className="text-center space-y-3 max-w-3xl mx-auto">
             <span className="text-xs font-mono font-bold uppercase tracking-[0.25em] text-emerald-700 block">
               PLANT NURSERY & LANDSCAPING SOLUTIONS
             </span>
@@ -550,101 +662,125 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <p className="text-sm text-gray-600 leading-relaxed">
               We cultivate, acclimatize, and supply high quality plants, exotic plants, native plants, palms, avenue trees, shrubs, groundcover plants, cactus and succulents across Uttar Pradesh and Delhi NCR for gardens, estates, and landscaping solutions.
             </p>
-          </div>
+          </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-7 rounded-3xl border border-emerald-900/10 shadow-sm space-y-3 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
-                <Sprout className="w-6 h-6" />
-              </div>
-              <h3 className="font-serif text-xl font-bold text-[#132e1f]">
-                Indoor Plants Nursery & Living Decor
-              </h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Large volumes of high quality indoor plants, air-purifying foliage, shade-loving specimens, and unique greenery for gardens and interior spaces.
-              </p>
-            </div>
+          <StaggerContainer staggerDelay={0.08} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <StaggerItem>
+              <motion.div
+                whileHover={{ y: -4 }}
+                className="bg-white p-7 rounded-3xl border border-emerald-900/10 shadow-xs space-y-3 hover:shadow-md transition-shadow h-full"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                  <Sprout className="w-6 h-6" />
+                </div>
+                <h3 className="font-serif text-xl font-bold text-[#132e1f]">
+                  Indoor Plants Nursery & Living Decor
+                </h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Large volumes of high quality indoor plants, air-purifying foliage, shade-loving specimens, and unique greenery for gardens and interior spaces.
+                </p>
+              </motion.div>
+            </StaggerItem>
 
-            <div className="bg-white p-7 rounded-3xl border border-emerald-900/10 shadow-sm space-y-3 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
-                <Building2 className="w-6 h-6" />
-              </div>
-              <h3 className="font-serif text-xl font-bold text-[#132e1f]">
-                Palms, Avenue Trees & Shrubs
-              </h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Mature avenue trees, boundary hedge shrubs, ornamental palms, and flowering groundcover plants acclimatized for gardens, residential estates, and hospitality resorts.
-              </p>
-            </div>
+            <StaggerItem>
+              <motion.div
+                whileHover={{ y: -4 }}
+                className="bg-white p-7 rounded-3xl border border-emerald-900/10 shadow-xs space-y-3 hover:shadow-md transition-shadow h-full"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                  <Building2 className="w-6 h-6" />
+                </div>
+                <h3 className="font-serif text-xl font-bold text-[#132e1f]">
+                  Palms, Avenue Trees & Shrubs
+                </h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Mature avenue trees, boundary hedge shrubs, ornamental palms, and flowering groundcover plants acclimatized for gardens, residential estates, and hospitality resorts.
+                </p>
+              </motion.div>
+            </StaggerItem>
 
-            <div className="bg-white p-7 rounded-3xl border border-emerald-900/10 shadow-sm space-y-3 hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
-                <Truck className="w-6 h-6" />
-              </div>
-              <h3 className="font-serif text-xl font-bold text-[#132e1f]">
-                High Quality Plants & Landscaping Solutions
-              </h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Direct nursery dispatch from NH-24 Delhi Road, Gajraula across Amroha, Hasanpur, Sambhal, Moradabad, and Delhi NCR with verified quality and root-ball integrity.
-              </p>
-            </div>
-          </div>
+            <StaggerItem>
+              <motion.div
+                whileHover={{ y: -4 }}
+                className="bg-white p-7 rounded-3xl border border-emerald-900/10 shadow-xs space-y-3 hover:shadow-md transition-shadow h-full"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                  <Truck className="w-6 h-6" />
+                </div>
+                <h3 className="font-serif text-xl font-bold text-[#132e1f]">
+                  High Quality Plants & Landscaping Solutions
+                </h3>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  Direct nursery dispatch from NH-24 Delhi Road, Gajraula across Amroha, Hasanpur, Sambhal, Moradabad, and Delhi NCR with verified quality and root-ball integrity.
+                </p>
+              </motion.div>
+            </StaggerItem>
+          </StaggerContainer>
         </div>
       </section>
 
       {/* SECTION 7: TESTIMONIALS & CUSTOMER REVIEWS */}
       <section className="py-16 bg-[#f0f5f1] text-[#132e1f]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
-          <Award className="w-10 h-10 text-emerald-700 mx-auto" />
-          <div className="space-y-3">
-            <h2 className="font-serif text-2xl sm:text-4xl font-bold">
-              {settings.testimonialTitle || 'Trusted by 50,000+ Plant Enthusiasts'}
-            </h2>
-            <p className="text-xs text-emerald-800/80 max-w-xl mx-auto">
-              Real reviews and feedback from verified plant parents, landscape architecture clients, and botanical collectors.
-            </p>
-            <div className="pt-2">
-              <button
-                onClick={() => setIsFeedbackOpen(true)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider shadow-md transition-all hover:scale-105 cursor-pointer"
-              >
-                <MessageSquarePlus className="w-4 h-4" />
-                <span>Submit Your Feedback & Review</span>
-              </button>
+          <ScrollReveal direction="up">
+            <Award className="w-10 h-10 text-emerald-700 mx-auto" />
+            <div className="space-y-3 mt-4">
+              <h2 className="font-serif text-2xl sm:text-4xl font-bold">
+                {settings.testimonialTitle || 'Trusted by 50,000+ Plant Enthusiasts'}
+              </h2>
+              <p className="text-xs text-emerald-800/80 max-w-xl mx-auto">
+                Real reviews and feedback from verified plant parents, landscape architecture clients, and botanical collectors.
+              </p>
+              <div className="pt-2">
+                <motion.button
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => setIsFeedbackOpen(true)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer"
+                >
+                  <MessageSquarePlus className="w-4 h-4" />
+                  <span>Submit Your Feedback & Review</span>
+                </motion.button>
+              </div>
             </div>
-          </div>
+          </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left pt-4">
+          <StaggerContainer staggerDelay={0.08} className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left pt-4">
             {homeTestimonials.map((t) => (
-              <div key={t.id} className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4 flex flex-col justify-between hover:shadow-md transition-shadow">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {t.avatar ? (
-                        <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover border border-emerald-600/30 shrink-0" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-[#062319] text-emerald-100 flex items-center justify-center font-bold font-serif text-sm border border-emerald-600/30 shadow-sm shrink-0">
-                          {t.name ? t.name.charAt(0).toUpperCase() : 'U'}
+              <StaggerItem key={t.id}>
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  className="bg-white p-6 rounded-2xl border border-gray-200 shadow-xs space-y-4 flex flex-col justify-between hover:shadow-md transition-shadow h-full"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {t.avatar ? (
+                          <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover border border-emerald-600/30 shrink-0" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-[#062319] text-emerald-100 flex items-center justify-center font-bold font-serif text-sm border border-emerald-600/30 shadow-xs shrink-0">
+                            {t.name ? t.name.charAt(0).toUpperCase() : 'U'}
+                          </div>
+                        )}
+                        <div>
+                          <h4 className="font-serif font-bold text-sm text-[#132e1f]">{t.name}</h4>
+                          <p className="text-[10px] text-emerald-700 font-mono uppercase">{t.role}</p>
+                          {t.location && <p className="text-[10px] text-gray-400">{t.location}</p>}
                         </div>
-                      )}
-                      <div>
-                        <h4 className="font-serif font-bold text-sm text-[#132e1f]">{t.name}</h4>
-                        <p className="text-[10px] text-emerald-700 font-mono uppercase">{t.role}</p>
-                        {t.location && <p className="text-[10px] text-gray-400">{t.location}</p>}
+                      </div>
+                      {/* Stars */}
+                      <div className="flex items-center text-amber-400 gap-0.5">
+                        {Array.from({ length: t.rating || 5 }).map((_, idx) => (
+                          <Star key={idx} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        ))}
                       </div>
                     </div>
-                    {/* Stars */}
-                    <div className="flex items-center text-amber-400 gap-0.5">
-                      {Array.from({ length: t.rating || 5 }).map((_, idx) => (
-                        <Star key={idx} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                      ))}
-                    </div>
+                    <p className="text-xs text-gray-600 leading-relaxed italic">"{t.content}"</p>
                   </div>
-                  <p className="text-xs text-gray-600 leading-relaxed italic">"{t.content}"</p>
-                </div>
-              </div>
+                </motion.div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerContainer>
         </div>
       </section>
 

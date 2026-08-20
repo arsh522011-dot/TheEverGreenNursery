@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Search,
   Sun,
@@ -12,8 +13,8 @@ import {
 } from 'lucide-react';
 import { Plant, Category, FilterState } from '../../types';
 import { OptimizedPlantImage } from '../common/OptimizedPlantImage';
-import { ProductCard } from '../common/ProductCard';
 import { ImageCache } from '../../services/imageCache';
+import { ScrollReveal, StaggerContainer, StaggerItem } from '../common/Animations';
 
 interface PlantsCatalogueViewProps {
   plants: Plant[];
@@ -232,61 +233,67 @@ export const PlantsCatalogueView: React.FC<PlantsCatalogueViewProps> = ({
     <div className="bg-[#faf8f5] text-[#1a2e26] min-h-screen pt-20 sm:pt-24 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
         {/* Header Banner */}
-        <div className="relative bg-[#183925] text-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
-          {/* Background Image & Overlay */}
-          <div className="absolute inset-0 z-0">
-            <img
-              src="https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785825477/ChatGPT_Image_Aug_4_2026_12_03_18_PM_ilzwov.png"
-              alt="Botanical Catalogue Background"
-              className="w-full h-full object-cover object-center"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#183925]/95 via-[#183925]/85 to-[#183925]/90" />
-          </div>
+        <ScrollReveal direction="up">
+          <div className="relative bg-[#183925] text-white p-6 sm:p-10 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
+            {/* Background Image & Overlay */}
+            <div className="absolute inset-0 z-0">
+              <img
+                src="https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785825477/ChatGPT_Image_Aug_4_2026_12_03_18_PM_ilzwov.png"
+                alt="Botanical Catalogue Background"
+                className="w-full h-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#183925]/95 via-[#183925]/85 to-[#183925]/90" />
+            </div>
 
-          <div className="relative z-10 space-y-2 max-w-2xl">
-            <span className="text-xs font-mono font-bold uppercase tracking-[0.25em] text-emerald-300 block drop-shadow-xs">
-              EXOTIC PLANTS NURSERY • LIVING BOTANICAL COLLECTION
-            </span>
-            <h1 className="font-serif text-2xl sm:text-4xl text-white font-bold drop-shadow-md">
-              Exotic Plants, Native Plants, Palms, Avenue Trees & Succulents
-            </h1>
-            <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed drop-shadow-xs">
-              Browse high quality specimens from our indoor plants nursery, exotic plants nursery, palms and avenue trees, shrubs, groundcover plants, cactus and succulent plants.
-            </p>
-          </div>
+            <div className="relative z-10 space-y-2 max-w-2xl">
+              <span className="text-xs font-mono font-bold uppercase tracking-[0.25em] text-emerald-300 block drop-shadow-xs">
+                EXOTIC PLANTS NURSERY • LIVING BOTANICAL COLLECTION
+              </span>
+              <h1 className="font-serif text-2xl sm:text-4xl text-white font-bold drop-shadow-md">
+                Exotic Plants, Native Plants, Palms, Avenue Trees & Succulents
+              </h1>
+              <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed drop-shadow-xs">
+                Browse high quality specimens from our indoor plants nursery, exotic plants nursery, palms and avenue trees, shrubs, groundcover plants, cactus and succulent plants.
+              </p>
+            </div>
 
-          <div className="relative z-10 shrink-0">
-            <button
-              onClick={() => onNavigate('bulk-orders')}
-              className="w-full sm:w-auto px-5 py-3 rounded-xl sm:rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-            >
-              <span>Need Bulk Plants? (Inquiry)</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            <div className="relative z-10 shrink-0">
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onNavigate('bulk-orders')}
+                className="w-full sm:w-auto px-5 py-3 rounded-xl sm:rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Need Bulk Plants? (Inquiry)</span>
+                <ArrowRight className="w-4 h-4" />
+              </motion.button>
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* Search Bar */}
-        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-emerald-900/10 shadow-xs">
-          <div className="relative w-full">
-            <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-emerald-700" />
-            <input
-              type="text"
-              value={filterState.searchQuery}
-              onChange={(e) => setFilterState({ ...filterState, searchQuery: e.target.value })}
-              placeholder="Search plant name, taxonomy, Aglaonema, Monstera, Pots..."
-              className="w-full bg-[#f8faf8] border border-emerald-900/15 rounded-xl pl-10 pr-10 py-2.5 text-sm text-[#062319] placeholder-emerald-800/60 focus:outline-none focus:border-emerald-600 focus:bg-white transition-colors"
-            />
-            {filterState.searchQuery && (
-              <button
-                onClick={() => setFilterState({ ...filterState, searchQuery: '' })}
-                className="absolute right-3 top-3 text-xs text-emerald-700 p-1 hover:bg-emerald-100 rounded-full"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+        <ScrollReveal direction="up" delay={0.05}>
+          <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-emerald-900/10 shadow-xs">
+            <div className="relative w-full">
+              <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-emerald-700" />
+              <input
+                type="text"
+                value={filterState.searchQuery}
+                onChange={(e) => setFilterState({ ...filterState, searchQuery: e.target.value })}
+                placeholder="Search plant name, taxonomy, Aglaonema, Monstera, Pots..."
+                className="w-full bg-[#f8faf8] border border-emerald-900/15 rounded-xl pl-10 pr-10 py-2.5 text-sm text-[#062319] placeholder-emerald-800/60 focus:outline-none focus:border-emerald-600 focus:bg-white transition-colors"
+              />
+              {filterState.searchQuery && (
+                <button
+                  onClick={() => setFilterState({ ...filterState, searchQuery: '' })}
+                  className="absolute right-3 top-3 text-xs text-emerald-700 p-1 hover:bg-emerald-100 rounded-full cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
 
         {/* Horizontal Category Quick Filter Pills with Dynamic Counts */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
@@ -302,8 +309,10 @@ export const PlantsCatalogueView: React.FC<PlantsCatalogueViewProps> = ({
             const count = categoryCounts[cat.raw] ?? 0;
 
             return (
-              <button
+              <motion.button
                 key={cat.id}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setFilterState({ ...filterState, category: cat.raw })}
                 className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                   isSelected
@@ -321,7 +330,7 @@ export const PlantsCatalogueView: React.FC<PlantsCatalogueViewProps> = ({
                 >
                   {count}
                 </span>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -334,45 +343,134 @@ export const PlantsCatalogueView: React.FC<PlantsCatalogueViewProps> = ({
           </span>
 
           {(filterState.category !== 'All' || filterState.searchQuery) && (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={resetFilters}
               className="text-xs text-emerald-700 hover:text-emerald-900 font-semibold underline flex items-center gap-1 cursor-pointer"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset Filters</span>
-            </button>
+            </motion.button>
           )}
         </div>
 
         {/* Full-Width Plant Grid (Mobile-optimized with 1 column on mobile, 2 on tablet, 3-4 on desktop) */}
         <div className="w-full">
           {filteredPlants.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6">
-              {filteredPlants.map((plant, index) => (
-                <ProductCard
-                  key={plant.id}
-                  plant={plant}
-                  index={index}
-                  priority={index < 4}
-                  onNavigate={onNavigate}
-                  onOpenEnquiry={onOpenEnquiry}
-                />
-              ))}
-            </div>
+            <StaggerContainer
+              key={filterState.category + filterState.searchQuery}
+              staggerDelay={0.04}
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6"
+            >
+              {filteredPlants.map((plant, index) => {
+                const plantImage = ImageCache.getPrimaryImageUrl(plant, DEFAULT_PLANT_IMAGE);
+                const hoverImage = plant.images && plant.images.length > 1 ? plant.images[1] : undefined;
+
+                return (
+                  <StaggerItem key={plant.id}>
+                    <motion.div
+                      whileHover={{ y: -5 }}
+                      transition={{ duration: 0.25 }}
+                      data-cursor="VIEW"
+                      className="group bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-gray-200 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between h-full"
+                    >
+                      <div>
+                        {/* Plant Image Card Header */}
+                        <div
+                          className="relative h-64 w-full overflow-hidden cursor-pointer bg-gray-100"
+                          onClick={() => onNavigate('plant-detail', { id: plant.id })}
+                        >
+                          <OptimizedPlantImage
+                            src={plantImage}
+                            hoverSrc={hoverImage}
+                            alt={`${plant.name} - ${plant.category || 'High Quality Plants'} at The Ever Green Nursery`}
+                            priority={index < 4}
+                            fallbackSrc={DEFAULT_PLANT_IMAGE}
+                            className="w-full h-full"
+                          />
+                          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-[#183925]/90 text-white text-[10px] font-mono font-bold tracking-wider uppercase border border-emerald-400/40 shadow-xs">
+                            {plant.category}
+                          </span>
+
+                          {plant.isFeatured && (
+                            <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[9px] font-mono font-extrabold uppercase shadow-xs">
+                              ★ Featured
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Plant Information */}
+                        <div className="p-4 sm:p-5 space-y-2.5">
+                          <div
+                            className="cursor-pointer"
+                            onClick={() => onNavigate('plant-detail', { id: plant.id })}
+                          >
+                            <h3 className="font-serif text-lg sm:text-xl font-bold text-[#132e1f] group-hover:text-emerald-700 transition-colors line-clamp-1">
+                              {plant.name}
+                            </h3>
+                            <p className="text-xs italic text-gray-500 font-mono mt-0.5 line-clamp-1">
+                              {plant.scientificName}
+                            </p>
+                          </div>
+
+                          <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+                            {plant.shortDescription || plant.description}
+                          </p>
+
+                          <div className="flex items-center gap-4 text-xs font-mono text-gray-600 pt-1.5 border-t border-gray-100">
+                            <span className="flex items-center gap-1">
+                              <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                              <span className="truncate">{plant.sunlight}</span>
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Droplets className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                              <span className="truncate">{plant.water}</span>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="p-4 sm:p-5 pt-0 flex gap-2">
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => onNavigate('plant-detail', { id: plant.id })}
+                          className="flex-1 py-2.5 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200 text-xs font-bold uppercase tracking-wider hover:bg-emerald-100 transition-colors cursor-pointer text-center"
+                        >
+                          Details
+                        </motion.button>
+
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => onOpenEnquiry(plant)}
+                          className="py-2.5 px-4 rounded-xl bg-[#183925] text-white hover:bg-emerald-800 text-xs font-bold uppercase tracking-wider transition-colors shadow-xs cursor-pointer"
+                          title="Enquire via WhatsApp"
+                        >
+                          Enquire
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  </StaggerItem>
+                );
+              })}
+            </StaggerContainer>
           ) : (
-            <div className="py-16 sm:py-20 text-center bg-white rounded-3xl border border-emerald-900/10 p-8 space-y-4 shadow-xs">
+            <ScrollReveal direction="up" className="py-16 sm:py-20 text-center bg-white rounded-3xl border border-emerald-900/10 p-8 space-y-4 shadow-xs">
               <Sparkles className="w-10 h-10 text-emerald-600 mx-auto" />
               <h3 className="font-serif text-2xl text-[#062319] font-bold">No Plants Found in this Category</h3>
               <p className="text-xs text-emerald-800 max-w-md mx-auto leading-relaxed">
                 We couldn't find any items matching "{filterState.category}". Click below to explore all varieties in our nursery catalogue.
               </p>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={resetFilters}
                 className="px-6 py-3 rounded-full bg-[#183925] text-white hover:bg-emerald-800 text-xs font-bold uppercase tracking-wider shadow-md transition-all cursor-pointer"
               >
                 Show All Categories ({plants.length} Plants)
-              </button>
-            </div>
+              </motion.button>
+            </ScrollReveal>
           )}
         </div>
       </div>
