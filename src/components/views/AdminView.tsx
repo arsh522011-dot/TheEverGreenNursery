@@ -2537,7 +2537,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                   rows={3}
                   value={siteForm.footerDescription || ''}
                   onChange={(e) => setSiteForm({ ...siteForm, footerDescription: e.target.value })}
-                  placeholder="The Ever Green Nursery is your trusted online nursery offering healthy indoor plants..."
+                  placeholder="The Ever Green Nursery is your trusted nursery for healthy indoor plants, outdoor plants, palms, flowering plants, exotic plants and premium landscaping solutions."
                   className="w-full bg-[#faf8f5] border border-emerald-900/10 rounded-xl p-3 text-sm leading-relaxed"
                 />
               </div>

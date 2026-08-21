@@ -66,7 +66,7 @@ export const Footer: React.FC<FooterProps> = ({ settings, onNavigate, onOpenEnqu
             </div>
 
             <p className="text-emerald-100/80 text-xs sm:text-sm leading-relaxed max-w-md whitespace-pre-line">
-              {settings.footerDescription || 'The Ever Green Nursery is your trusted online nursery offering healthy indoor plants, succulents, cactus, flowering plants, seeds and premium planters. Carefully packed and safely delivered across India.'}
+              {settings.footerDescription || 'The Ever Green Nursery is your trusted nursery for healthy indoor plants, outdoor plants, palms, flowering plants, exotic plants and premium landscaping solutions.'}
             </p>
 
             {/* Address & Directions Card */}

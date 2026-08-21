@@ -240,7 +240,7 @@ export const StorageService = {
     if (merged.seoDescription && merged.seoDescription.toLowerCase().includes('verdant realm')) {
       merged.seoDescription = INITIAL_SETTINGS.seoDescription;
     }
-    if (merged.footerDescription && merged.footerDescription.toLowerCase().includes('verdant realm')) {
+    if (!merged.footerDescription || merged.footerDescription.toLowerCase().includes('verdant realm') || merged.footerDescription.includes('online nursery') || merged.footerDescription.includes('premier wholesale plant nursery located on NH-24')) {
       merged.footerDescription = INITIAL_SETTINGS.footerDescription;
     }
     if (merged.email && merged.email.toLowerCase().includes('verdantrealm')) {

@@ -9,7 +9,7 @@ export const INITIAL_SETTINGS: SiteSettings = {
   logoUrl: 'https://res.cloudinary.com/dpxoxrnrd/image/upload/v1785785003/58442987-dfd4-49e7-b547-6754600b1278_xvwcis.png',
   logoSize: 'normal',
   hideLogoText: false,
-  footerDescription: 'The Ever Green Nursery is a premier wholesale plant nursery located on NH-24 Delhi Road in Gajraula (Amroha). We supply wholesale indoor plants, landscape trees, ornamental shrubs, palms and flowering varieties for landscapers, builders, hotels, institutions, and garden contractors across UP & Delhi NCR.',
+  footerDescription: 'The Ever Green Nursery is your trusted nursery for healthy indoor plants, outdoor plants, palms, flowering plants, exotic plants and premium landscaping solutions.',
   deliveryBadge: 'Wholesale & Bulk Supply Across North India',
   phone: '+91 98370 12345',
   whatsAppNumber: '919837012345',
