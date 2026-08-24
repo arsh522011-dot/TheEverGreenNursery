@@ -2482,6 +2482,29 @@ export const AdminView: React.FC<AdminViewProps> = ({
                 </div>
 
                 <div>
+                  <label className="block text-xs font-mono text-emerald-900 mb-1">
+                    Instagram ID / Handle <span className="text-gray-400 font-sans text-[11px]">(e.g. the_evergreen_nursery_)</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-mono text-xs">@</span>
+                    <input
+                      type="text"
+                      value={siteForm.instagramHandle || ''}
+                      onChange={(e) => {
+                        const cleanHandle = e.target.value.replace(/^@/, '').trim();
+                        setSiteForm({
+                          ...siteForm,
+                          instagramHandle: cleanHandle,
+                          instagramUrl: cleanHandle ? `https://www.instagram.com/${cleanHandle}/` : ''
+                        });
+                      }}
+                      placeholder="the_evergreen_nursery_"
+                      className="w-full bg-[#faf8f5] border border-emerald-900/10 rounded-xl p-3 pl-7 text-sm font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div>
                   <label className="block text-xs font-mono text-emerald-900 mb-1">Nursery GSTIN / GST Number</label>
                   <input
                     type="text"

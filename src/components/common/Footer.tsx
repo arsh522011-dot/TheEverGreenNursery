@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, MapPin, Phone, Mail, Clock, ArrowUpRight, MessageSquare, Shield, CheckCircle2, Navigation, ExternalLink } from 'lucide-react';
+import { Leaf, MapPin, Phone, Mail, Clock, ArrowUpRight, MessageSquare, Shield, CheckCircle2, Navigation, ExternalLink, Instagram } from 'lucide-react';
 import { SiteSettings } from '../../types';
 
 interface FooterProps {
@@ -13,6 +13,8 @@ export const Footer: React.FC<FooterProps> = ({ settings, onNavigate, onOpenEnqu
 
   const fullAddress = `${settings.address}, ${settings.city}`;
   const mapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
+  const instagramHandle = (settings.instagramHandle || 'the_evergreen_nursery_').replace(/^@/, '');
+  const instagramUrl = settings.instagramUrl || `https://www.instagram.com/${instagramHandle}/`;
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -68,6 +70,39 @@ export const Footer: React.FC<FooterProps> = ({ settings, onNavigate, onOpenEnqu
             <p className="text-emerald-100/80 text-xs sm:text-sm leading-relaxed max-w-md whitespace-pre-line">
               {settings.footerDescription || 'The Ever Green Nursery is your trusted nursery for healthy indoor plants, outdoor plants, palms, flowering plants, exotic plants and premium landscaping solutions.'}
             </p>
+
+            {/* Optimized Instagram Official Channel Card */}
+            <a
+              href={instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/90 via-emerald-900/70 to-emerald-950/90 border border-emerald-700/60 hover:border-pink-500/60 transition-all duration-300 shadow-lg hover:shadow-pink-950/30 max-w-md"
+              aria-label={`Follow The Ever Green Nursery on Instagram @${instagramHandle}`}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] p-0.5 shadow-md shrink-0 flex items-center justify-center text-white group-hover:scale-105 transition-transform duration-300">
+                  <Instagram className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs sm:text-sm font-bold text-white tracking-tight group-hover:text-pink-200 transition-colors truncate">
+                      @{instagramHandle}
+                    </span>
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 text-[9px] font-mono font-bold tracking-wider uppercase border border-pink-400/30">
+                      Official
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-emerald-200/80 truncate">
+                    Daily plant arrivals, reels & greenhouse updates
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1 text-[11px] font-bold text-pink-300 group-hover:text-white shrink-0 font-mono pl-1">
+                <span>Follow</span>
+                <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform text-pink-400 group-hover:text-white" />
+              </div>
+            </a>
 
             {/* Address & Directions Card */}
             <div className="p-3.5 rounded-2xl bg-emerald-950/70 border border-emerald-700/50 space-y-2 max-w-md">
@@ -249,7 +284,19 @@ export const Footer: React.FC<FooterProps> = ({ settings, onNavigate, onOpenEnqu
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 flex-wrap justify-center">
+            <a
+              href={instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 hover:bg-gradient-to-r hover:from-[#833ab4]/90 hover:via-[#fd1d1d]/90 hover:to-[#fcb045]/90 text-emerald-200 hover:text-white border border-emerald-700/60 hover:border-pink-400/50 transition-all font-mono text-[11px] shadow-xs group"
+              title="Follow The Ever Green Nursery on Instagram"
+              aria-label="Instagram Profile"
+            >
+              <Instagram className="w-3.5 h-3.5 text-pink-400 group-hover:text-white transition-colors" />
+              <span>@{instagramHandle}</span>
+            </a>
+
             <button
               onClick={scrollToTop}
               className="text-white hover:text-emerald-300 flex items-center gap-1 font-mono text-[11px] uppercase tracking-wider"

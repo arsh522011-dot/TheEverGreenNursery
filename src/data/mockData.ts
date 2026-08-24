@@ -10,6 +10,8 @@ export const INITIAL_SETTINGS: SiteSettings = {
   logoSize: 'normal',
   hideLogoText: false,
   footerDescription: 'The Ever Green Nursery is your trusted nursery for healthy indoor plants, outdoor plants, palms, flowering plants, exotic plants and premium landscaping solutions.',
+  instagramHandle: 'the_evergreen_nursery_',
+  instagramUrl: 'https://www.instagram.com/the_evergreen_nursery_/',
   deliveryBadge: 'Wholesale & Bulk Supply Across North India',
   phone: '+91 98370 12345',
   whatsAppNumber: '919837012345',

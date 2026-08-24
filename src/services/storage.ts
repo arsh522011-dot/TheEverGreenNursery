@@ -270,6 +270,12 @@ export const StorageService = {
     if (!merged.heroVideoUrl) {
       merged.heroVideoUrl = INITIAL_SETTINGS.heroVideoUrl;
     }
+    if (!merged.instagramHandle) {
+      merged.instagramHandle = INITIAL_SETTINGS.instagramHandle;
+    }
+    if (!merged.instagramUrl) {
+      merged.instagramUrl = INITIAL_SETTINGS.instagramUrl;
+    }
     merged.hideLogoText = false;
     return merged;
   },

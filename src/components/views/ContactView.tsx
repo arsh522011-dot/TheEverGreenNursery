@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SiteSettings } from '../../types';
 import { StorageService } from '../../services/storage';
-import { MapPin, Phone, Mail, Clock, MessageSquare, Send, CheckCircle2, Leaf, FileText, ShieldCheck, Copy, Check, Navigation, ExternalLink, Car, Sparkles } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, MessageSquare, Send, CheckCircle2, Leaf, FileText, ShieldCheck, Copy, Check, Navigation, ExternalLink, Car, Sparkles, Instagram, ArrowUpRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface ContactViewProps {
@@ -150,6 +150,28 @@ export const ContactView: React.FC<ContactViewProps> = ({ settings, onOpenEnquir
                   <a href={`mailto:${settings.email}`} className="mt-0.5 block hover:text-white font-mono text-xs">
                     {settings.email}
                   </a>
+                </div>
+              </li>
+
+              {/* Instagram Official Channel */}
+              <li className="flex items-start gap-4">
+                <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888] text-white shrink-0 shadow-md">
+                  <Instagram className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="font-mono text-xs uppercase text-emerald-400 block font-semibold">Instagram Channel</span>
+                  <a
+                    href={settings.instagramUrl || `https://www.instagram.com/${(settings.instagramHandle || 'the_evergreen_nursery_').replace(/^@/, '')}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-0.5 inline-flex items-center gap-1.5 hover:text-pink-300 font-serif text-sm text-white group"
+                  >
+                    <span>@{settings.instagramHandle || 'the_evergreen_nursery_'}</span>
+                    <ArrowUpRight className="w-3 h-3 text-pink-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </a>
+                  <p className="text-[11px] text-emerald-300/70 mt-0.5">
+                    Watch daily reels & plant arrivals
+                  </p>
                 </div>
               </li>
 

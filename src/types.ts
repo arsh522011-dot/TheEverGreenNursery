@@ -111,6 +111,8 @@ export interface SiteSettings {
   logoSize?: 'normal' | 'large' | 'xlarge' | 'huge';
   hideLogoText?: boolean;
   footerDescription?: string;
+  instagramHandle?: string;
+  instagramUrl?: string;
   deliveryBadge?: string;
   phone: string;
   whatsAppNumber: string;
