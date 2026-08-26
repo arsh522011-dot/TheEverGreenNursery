@@ -67,7 +67,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
           {filteredPlants.length > 0 ? (
             filteredPlants.map((plant, index) => {
-              const plantImage = ImageCache.getPrimaryImageUrl(plant, 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=400&q=80');
+              const plantImage = ImageCache.getPrimaryImageUrl(plant);
 
               return (
                 <button
@@ -83,7 +83,6 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                       src={plantImage}
                       alt={plant.name}
                       priority={index < 4}
-                      fallbackSrc="https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=400&q=80"
                       className="w-14 h-14 rounded-xl border border-emerald-500/30 shrink-0"
                     />
                     <div>

@@ -435,7 +435,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/* Clean Plant Cards Grid */}
           <StaggerContainer staggerDelay={0.06} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredPlants.map((plant, index) => {
-              const plantImage = ImageCache.getPrimaryImageUrl(plant, 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80');
+              const plantImage = ImageCache.getPrimaryImageUrl(plant);
               const hoverImage = plant.images && plant.images.length > 1 ? plant.images[1] : undefined;
 
               return (
@@ -456,7 +456,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
                           hoverSrc={hoverImage}
                           alt={plant.name}
                           priority={index < 4}
-                          fallbackSrc="https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80"
                           className="w-full h-full"
                         />
                         <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-bold font-mono uppercase tracking-wider shadow-xs">

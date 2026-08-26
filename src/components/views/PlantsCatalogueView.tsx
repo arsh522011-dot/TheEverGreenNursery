@@ -24,8 +24,6 @@ interface PlantsCatalogueViewProps {
   onOpenEnquiry: (plant: Plant) => void;
 }
 
-const DEFAULT_PLANT_IMAGE = 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&w=800&q=80';
-
 // Robust category matcher that handles "Indoor", "Indoor Plants", synonyms, and botanical names
 function isCategoryMatch(plant: Plant, selectedCategory: string): boolean {
   if (!selectedCategory || selectedCategory === 'All') return true;
@@ -364,7 +362,7 @@ export const PlantsCatalogueView: React.FC<PlantsCatalogueViewProps> = ({
               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6"
             >
               {filteredPlants.map((plant, index) => {
-                const plantImage = ImageCache.getPrimaryImageUrl(plant, DEFAULT_PLANT_IMAGE);
+                const plantImage = ImageCache.getPrimaryImageUrl(plant);
                 const hoverImage = plant.images && plant.images.length > 1 ? plant.images[1] : undefined;
 
                 return (
@@ -386,7 +384,6 @@ export const PlantsCatalogueView: React.FC<PlantsCatalogueViewProps> = ({
                             hoverSrc={hoverImage}
                             alt={`${plant.name} - ${plant.category || 'High Quality Plants'} at The Ever Green Nursery`}
                             priority={index < 4}
-                            fallbackSrc={DEFAULT_PLANT_IMAGE}
                             className="w-full h-full"
                           />
                           <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-[#183925]/90 text-white text-[10px] font-mono font-bold tracking-wider uppercase border border-emerald-400/40 shadow-xs">

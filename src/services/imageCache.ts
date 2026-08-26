@@ -9,6 +9,7 @@
  */
 
 import { Plant } from '../types';
+import { optimizeImageUrl } from '../utils/imageCompressor';
 
 const PHOTO_REGISTRY_KEY = 'evergreen_plant_photos_registry_v1';
 
@@ -73,7 +74,6 @@ export const ImageCache = {
         : [];
 
       if (validImages.length > 0) {
-        // Check if any image is an uploaded photo (custom Cloudinary, data URL, or updated image)
         const current = inMemoryPhotoMap.get(plant.id);
         const isDifferent = !current || JSON.stringify(current) !== JSON.stringify(validImages);
 
@@ -88,9 +88,12 @@ export const ImageCache = {
           hasChanges = true;
         }
 
-        // Add primary photo to preload queue
+        // Add primary photo to preload queue with CDN optimization
         if (validImages[0]) {
-          urlsToPreload.push(validImages[0]);
+          urlsToPreload.push(optimizeImageUrl(validImages[0], 800));
+        }
+        if (validImages[1]) {
+          urlsToPreload.push(optimizeImageUrl(validImages[1], 800));
         }
       }
     });
@@ -120,7 +123,6 @@ export const ImageCache = {
         (plant.scientificName ? inMemoryPhotoMap.get(`sci:${plant.scientificName.toLowerCase().trim()}`) : null);
 
       if (registeredPhotos && registeredPhotos.length > 0) {
-        // If current plant images are default or missing, or if registered photos have custom uploaded content
         const currentPrimary = plant.images?.[0] || '';
         const regPrimary = registeredPhotos[0] || '';
 
@@ -142,7 +144,8 @@ export const ImageCache = {
   preloadImages(urls: string[]): void {
     if (typeof window === 'undefined' || !Array.isArray(urls)) return;
 
-    urls.forEach((url) => {
+    urls.forEach((rawUrl) => {
+      const url = optimizeImageUrl(rawUrl, 800);
       if (!url || typeof url !== 'string' || inMemoryPreloadedSet.has(url)) return;
 
       inMemoryPreloadedSet.add(url);
@@ -161,7 +164,8 @@ export const ImageCache = {
    * Check if a URL has already been loaded or is currently preloaded.
    */
   isPreloaded(url: string): boolean {
-    return inMemoryPreloadedSet.has(url);
+    const optimized = optimizeImageUrl(url, 800);
+    return inMemoryPreloadedSet.has(url) || inMemoryPreloadedSet.has(optimized);
   },
 
   /**
@@ -172,13 +176,13 @@ export const ImageCache = {
 
     const registered = inMemoryPhotoMap.get(plant.id);
     if (registered && registered[0]) {
-      return registered[0];
+      return optimizeImageUrl(registered[0], 800);
     }
 
     if (plant.images && plant.images.length > 0 && plant.images[0]) {
-      return plant.images[0];
+      return optimizeImageUrl(plant.images[0], 800);
     }
 
-    return fallback;
+    return fallback ? optimizeImageUrl(fallback, 800) : '';
   },
 };
