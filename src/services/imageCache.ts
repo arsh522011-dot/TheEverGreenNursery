@@ -27,7 +27,13 @@ function initRegistry(): void {
       if (parsed && typeof parsed === 'object') {
         Object.entries(parsed).forEach(([key, val]) => {
           if (Array.isArray(val) && val.length > 0) {
-            inMemoryPhotoMap.set(key, val as string[]);
+            // Strictly exclude old Unsplash stock placeholder images
+            const clean = (val as string[]).filter(
+              (u) => typeof u === 'string' && u.trim().length > 0 && !u.includes('images.unsplash.com')
+            );
+            if (clean.length > 0) {
+              inMemoryPhotoMap.set(key, clean);
+            }
           }
         });
       }
@@ -70,7 +76,7 @@ export const ImageCache = {
       if (!plant || !plant.id) return;
       
       const validImages = Array.isArray(plant.images)
-        ? plant.images.filter((img) => img && typeof img === 'string' && img.trim().length > 0)
+        ? plant.images.filter((img) => img && typeof img === 'string' && img.trim().length > 0 && !img.includes('images.unsplash.com'))
         : [];
 
       if (validImages.length > 0) {
@@ -174,15 +180,23 @@ export const ImageCache = {
   getPrimaryImageUrl(plant: Plant, fallback = ''): string {
     if (!plant) return fallback;
 
-    const registered = inMemoryPhotoMap.get(plant.id);
-    if (registered && registered[0]) {
+    const registered = inMemoryPhotoMap.get(plant.id) ||
+      (plant.name ? inMemoryPhotoMap.get(`name:${plant.name.toLowerCase().trim()}`) : null) ||
+      (plant.scientificName ? inMemoryPhotoMap.get(`sci:${plant.scientificName.toLowerCase().trim()}`) : null);
+
+    if (registered && registered[0] && !registered[0].includes('images.unsplash.com')) {
       return optimizeImageUrl(registered[0], 800);
     }
 
-    if (plant.images && plant.images.length > 0 && plant.images[0]) {
-      return optimizeImageUrl(plant.images[0], 800);
+    if (plant.images && plant.images.length > 0) {
+      const firstValid = plant.images.find(
+        (img) => img && typeof img === 'string' && img.trim().length > 0 && !img.includes('images.unsplash.com')
+      );
+      if (firstValid) {
+        return optimizeImageUrl(firstValid, 800);
+      }
     }
 
-    return fallback ? optimizeImageUrl(fallback, 800) : '';
+    return fallback && !fallback.includes('images.unsplash.com') ? optimizeImageUrl(fallback, 800) : '';
   },
 };

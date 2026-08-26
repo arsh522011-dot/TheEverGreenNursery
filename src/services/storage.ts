@@ -322,8 +322,19 @@ export const StorageService = {
     const filteredInitial = INITIAL_PLANTS.filter((p) => !deleted.has(p.id));
     const rawStored = getStoredItem<Plant[]>(STORAGE_KEYS.PLANTS, filteredInitial);
     
+    // Purge any legacy Unsplash images from stored plants
+    const cleanedRawStored = (rawStored || filteredInitial).map((p) => {
+      const cleanImages = (p.images || []).filter(
+        (img) => typeof img === 'string' && img.trim().length > 0 && !img.includes('images.unsplash.com')
+      );
+      return {
+        ...p,
+        images: cleanImages,
+      };
+    });
+
     // Apply registered uploaded photos synchronously on initial load to prevent stock image flashes
-    const storedWithUploadedPhotos = ImageCache.applyUploadedPhotos(rawStored || filteredInitial);
+    const storedWithUploadedPhotos = ImageCache.applyUploadedPhotos(cleanedRawStored);
     const active = storedWithUploadedPhotos.filter((p) => !deleted.has(p.id));
 
     let changed = false;
