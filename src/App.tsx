@@ -186,7 +186,7 @@ export default function App() {
   // Synchronize Canonical Tag, Title, Keywords, OpenGraph & Breadcrumbs with Canonical Live Domain
   useEffect(() => {
     try {
-      const canonicalBase = 'https://theevergreennursary.com';
+      const canonicalBase = 'https://theevergreennursery.com';
       const currentPlant = currentView === 'plant-detail' && viewParams.id 
         ? plants.find((p) => p.id === viewParams.id) 
         : undefined;
@@ -198,10 +198,12 @@ export default function App() {
         currentPlant?.shortDescription
       );
 
-      const currentTitle = pageSeo.title;
+      const currentTitle = currentView === 'not-found' 
+        ? 'Page Not Found (404) | The Ever Green Nursery' 
+        : pageSeo.title;
       const currentDescription = pageSeo.description;
       const currentKeywords = pageSeo.keywords;
-      const canonicalPath = pageSeo.canonicalPath;
+      const canonicalPath = currentView === 'not-found' ? '/404' : pageSeo.canonicalPath;
 
       document.title = currentTitle;
       const fullCanonicalUrl = `${canonicalBase}${canonicalPath}`;
@@ -228,6 +230,12 @@ export default function App() {
           document.head.appendChild(el);
         }
       };
+
+      if (currentView === 'not-found') {
+        updateMeta('meta[name="robots"]', 'content', 'noindex, nofollow');
+      } else {
+        updateMeta('meta[name="robots"]', 'content', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
+      }
 
       updateMeta('meta[property="og:url"]', 'content', fullCanonicalUrl);
       updateMeta('meta[property="og:title"]', 'content', currentTitle);

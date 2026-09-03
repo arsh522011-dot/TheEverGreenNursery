@@ -24,7 +24,7 @@ export const INITIAL_SETTINGS: SiteSettings = {
   whatsAppProductMessageTemplate: 'Hello! I would like to inquire about wholesale/bulk rates for *{plant_name}*. Please confirm commercial availability & volume pricing.',
   whatsAppCartMessageTemplate: 'Hello! I would like to request a wholesale quotation for the following bulk items:\n{cart_items}\nTotal Estimate: {total_price}',
   whatsAppBulkMessageTemplate: 'Hello! I am a contractor/buyer looking to place a commercial bulk order with The Ever Green Nursery.',
-  email: 'wholesale@theevergreennursary.com',
+  email: 'wholesale@theevergreennursery.com',
   gstNumber: '09AABTE1234F1Z8',
   address: 'NH-24, Delhi Road, Near Gajraula',
   city: 'District Amroha, Uttar Pradesh - 244235',

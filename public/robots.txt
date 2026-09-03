@@ -6,6 +6,6 @@ Allow: /
 Disallow: /admin
 
 # Host & Sitemap Location
-Host: https://theevergreennursary.com
-Sitemap: https://theevergreennursary.com/sitemap.xml
+Host: https://theevergreennursery.com
+Sitemap: https://theevergreennursery.com/sitemap.xml
 

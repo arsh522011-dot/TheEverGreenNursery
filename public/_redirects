@@ -1,5 +1,13 @@
-# Redirect non-canonical domain variations to https://theevergreennursary.com
-http://theevergreennursary.com/* https://theevergreennursary.com/:splat 301!
-http://www.theevergreennursary.com/* https://theevergreennursary.com/:splat 301!
-https://www.theevergreennursary.com/* https://theevergreennursary.com/:splat 301!
+# Redirect www to non-www and enforce HTTPS for theevergreennursery.com
+http://theevergreennursery.com/* https://theevergreennursery.com/:splat 301!
+http://www.theevergreennursery.com/* https://theevergreennursery.com/:splat 301!
+https://www.theevergreennursery.com/* https://theevergreennursery.com/:splat 301!
 
+# Redirect any typo domain variations if routed here
+http://theevergreennursary.com/* https://theevergreennursery.com/:splat 301!
+https://theevergreennursary.com/* https://theevergreennursery.com/:splat 301!
+http://www.theevergreennursary.com/* https://theevergreennursery.com/:splat 301!
+https://www.theevergreennursary.com/* https://theevergreennursery.com/:splat 301!
+
+# SPA Fallback - critical to prevent 404 errors on direct navigation or refresh
+/* /index.html 200
