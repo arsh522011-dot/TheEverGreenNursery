@@ -186,7 +186,7 @@ export default function App() {
   // Synchronize Canonical Tag, Title, Keywords, OpenGraph & Breadcrumbs with Canonical Live Domain
   useEffect(() => {
     try {
-      const canonicalBase = 'https://theevergreennursery.com';
+      const canonicalBase = 'https://theevergreennursary.com';
       const currentPlant = currentView === 'plant-detail' && viewParams.id 
         ? plants.find((p) => p.id === viewParams.id) 
         : undefined;

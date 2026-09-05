@@ -439,7 +439,7 @@ export const BulkOrderView: React.FC<BulkOrderViewProps> = ({ settings, onNaviga
               <div className="space-y-2 pt-1 text-xs font-mono text-emerald-100">
                 <div className="flex items-center gap-2.5">
                   <Phone className="w-4 h-4 text-emerald-400" />
-                  <span>{settings.phone || '+91 98765 43210'}</span>
+                  <span>{settings.phone || '+91 98978 52665'}</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <Mail className="w-4 h-4 text-emerald-400" />

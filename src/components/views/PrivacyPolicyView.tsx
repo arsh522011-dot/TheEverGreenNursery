@@ -11,7 +11,7 @@ export const PrivacyPolicyView: React.FC<PrivacyPolicyViewProps> = ({ settings, 
   const nurseryName = settings.nurseryName || 'The Ever green Nursery';
   const fullAddress = `${settings.address || '742 Evergreen Valley Way'}, ${settings.city || 'Botanical Ridge'}`;
   const email = settings.email || 'contact@evergreennursery.com';
-  const phone = settings.phone || '+91 98765 43210';
+  const phone = settings.phone || '+91 98978 52665';
   const gstNumber = settings.gstNumber || '07AAACG1234M1Z5';
 
   return (

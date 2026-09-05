@@ -261,6 +261,12 @@ export const StorageService = {
       merged.phone = INITIAL_SETTINGS.phone;
       merged.mapEmbedUrl = INITIAL_SETTINGS.mapEmbedUrl;
     }
+    if (merged.phone && (merged.phone.includes('98370') || merged.phone.includes('12345'))) {
+      merged.phone = INITIAL_SETTINGS.phone;
+    }
+    if (merged.whatsAppNumber && (merged.whatsAppNumber.includes('98370') || merged.whatsAppNumber.includes('12345'))) {
+      merged.whatsAppNumber = INITIAL_SETTINGS.whatsAppNumber;
+    }
     if (!merged.logoUrl || merged.logoUrl.includes('v1785783072') || merged.logoUrl.includes('v1785783638') || merged.logoUrl.includes('v1785784007')) {
       merged.logoUrl = INITIAL_SETTINGS.logoUrl;
     }
