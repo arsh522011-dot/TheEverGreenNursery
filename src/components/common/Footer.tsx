@@ -11,8 +11,12 @@ interface FooterProps {
 export const Footer: React.FC<FooterProps> = ({ settings, onNavigate, onOpenEnquiry }) => {
   const [logoError, setLogoError] = React.useState(false);
 
-  const fullAddress = `${settings.address}, ${settings.city}`;
+  const cleanAddress = (settings.address || 'Delhi Road, Near Gajraula').replace(/^[,\s]+/, '').trim();
+  const cleanCity = (settings.city || 'Sihali Jageer, Gajraula, Amroha, Uttar Pradesh – 244241, India').replace(/^[,\s]+/, '').trim();
+  const fullAddress = `${cleanAddress}, ${cleanCity}`;
   const mapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
+  const displayPhone = settings.phone || '+91 98978 52665';
+  const displayEmail = settings.email || 'evergreennursery002@gmail.com';
   const instagramHandle = (settings.instagramHandle || 'the_evergreen_nursery_').replace(/^@/, '');
   const instagramUrl = settings.instagramUrl || `https://www.instagram.com/${instagramHandle}/`;
 
@@ -105,21 +109,21 @@ export const Footer: React.FC<FooterProps> = ({ settings, onNavigate, onOpenEnqu
             </a>
 
             {/* Address & Directions Card */}
-            <div className="p-3.5 rounded-2xl bg-emerald-950/70 border border-emerald-700/50 space-y-2 max-w-md">
+            <div className="p-3.5 rounded-2xl bg-emerald-950/70 border border-emerald-700/50 space-y-2.5 max-w-md shadow-sm">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
                   <span className="block text-[10px] font-mono uppercase tracking-wider text-emerald-300 font-bold">
                     Nursery Location
                   </span>
-                  <p className="text-xs text-white font-medium truncate">{settings.address}</p>
-                  <p className="text-[11px] text-emerald-300/80">{settings.city}</p>
+                  <p className="text-xs text-white font-medium">{cleanAddress}</p>
+                  <p className="text-[11px] text-emerald-300/90 leading-relaxed mt-0.5">{cleanCity}</p>
                 </div>
               </div>
 
               <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-emerald-800/60">
                 <span className="text-[11px] text-emerald-200/90 font-mono">
-                  {settings.openingHours ? settings.openingHours.split('|')[0] : 'Mon - Sat: Open'}
+                  {settings.openingHours ? settings.openingHours.split('|')[0] : 'Mon - Sat: 7:30 AM - 7:00 PM'}
                 </span>
                 <a
                   href={mapsSearchUrl}
@@ -132,6 +136,37 @@ export const Footer: React.FC<FooterProps> = ({ settings, onNavigate, onOpenEnqu
                   <ExternalLink className="w-2.5 h-2.5" />
                 </a>
               </div>
+            </div>
+
+            {/* Direct Contact: Phone & Email */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-md">
+              <a
+                href={`tel:${displayPhone.replace(/[^\d+]/g, '')}`}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-950/70 border border-emerald-700/50 hover:border-emerald-400/60 hover:bg-emerald-900/60 transition-all group text-xs text-emerald-100"
+                title={`Call ${displayPhone}`}
+              >
+                <div className="w-6 h-6 rounded-lg bg-emerald-900 flex items-center justify-center text-emerald-400 group-hover:text-white shrink-0">
+                  <Phone className="w-3.5 h-3.5" />
+                </div>
+                <div className="min-w-0">
+                  <span className="block text-[9px] font-mono text-emerald-400 uppercase tracking-wider font-semibold">Call Nursery</span>
+                  <span className="font-semibold text-white truncate block text-xs">{displayPhone}</span>
+                </div>
+              </a>
+
+              <a
+                href={`mailto:${displayEmail}`}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-950/70 border border-emerald-700/50 hover:border-emerald-400/60 hover:bg-emerald-900/60 transition-all group text-xs text-emerald-100"
+                title={`Email ${displayEmail}`}
+              >
+                <div className="w-6 h-6 rounded-lg bg-emerald-900 flex items-center justify-center text-emerald-400 group-hover:text-white shrink-0">
+                  <Mail className="w-3.5 h-3.5" />
+                </div>
+                <div className="min-w-0">
+                  <span className="block text-[9px] font-mono text-emerald-400 uppercase tracking-wider font-semibold">Direct Email</span>
+                  <span className="font-mono text-[11px] text-white truncate block">{displayEmail}</span>
+                </div>
+              </a>
             </div>
 
             <div className="pt-2 flex flex-wrap gap-2.5">

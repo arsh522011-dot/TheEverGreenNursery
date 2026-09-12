@@ -30,7 +30,7 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   const isEnabled = settings?.whatsAppEnabled ?? true;
   if (!isEnabled) return null;
 
-  const targetNumber = directNum || settings?.whatsAppNumber || '18004587336';
+  const targetNumber = directNum || settings?.whatsAppNumber || '919897852665';
   const targetMessage = customMsg || settings?.whatsAppDefaultMessage || 'Hello! I am visiting your nursery website and would like to inquire about your plant collection and services.';
   const positionClass = settings?.whatsAppPosition === 'bottom-left' 
     ? 'bottom-5 left-5 sm:bottom-6 sm:left-6' 

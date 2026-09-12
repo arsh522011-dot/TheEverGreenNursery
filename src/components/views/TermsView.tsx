@@ -9,8 +9,8 @@ interface TermsViewProps {
 
 export const TermsView: React.FC<TermsViewProps> = ({ settings, onNavigate }) => {
   const nurseryName = settings.nurseryName || 'The Ever green Nursery';
-  const fullAddress = `${settings.address || '742 Evergreen Valley Way'}, ${settings.city || 'Botanical Ridge'}`;
-  const email = settings.email || 'contact@evergreennursery.com';
+  const fullAddress = `${(settings.address || 'Delhi Road, Near Gajraula').replace(/^[,\s]+/, '')}, ${(settings.city || 'Sihali Jageer, Gajraula, Amroha, Uttar Pradesh – 244241, India').replace(/^[,\s]+/, '')}`;
+  const email = settings.email || 'evergreennursery002@gmail.com';
   const phone = settings.phone || '+91 98978 52665';
   const gstNumber = settings.gstNumber || '07AAACG1234M1Z5';
 

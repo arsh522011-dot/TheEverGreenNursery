@@ -23,8 +23,12 @@ export const ContactView: React.FC<ContactViewProps> = ({ settings, onOpenEnquir
   const [copiedAddress, setCopiedAddress] = useState(false);
 
   const gstNumber = settings.gstNumber || '07AAACG1234M1Z5';
-  const fullAddress = `${settings.address}, ${settings.city}`;
+  const cleanAddress = (settings.address || 'Delhi Road, Near Gajraula').replace(/^[,\s]+/, '').trim();
+  const cleanCity = (settings.city || 'Sihali Jageer, Gajraula, Amroha, Uttar Pradesh – 244241, India').replace(/^[,\s]+/, '').trim();
+  const fullAddress = `${cleanAddress}, ${cleanCity}`;
   const mapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
+  const displayPhone = settings.phone || '+91 98978 52665';
+  const displayEmail = settings.email || 'evergreennursery002@gmail.com';
 
   const handleCopyGst = () => {
     navigator.clipboard.writeText(gstNumber);
@@ -93,8 +97,8 @@ export const ContactView: React.FC<ContactViewProps> = ({ settings, onOpenEnquir
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="font-mono text-xs uppercase text-emerald-400 block font-semibold">Physical Nursery Address</span>
-                  <p className="mt-0.5 text-white font-medium">{settings.address}</p>
-                  <p className="text-xs text-emerald-300/80">{settings.city}</p>
+                  <p className="mt-0.5 text-white font-medium">{cleanAddress}</p>
+                  <p className="text-xs text-emerald-300/80 leading-relaxed mt-0.5">{cleanCity}</p>
 
                   <div className="mt-2.5 flex flex-wrap items-center gap-2">
                     <a
@@ -135,8 +139,8 @@ export const ContactView: React.FC<ContactViewProps> = ({ settings, onOpenEnquir
                 </div>
                 <div>
                   <span className="font-mono text-xs uppercase text-emerald-400 block font-semibold">Telephone Concierge</span>
-                  <a href={`tel:${settings.phone}`} className="mt-0.5 block hover:text-white font-serif text-base">
-                    {settings.phone}
+                  <a href={`tel:${displayPhone.replace(/[^\d+]/g, '')}`} className="mt-0.5 block hover:text-white font-serif text-base">
+                    {displayPhone}
                   </a>
                 </div>
               </li>
@@ -147,8 +151,8 @@ export const ContactView: React.FC<ContactViewProps> = ({ settings, onOpenEnquir
                 </div>
                 <div>
                   <span className="font-mono text-xs uppercase text-emerald-400 block font-semibold">Direct Email</span>
-                  <a href={`mailto:${settings.email}`} className="mt-0.5 block hover:text-white font-mono text-xs">
-                    {settings.email}
+                  <a href={`mailto:${displayEmail}`} className="mt-0.5 block hover:text-white font-mono text-xs">
+                    {displayEmail}
                   </a>
                 </div>
               </li>
@@ -243,7 +247,7 @@ export const ContactView: React.FC<ContactViewProps> = ({ settings, onOpenEnquir
                     {settings.nurseryName}
                   </h3>
                   <p className="text-xs text-emerald-900/70 font-sans mt-0.5">
-                    {settings.address}, {settings.city}
+                    {cleanAddress}, {cleanCity}
                   </p>
                 </div>
 

@@ -69,7 +69,7 @@ export const BulkOrderView: React.FC<BulkOrderViewProps> = ({ settings, onNaviga
       `*Target Date:* ${formData.targetDate || 'As soon as possible'}\n` +
       `*Additional Details:* ${formData.notes || 'None'}`;
 
-    const cleanNumber = (settings.whatsAppNumber || '+91 98765 43210').replace(/[^0-9]/g, '');
+    const cleanNumber = (settings.whatsAppNumber || '919897852665').replace(/[^0-9]/g, '');
     const url = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };
@@ -436,18 +436,27 @@ export const BulkOrderView: React.FC<BulkOrderViewProps> = ({ settings, onNaviga
                 Prefer to discuss directly with our Bulk Logistics Manager?
               </p>
 
-              <div className="space-y-2 pt-1 text-xs font-mono text-emerald-100">
-                <div className="flex items-center gap-2.5">
-                  <Phone className="w-4 h-4 text-emerald-400" />
+              <div className="space-y-2.5 pt-1 text-xs font-mono text-emerald-100">
+                <a
+                  href={`tel:${(settings.phone || '+91 98978 52665').replace(/[^\d+]/g, '')}`}
+                  className="flex items-center gap-2.5 hover:text-white transition-colors"
+                >
+                  <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span>{settings.phone || '+91 98978 52665'}</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <Mail className="w-4 h-4 text-emerald-400" />
-                  <span>{settings.email || 'bulk@theevergreennursery.com'}</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <MapPin className="w-4 h-4 text-emerald-400" />
-                  <span>{settings.address || 'Central Nursery Hub, India'}</span>
+                </a>
+                <a
+                  href={`mailto:${settings.email || 'evergreennursery002@gmail.com'}`}
+                  className="flex items-center gap-2.5 hover:text-white transition-colors"
+                >
+                  <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span className="truncate">{settings.email || 'evergreennursery002@gmail.com'}</span>
+                </a>
+                <div className="flex items-start gap-2.5">
+                  <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <div className="text-[11px] leading-relaxed">
+                    <p className="font-semibold text-white">{(settings.address || 'Delhi Road, Near Gajraula').replace(/^[,\s]+/, '')}</p>
+                    <p className="text-emerald-300/90 font-sans">{(settings.city || 'Sihali Jageer, Gajraula, Amroha, Uttar Pradesh – 244241, India').replace(/^[,\s]+/, '')}</p>
+                  </div>
                 </div>
               </div>
             </div>

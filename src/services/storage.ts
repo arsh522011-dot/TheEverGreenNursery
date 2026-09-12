@@ -243,7 +243,7 @@ export const StorageService = {
     if (!merged.footerDescription || merged.footerDescription.toLowerCase().includes('verdant realm') || merged.footerDescription.includes('online nursery') || merged.footerDescription.includes('premier wholesale plant nursery located on NH-24')) {
       merged.footerDescription = INITIAL_SETTINGS.footerDescription;
     }
-    if (merged.email && merged.email.toLowerCase().includes('verdantrealm')) {
+    if (!merged.email || merged.email.toLowerCase().includes('verdantrealm') || merged.email.toLowerCase().includes('theevergreen') || merged.email.toLowerCase().includes('evergreennursary') || merged.email.toLowerCase() !== 'evergreennursery002@gmail.com') {
       merged.email = INITIAL_SETTINGS.email;
     }
     if (merged.featuredProjectBadgeLabel && merged.featuredProjectBadgeLabel.toLowerCase().includes('verdant realm')) {
@@ -255,16 +255,20 @@ export const StorageService = {
     if (merged.aboutStory && merged.aboutStory.toLowerCase().includes('verdant realm')) {
       merged.aboutStory = INITIAL_SETTINGS.aboutStory;
     }
-    if (merged.address && (merged.address.includes('Portland') || merged.address.includes('Evergreen Valley Way') || !merged.address)) {
+    // Clean up address (strip leading commas, whitespace, and old defaults)
+    merged.address = (merged.address || '').replace(/^[,\s]+/, '').trim();
+    if (!merged.address || merged.address.includes('Portland') || merged.address.includes('Evergreen Valley Way') || merged.address.includes('NH-24, Delhi Road') || merged.address.includes(', Delhi Road')) {
       merged.address = INITIAL_SETTINGS.address;
+    }
+    // Clean up city / region & postal code
+    merged.city = (merged.city || '').replace(/^[,\s]+/, '').trim();
+    if (!merged.city || merged.city.includes('Portland') || merged.city.includes('Botanical Ridge') || merged.city.includes('244235') || !merged.city.includes('244241') || !merged.city.includes('Sihali')) {
       merged.city = INITIAL_SETTINGS.city;
-      merged.phone = INITIAL_SETTINGS.phone;
-      merged.mapEmbedUrl = INITIAL_SETTINGS.mapEmbedUrl;
     }
-    if (merged.phone && (merged.phone.includes('98370') || merged.phone.includes('12345'))) {
+    if (!merged.phone || merged.phone.includes('98370') || merged.phone.includes('12345') || !merged.phone.includes('98978')) {
       merged.phone = INITIAL_SETTINGS.phone;
     }
-    if (merged.whatsAppNumber && (merged.whatsAppNumber.includes('98370') || merged.whatsAppNumber.includes('12345'))) {
+    if (!merged.whatsAppNumber || merged.whatsAppNumber.includes('98370') || merged.whatsAppNumber.includes('12345') || !merged.whatsAppNumber.includes('98978')) {
       merged.whatsAppNumber = INITIAL_SETTINGS.whatsAppNumber;
     }
     if (!merged.logoUrl || merged.logoUrl.includes('v1785783072') || merged.logoUrl.includes('v1785783638') || merged.logoUrl.includes('v1785784007')) {
@@ -286,8 +290,16 @@ export const StorageService = {
     return merged;
   },
   saveSettings(settings: SiteSettings): void {
-    setStoredItem(STORAGE_KEYS.SETTINGS, settings);
-    saveDocumentFirestore('settings', 'site_config', settings);
+    const cleanSettings: SiteSettings = {
+      ...settings,
+      address: (settings.address || '').replace(/^[,\s]+/, '').trim(),
+      city: (settings.city || '').replace(/^[,\s]+/, '').trim(),
+      email: (settings.email || '').trim(),
+      phone: (settings.phone || '').trim(),
+      whatsAppNumber: (settings.whatsAppNumber || '').trim(),
+    };
+    setStoredItem(STORAGE_KEYS.SETTINGS, cleanSettings);
+    saveDocumentFirestore('settings', 'site_config', cleanSettings);
   },
 
   // Categories
@@ -716,6 +728,8 @@ export const StorageService = {
           const remoteSettings = await fetchDocumentFirestore<SiteSettings>('settings', 'site_config');
           if (remoteSettings !== null) {
             setStoredItem(STORAGE_KEYS.SETTINGS, remoteSettings);
+            const sanitized = this.getSettings();
+            setStoredItem(STORAGE_KEYS.SETTINGS, sanitized);
             if (onSyncComplete) onSyncComplete();
           } else {
             const currentSettings = this.getSettings();
@@ -837,6 +851,8 @@ export const StorageService = {
       subscribeDocumentFirestore<SiteSettings>('settings', 'site_config', (updatedSettings) => {
         if (updatedSettings) {
           setStoredItem(STORAGE_KEYS.SETTINGS, updatedSettings);
+          const sanitized = this.getSettings();
+          setStoredItem(STORAGE_KEYS.SETTINGS, sanitized);
           if (onSyncComplete) onSyncComplete();
         }
       });

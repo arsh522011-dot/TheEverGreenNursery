@@ -2521,7 +2521,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                     type="text"
                     value={siteForm.address}
                     onChange={(e) => setSiteForm({ ...siteForm, address: e.target.value })}
-                    placeholder="e.g. 742 Evergreen Valley Way, Botanical Ridge"
+                    placeholder="e.g. Delhi Road, Near Gajraula"
                     className="w-full bg-[#faf8f5] border border-emerald-900/10 rounded-xl p-3 text-sm font-medium"
                   />
                 </div>
@@ -2532,7 +2532,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                     type="text"
                     value={siteForm.city}
                     onChange={(e) => setSiteForm({ ...siteForm, city: e.target.value })}
-                    placeholder="e.g. Portland, OR 97201"
+                    placeholder="e.g. Sihali Jageer, Gajraula, Amroha, Uttar Pradesh – 244241, India"
                     className="w-full bg-[#faf8f5] border border-emerald-900/10 rounded-xl p-3 text-sm font-medium"
                   />
                 </div>
@@ -2973,7 +2973,7 @@ export const AdminView: React.FC<AdminViewProps> = ({
                       type="text"
                       value={siteForm.whatsAppNumber || ''}
                       onChange={(e) => setSiteForm({ ...siteForm, whatsAppNumber: e.target.value })}
-                      placeholder="e.g. 919876543210 or 18004587336"
+                      placeholder="e.g. 919897852665"
                       className="w-full bg-white border border-emerald-900/15 rounded-xl py-3 pl-10 pr-4 text-sm font-semibold text-emerald-950 focus:outline-none focus:border-emerald-600"
                     />
                   </div>
