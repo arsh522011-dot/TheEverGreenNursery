@@ -56,8 +56,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   const homeTestimonials = testimonials.filter(
-    (t) => t.showOnHome !== false && (t.status === undefined || t.status === 'approved')
+    (t) => t.showOnHome !== false && t.status !== 'archived'
   );
+
+  const displayedReviews = homeTestimonials.length > 0
+    ? homeTestimonials
+    : testimonials.filter((t) => t.status !== 'archived');
 
   const filteredPlants = featuredPlants.filter((p) => {
     const pCat = (p.category || '').toLowerCase();
@@ -744,8 +748,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
           </ScrollReveal>
 
-          <StaggerContainer staggerDelay={0.08} className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left pt-4">
-            {homeTestimonials.map((t) => (
+          <StaggerContainer staggerDelay={0.08} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left pt-4">
+            {displayedReviews.map((t) => (
               <StaggerItem key={t.id}>
                 <motion.div
                   whileHover={{ y: -4 }}
@@ -763,13 +767,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         )}
                         <div>
                           <h4 className="font-serif font-bold text-sm text-[#132e1f]">{t.name}</h4>
-                          <p className="text-[10px] text-emerald-700 font-mono uppercase">{t.role}</p>
-                          {t.location && <p className="text-[10px] text-gray-400">{t.location}</p>}
+                          <p className="text-[10px] text-emerald-700 font-mono uppercase">{t.location || t.role || 'Verified Review'}</p>
+                          {t.location && t.role && t.role.toLowerCase() !== t.location.toLowerCase() && (
+                            <p className="text-[10px] text-gray-400">{t.role}</p>
+                          )}
                         </div>
                       </div>
                       {/* Stars */}
                       <div className="flex items-center text-amber-400 gap-0.5">
-                        {Array.from({ length: t.rating || 5 }).map((_, idx) => (
+                        {Array.from({ length: Math.min(5, Math.max(1, t.rating || 5)) }).map((_, idx) => (
                           <Star key={idx} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                         ))}
                       </div>

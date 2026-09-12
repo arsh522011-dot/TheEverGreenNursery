@@ -553,8 +553,8 @@ export const StorageService = {
     const active = (raw || []).filter((t) => !deleted.has(t.id));
     return active.map((t) => ({
       ...t,
-      showOnHome: t.showOnHome !== undefined ? t.showOnHome : true,
-      status: t.status || 'approved',
+      showOnHome: t.showOnHome !== false,
+      status: t.status === 'archived' ? 'archived' : (t.showOnHome !== false ? 'approved' : (t.status || 'approved')),
     }));
   },
   saveTestimonials(testimonials: Testimonial[]): void {
@@ -580,8 +580,8 @@ export const StorageService = {
     const newTestimonial: Testimonial = {
       ...data,
       id: `test-${Date.now()}`,
-      showOnHome: data.showOnHome !== undefined ? data.showOnHome : false,
-      status: data.status || 'pending',
+      showOnHome: data.showOnHome !== undefined ? data.showOnHome : true,
+      status: data.showOnHome !== false ? 'approved' : (data.status || 'pending'),
       createdAt: data.createdAt || new Date().toISOString(),
     };
     const updated = [newTestimonial, ...existing];
@@ -590,7 +590,12 @@ export const StorageService = {
   },
   updateTestimonial(updatedItem: Testimonial): void {
     const existing = this.getTestimonials();
-    const updated = existing.map((t) => (t.id === updatedItem.id ? updatedItem : t));
+    const itemToSave: Testimonial = {
+      ...updatedItem,
+      showOnHome: updatedItem.showOnHome !== false,
+      status: updatedItem.showOnHome !== false ? ('approved' as const) : (updatedItem.status || 'approved'),
+    };
+    const updated = existing.map((t) => (t.id === updatedItem.id ? itemToSave : t));
     this.saveTestimonials(updated);
   },
   deleteTestimonial(id: string): void {
@@ -602,7 +607,15 @@ export const StorageService = {
   },
   toggleTestimonialShowOnHome(id: string, showOnHome: boolean): void {
     const existing = this.getTestimonials();
-    const updated = existing.map((t) => (t.id === id ? { ...t, showOnHome } : t));
+    const updated = existing.map((t) =>
+      t.id === id
+        ? {
+            ...t,
+            showOnHome,
+            status: showOnHome ? ('approved' as const) : t.status,
+          }
+        : t
+    );
     this.saveTestimonials(updated);
   },
 
@@ -804,7 +817,13 @@ export const StorageService = {
         (async () => {
           const remoteTestimonials = await fetchCollectionFirestore<Testimonial>('testimonials');
           if (remoteTestimonials !== null && remoteTestimonials.length > 0) {
-            const validTest = remoteTestimonials.filter((t) => !deleted.has(t.id));
+            const validTest = remoteTestimonials
+              .filter((t) => !deleted.has(t.id))
+              .map((t) => ({
+                ...t,
+                showOnHome: t.showOnHome !== false,
+                status: t.status === 'archived' ? 'archived' : (t.showOnHome !== false ? 'approved' : (t.status || 'approved')),
+              }));
             setStoredItem(STORAGE_KEYS.TESTIMONIALS, validTest);
             if (onSyncComplete) onSyncComplete();
           } else if (remoteTestimonials === null || remoteTestimonials.length === 0) {
@@ -880,7 +899,13 @@ export const StorageService = {
       subscribeCollectionFirestore<Testimonial>('testimonials', (testList) => {
         if (testList && testList.length > 0) {
           const activeDeleted = getDeletedIds();
-          const validTest = testList.filter((t) => !activeDeleted.has(t.id));
+          const validTest = testList
+            .filter((t) => !activeDeleted.has(t.id))
+            .map((t) => ({
+              ...t,
+              showOnHome: t.showOnHome !== false,
+              status: t.status === 'archived' ? 'archived' : (t.showOnHome !== false ? 'approved' : (t.status || 'approved')),
+            }));
           setStoredItem(STORAGE_KEYS.TESTIMONIALS, validTest);
           if (onSyncComplete) onSyncComplete();
         }
